@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { ShoppingCart, Package } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
@@ -56,8 +57,11 @@ export default function MarketplaceClient({ products }: { products: ProductItem[
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Marketplace</h1>
+      <div className="animate-fade-in">
+        <div className="flex items-center gap-3 mb-1">
+          <ShoppingCart className="w-7 h-7 text-primary" />
+          <h1 className="text-3xl font-bold text-gray-900">Marketplace</h1>
+        </div>
         <p className="mt-1 text-gray-500">
           Quality supplies for animal rescue — NGOs get special pricing.
         </p>
@@ -69,10 +73,11 @@ export default function MarketplaceClient({ products }: { products: ProductItem[
           <button
             key={t.key}
             onClick={() => setCategory(t.key)}
-            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${category === t.key
-                ? 'bg-orange-600 text-white'
+            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
+              category === t.key
+                ? 'bg-primary text-white shadow-sm'
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
+            }`}
           >
             {t.label}
           </button>
@@ -89,7 +94,7 @@ export default function MarketplaceClient({ products }: { products: ProductItem[
           const catLabel = CATEGORY_LABELS[product.category] ?? product.category
 
           return (
-            <Card key={product.id} className="overflow-hidden flex flex-col">
+            <Card key={product.id} className="overflow-hidden flex flex-col hover:shadow-md transition-all">
               <div className="h-44 relative bg-gray-100 flex items-center justify-center overflow-hidden">
                 {product.images[0] ? (
                   <Image
@@ -100,7 +105,7 @@ export default function MarketplaceClient({ products }: { products: ProductItem[
                     unoptimized
                   />
                 ) : (
-                  <span className="text-5xl">📦</span>
+                  <Package className="w-12 h-12 text-gray-300" />
                 )}
               </div>
               <CardHeader className="pb-2">
@@ -138,7 +143,7 @@ export default function MarketplaceClient({ products }: { products: ProductItem[
                   <Link href={`/marketplace/${product.id}`}>Details</Link>
                 </Button>
                 <Button
-                  className="flex-1 text-sm bg-orange-600 hover:bg-orange-700 text-white"
+                  className="flex-1 text-sm bg-primary hover:bg-primary/90 text-white active:scale-[0.98] transition-all"
                   disabled={product.stock === 0}
                   onClick={() => handleAddToCart(product.id)}
                 >

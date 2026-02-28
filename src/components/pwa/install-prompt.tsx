@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { Heart, X } from 'lucide-react'
 
 export default function InstallPrompt() {
   const [showBanner, setShowBanner] = useState(false)
@@ -37,25 +38,25 @@ export default function InstallPrompt() {
   if (!showBanner) return null
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-orange-200 shadow-lg p-4 flex items-center justify-between gap-3 no-print">
+    <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-lg p-4 flex items-center justify-between gap-3 no-print animate-slide-up">
       <div className="flex items-center gap-3 min-w-0">
-        <span className="text-2xl shrink-0">🐾</span>
-        <p className="text-sm font-medium text-gray-800 truncate">
-          Install RESCURE app for the best experience
+        <Heart className="h-5 w-5 text-primary flex-shrink-0" />
+        <p className="text-sm font-semibold text-foreground">
+          Install RESCURE for quick access during emergencies
         </p>
       </div>
       <div className="flex gap-2 shrink-0">
         <button
           onClick={handleInstall}
-          className="bg-orange-600 text-white px-3 py-1.5 rounded-md text-xs font-medium hover:bg-orange-700"
+          className="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold hover:bg-primary/90 transition-all"
         >
           Install
         </button>
         <button
           onClick={handleDismiss}
-          className="border border-gray-300 text-gray-600 px-3 py-1.5 rounded-md text-xs hover:bg-gray-50"
+          className="border-2 border-gray-200 text-muted-foreground px-3 py-2 rounded-lg hover:bg-secondary transition-all"
         >
-          Dismiss
+          <X className="h-4 w-4" />
         </button>
       </div>
     </div>
