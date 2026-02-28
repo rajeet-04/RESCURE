@@ -1,23 +1,54 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
+import { auth } from '@/lib/auth'
 
 export const metadata: Metadata = {
-  title: 'PawCivic — Stray Animal Rescue Platform',
+  title: 'RESCURE — Stray Animal Rescue Platform',
 }
 
-export default function HomePage() {
+export default async function HomePage() {
+  const session = await auth()
+  const user = session?.user as { name?: string | null; image?: string | null; role?: string } | undefined
+
+  const dashboardHref =
+    user?.role === 'NGO_ADMIN' || user?.role === 'NGO_WORKER' ? '/dashboard'
+    : user?.role === 'VETERINARIAN' ? '/vet/dashboard'
+    : user?.role === 'SUPPLIER' ? '/supplier/dashboard'
+    : '/report'
+
   return (
     <main className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50">
       {/* Header */}
       <header className="flex items-center justify-between px-6 py-4 border-b bg-white/80 backdrop-blur-sm sticky top-0 z-10">
         <div className="flex items-center gap-2">
           <span className="text-2xl">🐾</span>
-          <span className="font-bold text-xl text-orange-600">PawCivic</span>
+          <span className="font-bold text-xl text-orange-600">RESCURE</span>
         </div>
-        <nav className="flex gap-3">
-          <Link href="/login" className="text-sm font-medium text-gray-600 hover:text-orange-600 transition-colors">
-            Login
-          </Link>
+        <nav className="flex items-center gap-3">
+          {user ? (
+            <Link
+              href={dashboardHref}
+              className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-orange-600 transition-colors"
+            >
+              {user.image ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  src={user.image}
+                  alt={user.name ?? 'User'}
+                  className="w-8 h-8 rounded-full border-2 border-orange-200 object-cover"
+                />
+              ) : (
+                <span className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-700 font-bold text-sm border-2 border-orange-200">
+                  {user.name?.charAt(0)?.toUpperCase() ?? '?'}
+                </span>
+              )}
+              <span className="hidden sm:inline max-w-[120px] truncate">{user.name ?? 'My Account'}</span>
+            </Link>
+          ) : (
+            <Link href="/login" className="text-sm font-medium text-gray-600 hover:text-orange-600 transition-colors">
+              Login
+            </Link>
+          )}
           <Link
             href="/report"
             className="text-sm font-medium bg-orange-500 text-white px-4 py-2 rounded-full hover:bg-orange-600 transition-colors"
@@ -89,7 +120,7 @@ export default function HomePage() {
       </section>
 
       <footer className="text-center py-8 text-sm text-gray-400 border-t mt-8">
-        © {new Date().getFullYear()} PawCivic · Built for stray animals across India
+        © {new Date().getFullYear()} RESCURE · Built for stray animals across India
       </footer>
     </main>
   )

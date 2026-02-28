@@ -16,21 +16,21 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
   title: {
-    default: 'PawCivic — Stray Animal Rescue',
-    template: '%s | PawCivic',
+    default: 'RESCURE — Stray Animal Rescue',
+    template: '%s | RESCURE',
   },
   description: 'Report, rescue, and sponsor stray animals in your city. Connecting citizens, NGOs, vets and sponsors.',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'PawCivic',
+    title: 'RESCURE',
   },
   formatDetection: { telephone: false },
   openGraph: {
     type: 'website',
-    siteName: 'PawCivic',
-    title: 'PawCivic — Stray Animal Rescue',
+    siteName: 'RESCURE',
+    title: 'RESCURE — Stray Animal Rescue',
     description: 'Report injured strays, connect with NGOs, sponsor animal care.',
   },
 }

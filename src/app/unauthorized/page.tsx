@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
 
-export const metadata: Metadata = { title: '403 Unauthorized — PawCivic' }
+export const metadata: Metadata = { title: '403 Unauthorized — RESCURE' }
 
 export default function UnauthorizedPage() {
   return (
