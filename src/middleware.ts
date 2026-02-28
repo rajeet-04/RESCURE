@@ -6,6 +6,7 @@ import { Role } from '@prisma/client'
 // Route → required role(s)
 const PROTECTED_ROUTES: Record<string, Role[]> = {
   '/ngo':      ['NGO_ADMIN', 'NGO_WORKER'],
+  '/worker':   ['NGO_WORKER'],
   '/vet':      ['VETERINARIAN'],
   '/supplier': ['SUPPLIER'],
   '/admin':    ['PLATFORM_ADMIN'],
@@ -41,6 +42,7 @@ export default auth((req: NextRequest & { auth: { user?: { role?: Role } } | nul
 export const config = {
   matcher: [
     '/ngo/:path*',
+    '/worker/:path*',
     '/vet/:path*',
     '/supplier/:path*',
     '/admin/:path*',

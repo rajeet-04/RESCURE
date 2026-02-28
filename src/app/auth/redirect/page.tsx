@@ -16,8 +16,9 @@ export default async function AuthRedirectPage() {
   const role = (session.user as { role?: string }).role
 
   switch (role) {
-    case 'NGO_ADMIN':
     case 'NGO_WORKER':
+      redirect('/worker/dashboard')
+    case 'NGO_ADMIN':
       redirect('/dashboard')
     case 'VETERINARIAN':
       redirect('/vet/dashboard')
