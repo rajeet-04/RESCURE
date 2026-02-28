@@ -19,8 +19,8 @@ export default async function VetDashboardPage() {
   const session = await auth()
   if (!session?.user) redirect('/login')
 
-  const userId = (session.user as any).id
-  const role = (session.user as any).role
+  const userId = (session.user as { id: string; role: string; name?: string }).id
+  const role = (session.user as { id: string; role: string; name?: string }).role
 
   if (role !== 'VETERINARIAN') redirect('/unauthorized')
 
@@ -37,7 +37,7 @@ export default async function VetDashboardPage() {
     take: 20,
   })
 
-  const totalConsultations = consultations.length
+  const sessionUser = session.user as { id: string; role: string; name?: string }
   const openCount = consultations.filter((c) => c.status === 'OPEN').length
   const inProgressCount = consultations.filter((c) => c.status === 'IN_PROGRESS').length
 
@@ -46,7 +46,7 @@ export default async function VetDashboardPage() {
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="text-2xl font-bold">Vet Dashboard</h1>
-          <p className="text-muted-foreground">{(session.user as any).name}</p>
+          <p className="text-muted-foreground">{sessionUser.name}</p>
         </div>
         <OnCallToggle vetId={vet.id} initialOnCall={vet.onCallAvailable} />
       </div>

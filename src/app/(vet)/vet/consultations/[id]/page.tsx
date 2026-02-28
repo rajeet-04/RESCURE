@@ -25,7 +25,7 @@ export default async function ConsultationDetailPage({
 
   if (!consultation) notFound()
 
-  const userId = (session.user as any).id
+  const userId = (session.user as { id: string }).id
 
   return (
     <div className="container py-8 max-w-4xl space-y-6">

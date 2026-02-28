@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+﻿import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth'
@@ -46,9 +46,9 @@ export async function POST(
     const { type, title, notes, documents, date } = parsed.data
 
     let vetId: string | undefined
-    const role = (session.user as any).role
+    const role = (session.user as { id: string; role: string }).role
     if (role === 'VETERINARIAN') {
-      const vet = await prisma.vet.findUnique({ where: { userId: (session.user as any).id } })
+      const vet = await prisma.vet.findUnique({ where: { userId: (session.user as { id: string }).id } })
       if (vet) vetId = vet.id
     }
 

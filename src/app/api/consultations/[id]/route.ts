@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+﻿import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth'
@@ -43,8 +43,8 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const userId = (session.user as any).id
-    const role = (session.user as any).role
+    const userId = (session.user as { id: string }).id
+    const role = (session.user as { id: string; role: string }).role
 
     const body = await req.json()
     const parsed = addMessageSchema.safeParse(body)

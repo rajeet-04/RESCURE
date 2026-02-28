@@ -1,4 +1,4 @@
-import { notFound } from 'next/navigation'
+﻿import { notFound } from 'next/navigation'
 import QRCode from 'qrcode'
 import { prisma } from '@/lib/prisma'
 import { Badge } from '@/components/ui/badge'
@@ -48,7 +48,7 @@ export default async function PublicAnimalPage({ params }: { params: { slug: str
       healthRecords: { orderBy: { date: 'desc' }, take: 3 },
       expenses: { select: { amount: true } },
       sponsorships: { where: { active: true }, select: { id: true } },
-      rescueCase: {
+      case: {
         select: {
           ngo: { select: { name: true } },
         },
@@ -60,7 +60,7 @@ export default async function PublicAnimalPage({ params }: { params: { slug: str
 
   const expenseTotal = animal.expenses.reduce((sum, e) => sum + e.amount, 0)
   const qrDataUrl = await QRCode.toDataURL(animal.qrCode)
-  const ngoName = (animal as any).rescueCase?.ngo?.name
+  const ngoName = animal.case?.ngo?.name
 
   return (
     <div className="min-h-screen bg-gray-50">

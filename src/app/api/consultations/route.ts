@@ -11,15 +11,15 @@ const createConsultationSchema = z.object({
   isEmergency: z.boolean().optional(),
 })
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const session = await auth()
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const userId = (session.user as any).id
-    const role = (session.user as any).role
+    const userId = (session.user as { id: string }).id
+    const role = (session.user as { id: string; role: string }).role
 
     if (role === 'NGO_ADMIN') {
       const ngo = await prisma.nGO.findUnique({ where: { userId } })
@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const userId = (session.user as any).id
+    const userId = (session.user as { id: string }).id
 
     const body = await req.json()
     const parsed = createConsultationSchema.safeParse(body)
@@ -108,3 +108,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
+

@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 const schema = z.object({
-  amount: z.coerce.number().positive('Amount must be positive'),
+  amount: z.string().min(1, 'Amount is required'),
   category: z.string().min(1, 'Category is required'),
   note: z.string().optional(),
   date: z.string().optional(),
@@ -39,7 +39,7 @@ export default function AddExpenseForm({ animalId }: { animalId: string }) {
     const res = await fetch(`/api/animals/${animalId}/expenses`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
+      body: JSON.stringify({ ...data, amount: parseFloat(data.amount) }),
     })
 
     if (res.ok) {

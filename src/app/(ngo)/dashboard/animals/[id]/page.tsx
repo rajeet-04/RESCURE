@@ -1,5 +1,4 @@
-import { redirect } from 'next/navigation'
-import Image from 'next/image'
+﻿import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import QRCode from 'qrcode'
 import { auth } from '@/lib/auth'
