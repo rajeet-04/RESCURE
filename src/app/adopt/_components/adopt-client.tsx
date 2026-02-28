@@ -3,10 +3,7 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
-import { Heart } from 'lucide-react'
+import { Heart, Search } from 'lucide-react'
 
 type AnimalItem = {
   id: string
@@ -19,14 +16,14 @@ type AnimalItem = {
   expenses: { amount: number }[]
 }
 
-const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
-  IN_TREATMENT: { label: 'In Treatment', color: 'bg-warning text-white' },
-  STABLE: { label: 'Stable', color: 'bg-primary text-white' },
-  READY_FOR_ADOPTION: { label: 'Ready for Adoption', color: 'bg-success text-white' },
+const STATUS_CONFIG: Record<string, { label: string; bg: string; text: string }> = {
+  IN_TREATMENT: { label: 'In Treatment', bg: 'bg-amber-100', text: 'text-amber-700' },
+  STABLE: { label: 'Stable', bg: 'bg-blue-100', text: 'text-blue-700' },
+  READY_FOR_ADOPTION: { label: 'Ready to Adopt', bg: 'bg-green-100', text: 'text-green-700' },
 }
 
 const TABS = [
-  { key: 'all', label: 'All' },
+  { key: 'all', label: 'All Animals' },
   { key: 'care', label: 'Needs Care' },
   { key: 'adopt', label: 'Ready to Adopt' },
 ]
@@ -41,80 +38,106 @@ export default function AdoptClient({ animals }: { animals: AnimalItem[] }) {
   })
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
-      <div className="text-center max-w-2xl mx-auto animate-fade-in">
-        <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-3">Sponsor an animal</h1>
-        <p className="text-muted-foreground">Help rescued animals by sponsoring their care and recovery.</p>
-      </div>
-
+    <div className="space-y-10">
       {/* Filter Tabs */}
-      <div className="flex gap-2 justify-center flex-wrap animate-slide-up">
+      <div className="flex gap-2 justify-center flex-wrap">
         {TABS.map((t) => (
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
-            className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all ${tab === t.key
-                ? 'bg-primary text-primary-foreground shadow-sm scale-105'
-                : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-              }`}
+            className={`px-5 py-2.5 rounded-full text-sm font-bold transition-all ${
+              tab === t.key
+                ? 'bg-primary text-white shadow-sm shadow-primary/25'
+                : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+            }`}
           >
             {t.label}
           </button>
         ))}
       </div>
 
+      {/* Empty State */}
       {filtered.length === 0 && (
-        <div className="text-center py-20 text-muted-foreground">No animals found in this category.</div>
+        <div className="text-center py-20">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-primary/10 rounded-3xl mb-5">
+            <Search className="w-10 h-10 text-primary" />
+          </div>
+          <p className="text-xl font-bold text-gray-900 mb-2">No animals found</p>
+          <p className="text-gray-500 mb-6">Try a different filter or check back later for new rescues.</p>
+          <Link
+            href="/report"
+            className="inline-flex items-center gap-2 bg-gray-900 text-white px-8 py-3.5 rounded-full text-sm font-bold hover:bg-gray-800 transition-all shadow-md hover:shadow-lg active:scale-[0.98]"
+          >
+            Report an Animal
+          </Link>
+        </div>
       )}
 
+      {/* Animal Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {filtered.map((animal, i) => {
           const totalExpenses = animal.expenses.reduce((s, e) => s + e.amount, 0)
-          const cfg = STATUS_CONFIG[animal.status] ?? { label: animal.status, color: 'bg-secondary text-secondary-foreground' }
+          const cfg = STATUS_CONFIG[animal.status] ?? { label: animal.status, bg: 'bg-gray-100', text: 'text-gray-700' }
 
           return (
-            <Card key={animal.id} className="overflow-hidden group hover:shadow-md transition-all animate-scale-in" style={{ animationDelay: `${i * 0.1}s` }}>
-              <div className="h-48 relative bg-gray-100 flex items-center justify-center overflow-hidden">
+            <div
+              key={animal.id}
+              className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden group hover:shadow-lg hover:border-primary/20 transition-all animate-scale-in"
+              style={{ animationDelay: `${i * 0.08}s` }}
+            >
+              {/* Photo */}
+              <div className="h-52 relative bg-gray-50 flex items-center justify-center overflow-hidden">
                 {animal.photos[0] ? (
                   <Image
                     src={animal.photos[0]}
                     alt={animal.name ?? animal.species}
                     fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    className="object-cover group-hover:scale-105 transition-transform duration-500"
                     unoptimized
                   />
                 ) : (
-                  <Heart className="h-16 w-16 text-gray-300" />
+                  <Heart className="h-14 w-14 text-gray-200" />
                 )}
+                {/* Status badge overlay */}
+                <div className="absolute top-3 left-3">
+                  <span className={`text-xs px-3 py-1.5 rounded-full font-bold ${cfg.bg} ${cfg.text}`}>
+                    {cfg.label}
+                  </span>
+                </div>
               </div>
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between gap-2">
-                  <h2 className="text-lg font-bold text-foreground truncate">
-                    {animal.name ?? `Unnamed ${animal.species}`}
-                  </h2>
-                  <Badge className={cfg.color}>{cfg.label}</Badge>
+
+              {/* Content */}
+              <div className="p-5">
+                <h2 className="text-lg font-bold text-gray-900 truncate mb-1">
+                  {animal.name ?? `Unnamed ${animal.species}`}
+                </h2>
+                <p className="text-sm text-gray-500 capitalize mb-4">{animal.species}</p>
+
+                <div className="flex items-center justify-between text-sm mb-4">
+                  <div>
+                    <p className="text-gray-500">Total expenses</p>
+                    <p className="font-bold text-gray-900">₹{totalExpenses.toLocaleString('en-IN', { minimumFractionDigits: 0 })}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-gray-500">Sponsors</p>
+                    <p className="font-bold text-gray-900">{animal._count.sponsorships}</p>
+                  </div>
                 </div>
-                <p className="text-sm text-muted-foreground capitalize">{animal.species}</p>
-              </CardHeader>
-              <CardContent className="pb-3 text-sm space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Total expenses</span>
-                  <span className="font-semibold text-foreground">₹{totalExpenses.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Active sponsors</span>
-                  <span className="font-semibold text-foreground">{animal._count.sponsorships}</span>
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Button asChild className="w-full flex items-center justify-center gap-2">
-                  <Link href={`/adopt/${animal.id}`}>
-                    <Heart className="h-4 w-4" />
-                    Sponsor now
-                  </Link>
-                </Button>
-              </CardFooter>
-            </Card>
+
+                <Link
+                  href={`/adopt/${animal.id}`}
+                  className="flex items-center justify-center gap-2 w-full bg-gray-900 text-white py-3 rounded-full text-sm font-bold hover:bg-gray-800 transition-all active:scale-[0.98] group/btn"
+                >
+                  <Heart className="h-4 w-4" />
+                  Sponsor Now
+                  <span className="inline-flex items-center justify-center w-6 h-6 bg-white/20 rounded-full group-hover/btn:translate-x-0.5 transition-transform">
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </span>
+                </Link>
+              </div>
+            </div>
           )
         })}
       </div>

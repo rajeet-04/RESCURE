@@ -36,14 +36,15 @@ export default function BadgesPanel({ isAuthenticated }: { isAuthenticated: bool
 
   if (!isAuthenticated) {
     return (
-      <div className="text-center py-16">
-        <div className="inline-flex items-center justify-center w-20 h-20 bg-primary/10 rounded-3xl mb-4">
+      <div className="text-center py-20">
+        <div className="inline-flex items-center justify-center w-20 h-20 bg-primary/10 rounded-3xl mb-5">
           <Trophy className="w-10 h-10 text-primary" />
         </div>
-        <p className="text-lg font-medium text-gray-700">Sign in to track your badges</p>
+        <p className="text-xl font-bold text-gray-900 mb-2">Track Your Badges</p>
+        <p className="text-gray-500 mb-6">Sign in to see your progress and earn rewards</p>
         <a
           href="/login"
-          className="mt-4 inline-block bg-primary text-white px-6 py-2 rounded-full text-sm font-medium hover:bg-primary/90 active:scale-[0.98] transition-all"
+          className="inline-flex items-center gap-2 bg-gray-900 text-white px-8 py-3.5 rounded-full text-sm font-bold hover:bg-gray-800 transition-all shadow-md hover:shadow-lg active:scale-[0.98]"
         >
           Sign In
         </a>

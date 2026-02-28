@@ -52,7 +52,7 @@ function LeaderboardColumn<T extends { count: number }>({
         {items.map((item, i) => (
           <div
             key={i}
-            className="flex items-center gap-3 bg-white rounded-xl p-3 shadow-sm border border-green-100 hover:border-green-200 transition-all"
+            className="flex items-center gap-3 bg-white rounded-2xl p-4 shadow-sm border border-gray-100 hover:shadow-md hover:border-primary/20 transition-all"
             style={{ animationDelay: `${i * 60}ms`, animation: 'fadeSlideIn 0.3s ease both' }}
           >
             <div className="w-8 flex items-center justify-center">{rankIcon(i)}</div>

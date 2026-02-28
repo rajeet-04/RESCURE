@@ -45,14 +45,15 @@ const stateColors: Record<string, string> = {
 export default function RescueFeed({ items }: { items: FeedItem[] }) {
   if (items.length === 0) {
     return (
-      <div className="text-center py-16 text-gray-500">
-        <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-2xl mb-4">
-          <Heart className="w-8 h-8 text-primary" />
+      <div className="text-center py-20 text-gray-500">
+        <div className="inline-flex items-center justify-center w-20 h-20 bg-primary/10 rounded-3xl mb-5">
+          <Heart className="w-10 h-10 text-primary" />
         </div>
-        <p className="text-lg font-medium">No rescues yet — be the first to report!</p>
+        <p className="text-xl font-bold text-gray-900 mb-2">No rescues yet</p>
+        <p className="text-gray-500 mb-6">Be the first to report and make a difference!</p>
         <Link
           href="/report"
-          className="mt-4 inline-block bg-primary text-white px-6 py-2 rounded-full text-sm font-medium hover:bg-primary/90 active:scale-[0.98] transition-all"
+          className="inline-flex items-center gap-2 bg-gray-900 text-white px-8 py-3.5 rounded-full text-sm font-bold hover:bg-gray-800 transition-all shadow-md hover:shadow-lg active:scale-[0.98]"
         >
           Report an Animal
         </Link>
@@ -69,26 +70,26 @@ export default function RescueFeed({ items }: { items: FeedItem[] }) {
         const stateClass = stateColors[item.state] ?? 'bg-gray-100 text-gray-700'
 
         const card = (
-          <div className="bg-white rounded-2xl border border-green-100 shadow-sm overflow-hidden hover:shadow-md hover:border-green-200 transition-all">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-lg hover:border-primary/20 transition-all group">
             {/* Photo */}
-            <div className="h-48 bg-green-50/50 flex items-center justify-center overflow-hidden">
+            <div className="h-52 bg-gray-50 flex items-center justify-center overflow-hidden">
               {photo ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={photo} alt={animalName} className="w-full h-full object-cover" />
+                <img src={photo} alt={animalName} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
               ) : (
-                <Heart className="w-12 h-12 text-primary/30" />
+                <Heart className="w-12 h-12 text-gray-200" />
               )}
             </div>
 
             {/* Content */}
-            <div className="p-4">
-              <div className="flex items-start justify-between mb-2 gap-2">
-                <h3 className="font-semibold text-gray-900 capitalize truncate">{animalName}</h3>
-                <div className="flex gap-1 flex-shrink-0">
-                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${urgencyClass}`}>
+            <div className="p-5">
+              <div className="flex items-start justify-between mb-2.5 gap-2">
+                <h3 className="font-bold text-gray-900 capitalize truncate text-base">{animalName}</h3>
+                <div className="flex gap-1.5 shrink-0">
+                  <span className={`text-xs px-2.5 py-1 rounded-full font-bold ${urgencyClass}`}>
                     {item.report.urgencyScore}
                   </span>
-                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${stateClass}`}>
+                  <span className={`text-xs px-2.5 py-1 rounded-full font-bold ${stateClass}`}>
                     {item.state.replace('_', ' ')}
                   </span>
                 </div>
