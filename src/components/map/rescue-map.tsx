@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
@@ -44,6 +44,8 @@ function createColoredIcon(color: string) {
 }
 
 export default function RescueMap({ incidents }: RescueMapProps) {
+  const [mapId, setMapId] = useState<string>('')
+  
   useEffect(() => {
     // Fix default leaflet icon paths broken by webpack
     delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)._getIconUrl
@@ -52,6 +54,9 @@ export default function RescueMap({ incidents }: RescueMapProps) {
       iconUrl: '/leaflet/marker-icon.png',
       shadowUrl: '/leaflet/marker-shadow.png',
     })
+    
+    // Generate a new ID to force MapContainer to remount on HMR
+    setMapId(Date.now().toString())
   }, [])
 
   const center: [number, number] = [20.5937, 78.9629]
@@ -62,8 +67,11 @@ export default function RescueMap({ incidents }: RescueMapProps) {
       ? incidents.map((i): [number, number] => [i.latitude, i.longitude])
       : undefined
 
+  if (!mapId) return null
+
   return (
     <MapContainer
+      key={mapId}
       center={center}
       zoom={zoom}
       bounds={bounds}
