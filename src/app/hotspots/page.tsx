@@ -4,6 +4,8 @@ import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
 import { MapPin } from 'lucide-react'
 import HotspotMapLoader from '@/components/maps/hotspot-map-loader'
+import RunAnalysisBtn from './_components/run-analysis-btn'
+import { decodeGeohash } from '@/lib/geo/geohash'
 
 interface Hotspot {
   geohash: string
@@ -11,6 +13,14 @@ interface Hotspot {
   lng: number
   count: number
   avgUrgency: number
+}
+
+interface RiskZone {
+  geohash: string
+  lat: number
+  lng: number
+  riskScore: number
+  hasActiveSurge: boolean
 }
 
 interface PageProps {
@@ -22,6 +32,35 @@ const urgencyMap: Record<string, number> = {
   HIGH: 3,
   MEDIUM: 2,
   LOW: 1,
+}
+
+async function getRiskZones(): Promise<RiskZone[]> {
+  const zones = await prisma.coverageZone.findMany({
+    distinct: ['geohash'],
+    select: { geohash: true },
+  })
+
+  const results: RiskZone[] = []
+  for (const zone of zones) {
+    const gh5 = zone.geohash.slice(0, 5)
+    const factors = await prisma.riskFactor.findMany({
+      where: { geohash: gh5, expiresAt: { gt: new Date() } },
+      select: { severity: true },
+    })
+    const riskScore = factors.reduce((sum, f) => sum + f.severity, 0.1)
+    const activeSurge = await prisma.surgeEvent.count({
+      where: { geohash: gh5, isActive: true },
+    })
+    const [minLat, minLng, maxLat, maxLng] = decodeGeohash(gh5)
+    results.push({
+      geohash: gh5,
+      lat: (minLat + maxLat) / 2,
+      lng: (minLng + maxLng) / 2,
+      riskScore: Math.min(riskScore, 1),
+      hasActiveSurge: activeSurge > 0,
+    })
+  }
+  return results
 }
 
 async function getHotspots(days: number): Promise<Hotspot[]> {
@@ -68,7 +107,7 @@ export default async function HotspotsPage({ searchParams }: PageProps) {
   }
 
   const days = parseInt(searchParams.days ?? '30', 10)
-  const hotspots = await getHotspots(days)
+  const [hotspots, riskZones] = await Promise.all([getHotspots(days), getRiskZones()])
   const top10 = hotspots.slice(0, 10)
 
   return (
@@ -82,6 +121,7 @@ export default async function HotspotsPage({ searchParams }: PageProps) {
           <div className="flex items-center gap-3">
             <MapPin className="w-7 h-7 text-primary" />
             <h1 className="text-2xl font-bold text-gray-900">Predictive Hotspot Map</h1>
+            <RunAnalysisBtn userRole={user.role} />
           </div>
           <div className="flex gap-2">
             {[7, 30, 90].map((d) => (
@@ -102,7 +142,7 @@ export default async function HotspotsPage({ searchParams }: PageProps) {
 
       {/* Map */}
       <div className="mb-8 h-[480px] overflow-hidden rounded-xl border shadow-sm">
-        <HotspotMapLoader hotspots={hotspots} days={days} />
+        <HotspotMapLoader hotspots={hotspots} days={days} riskZones={riskZones} userRole={user.role} />
       </div>
 
       {/* Top 10 table */}
