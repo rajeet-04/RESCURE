@@ -89,10 +89,17 @@
     @apply bg-background text-foreground;
     font-feature-settings: 'rlig' 1, 'calt' 1;
     letter-spacing: -0.011em;
+    overflow-x: hidden;
   }
   h1, h2, h3, h4, h5, h6 {
     @apply font-bold text-foreground;
     letter-spacing: -0.022em;
+  }
+  
+  /* Smooth scrolling for webkit browsers */
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
@@ -219,6 +226,64 @@
   input:focus, textarea:focus, select:focus {
     transform: scale(1.005);
     transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  /* Parallax Scroll Effects */
+  .parallax-slow {
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  .parallax-medium {
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  .parallax-fast {
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  /* Reveal animation with scale and rotate */
+  .scroll-reveal {
+    opacity: 0;
+    transform: translateY(50px) scale(0.95) rotateX(10deg);
+    transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  .scroll-reveal.animate-in {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotateX(0);
+  }
+  
+  /* Slide and rotate reveal */
+  .scroll-slide-rotate {
+    opacity: 0;
+    transform: translateX(-30px) rotate(-5deg);
+    transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  .scroll-slide-rotate.animate-in {
+    opacity: 1;
+    transform: translateX(0) rotate(0);
+  }
+  
+  /* Perspective card flip */
+  .scroll-flip {
+    opacity: 0;
+    transform: perspective(1000px) rotateY(45deg);
+    transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  .scroll-flip.animate-in {
+    opacity: 1;
+    transform: perspective(1000px) rotateY(0);
+  }
+  
+  /* Utility animations */
+  .pulse-glow {
+    animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  .float {
+    animation: float 6s ease-in-out infinite;
   }
   
   .mesh-gradient {
