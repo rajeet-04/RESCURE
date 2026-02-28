@@ -25,14 +25,14 @@
       "short_name": "Report",
       "description": "Quickly report an injured stray animal",
       "url": "/report",
-      "icons": [{ "src": "/icons/shortcut-report.png", "sizes": "96x96" }]
+      "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "192x192" }]
     },
     {
-      "name": "NGO Dashboard",
+      "name": "View Dashboard",
       "short_name": "Dashboard",
       "description": "View rescue case queue",
-      "url": "/ngo/dashboard",
-      "icons": [{ "src": "/icons/shortcut-dashboard.png", "sizes": "96x96" }]
+      "url": "/dashboard",
+      "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "192x192" }]
     }
   ],
   "screenshots": [],
