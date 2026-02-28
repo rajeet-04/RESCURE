@@ -1,15 +1,11 @@
 import { Role } from '@prisma/client'
-import type { DefaultSession } from 'next-auth'
+import { Claims } from '@auth0/nextjs-auth0'
 
-declare module 'next-auth' {
+declare module '@auth0/nextjs-auth0' {
   interface Session {
-    user: {
+    user: Claims & {
       id: string
       role: Role
-    } & DefaultSession['user']
-  }
-
-  interface User {
-    role: Role
+    }
   }
 }
