@@ -15,18 +15,21 @@ export default async function CommunityStats() {
   ]
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-      {stats.map((s) => (
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+      {stats.map((s, i) => (
         <div
           key={s.label}
-          className="bg-white rounded-2xl p-6 shadow-sm border border-green-100 hover:border-green-200 transition-all flex items-center gap-4 animate-scale-in"
+          className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md hover:border-primary/20 transition-all animate-scale-in"
+          style={{ animationDelay: `${i * 0.1}s` }}
         >
-          <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-            <s.Icon className="w-6 h-6 text-primary" />
-          </div>
-          <div>
-            <p className="text-2xl font-bold text-gray-900">{s.value}</p>
-            <p className="text-sm text-gray-500">{s.label}</p>
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
+              <s.Icon className="w-7 h-7 text-primary" />
+            </div>
+            <div>
+              <p className="text-3xl font-extrabold text-gray-900">{s.value}</p>
+              <p className="text-sm font-medium text-gray-500 mt-0.5">{s.label}</p>
+            </div>
           </div>
         </div>
       ))}

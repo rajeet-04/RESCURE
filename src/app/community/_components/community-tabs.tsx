@@ -56,15 +56,15 @@ export default function CommunityTabs({
   return (
     <div>
       {/* Tab buttons */}
-      <div className="flex gap-1 border-b border-gray-200 mb-6 overflow-x-auto">
+      <div className="flex gap-2 mb-10 overflow-x-auto pb-1">
         {TABS.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActive(tab.id)}
-            className={`px-4 py-3 text-sm font-medium whitespace-nowrap transition-all border-b-2 -mb-px flex items-center gap-2 ${
+            className={`px-5 py-2.5 text-sm font-bold rounded-full whitespace-nowrap transition-all flex items-center gap-2 ${
               active === tab.id
-                ? 'border-primary text-primary'
-                : 'border-transparent text-gray-500 hover:text-gray-700'
+                ? 'bg-primary text-white shadow-sm shadow-primary/25'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             }`}
           >
             <tab.Icon className="w-4 h-4" />
