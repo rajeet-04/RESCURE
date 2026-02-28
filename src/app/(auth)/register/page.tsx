@@ -1,12 +1,12 @@
 import type { Metadata } from 'next'
 
-export const metadata: Metadata = { title: 'Register — PawCivic' }
+export const metadata: Metadata = { title: 'Register — RESCURE' }
 
 const ROLES = [
-  { value: 'citizen', label: 'Citizen', emoji: '👤', desc: 'Report strays, sponsor animals' },
-  { value: 'ngo', label: 'NGO', emoji: '🏥', desc: 'Manage rescues & team' },
-  { value: 'vet', label: 'Veterinarian', emoji: '🩺', desc: 'Provide telehealth consultations' },
-  { value: 'supplier', label: 'Supplier', emoji: '📦', desc: 'Sell food & medicine to NGOs' },
+  { value: 'citizen', label: 'Citizen', emoji: '👤', desc: 'Report strays, sponsor animals', onboardPath: '/report' },
+  { value: 'ngo', label: 'NGO', emoji: '🏥', desc: 'Manage rescues & team', onboardPath: '/onboarding' },
+  { value: 'vet', label: 'Veterinarian', emoji: '🩺', desc: 'Provide telehealth consultations', onboardPath: '/vet/onboarding' },
+  { value: 'supplier', label: 'Supplier', emoji: '📦', desc: 'Sell food & medicine to NGOs', onboardPath: '/supplier/onboarding' },
 ]
 
 export default function RegisterPage({
@@ -19,7 +19,7 @@ export default function RegisterPage({
       <div className="bg-white rounded-3xl shadow-xl p-8 w-full max-w-md">
         <div className="text-center mb-8">
           <span className="text-5xl">🐾</span>
-          <h1 className="text-2xl font-bold text-gray-900 mt-3">Join PawCivic</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mt-3">Join RESCURE</h1>
           <p className="text-gray-500 text-sm mt-1">Choose how you want to help</p>
         </div>
 
@@ -27,7 +27,7 @@ export default function RegisterPage({
           {ROLES.map((r) => (
             <a
               key={r.value}
-              href={`/login?callbackUrl=/onboarding/${r.value}`}
+              href={`/login?callbackUrl=${r.onboardPath}`}
               className={`flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all cursor-pointer hover:border-orange-400 hover:bg-orange-50 ${
                 searchParams.role === r.value
                   ? 'border-orange-500 bg-orange-50'
