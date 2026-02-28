@@ -1,5 +1,7 @@
 // Server-only: scrapes Google Maps tbm=map endpoint to find nearby animal shelters
 // Parses the XSSI-prefixed JSON response format used by Google Maps search
+// After initial search, enriches each result with place details (rating, photos)
+// via the maps/preview/place endpoint using the extracted hex place ID.
 
 export interface ExternalShelter {
   name: string
@@ -8,6 +10,10 @@ export interface ExternalShelter {
   website: string | null
   lat: number
   lng: number
+  placeId: string | null
+  rating: number | null
+  reviewCount: number | null
+  photos: string[]
 }
 
 const TIMEOUT_MS = 8000
@@ -43,7 +49,99 @@ export async function findNearbyAnimalShelters(
     return []
   }
 
-  return parseResults(raw, lat, lng, radiusKm)
+  const shelters = parseResults(raw, lat, lng, radiusKm)
+
+  // Enrich each shelter with place details (rating, photos) in parallel.
+  // Failures are swallowed — the base search data is still returned.
+  const enriched = await Promise.allSettled(
+    shelters.map(async (shelter) => {
+      if (!shelter.placeId) return shelter
+      const details = await fetchPlaceDetails(shelter.placeId, shelter.lat, shelter.lng)
+      return { ...shelter, ...details }
+    })
+  )
+
+  return enriched
+    .filter((r): r is PromiseFulfilledResult<ExternalShelter> => r.status === 'fulfilled')
+    .map((r) => r.value)
+}
+
+// ── Place detail fetch via maps/preview/place ─────────────────────────────────
+// Constructs a minimal pb parameter using the hex place ID and coordinates,
+// matching the format used by Google Maps internal preview endpoint.
+
+async function fetchPlaceDetails(
+  placeId: string,
+  lat: number,
+  lng: number
+): Promise<Pick<ExternalShelter, 'rating' | 'reviewCount' | 'photos'>> {
+  const encodedId = encodeURIComponent(placeId)
+  // Minimal pb: place ID + viewport centred on coordinates
+  const pb =
+    `!1m22!1s${encodedId}` +
+    `!3m12!1m3!1d268161!2d${lng}!3d${lat}!2m3!1f0!2f0!3f0!3m2!1i640!2i875!4f13.1` +
+    `!4m2!3d${lat}!4d${lng}`
+
+  const url = `https://www.google.com/maps/preview/place?authuser=0&hl=en&gl=in&pb=${pb}`
+
+  try {
+    const res = await fetch(url, {
+      signal: AbortSignal.timeout(TIMEOUT_MS),
+      headers: {
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+        'Accept-Language': 'en-US,en;q=0.9',
+        Accept: 'application/json, text/javascript, */*; q=0.01',
+        Referer: 'https://www.google.com/',
+      },
+    })
+    if (!res.ok) return { rating: null, reviewCount: null, photos: [] }
+    const raw = await res.text()
+    return parsePlaceDetails(raw)
+  } catch (err) {
+    console.warn('[maps-scraper] fetchPlaceDetails error:', err)
+    return { rating: null, reviewCount: null, photos: [] }
+  }
+}
+
+// Parses the XSSI-prefixed place preview response.
+// Extracts rating, review count, and photo URLs.
+function parsePlaceDetails(
+  raw: string
+): Pick<ExternalShelter, 'rating' | 'reviewCount' | 'photos'> {
+  let rating: number | null = null
+  let reviewCount: number | null = null
+
+  // Pattern from the response structure:
+  // null,null,null,["https://...reviews?...", "{N} reviews", ...], null, null, null, RATING, COUNT]
+  const ratingRe =
+    /,null,null,null,\["[^"]+",("(\d+) reviews"[^\]]*\]|"[^"]+"),null,null,null,(\d+\.?\d*),(\d+)\]/
+  const rm = ratingRe.exec(raw)
+  if (rm) {
+    // group 2 = review count digits, group 3 = rating, group 4 = total count
+    const countMatch = rm[0].match(/(\d+) reviews/)
+    if (countMatch) reviewCount = parseInt(countMatch[1], 10)
+    // rating is the first float after the last three nulls before review count
+    const ratingMatch = rm[0].match(/null,(\d+\.\d+),(\d+)\]$/)
+    if (ratingMatch) rating = parseFloat(ratingMatch[1])
+  }
+
+  // Photo URLs: lh3.googleusercontent.com/gps-cs-s/... with size suffix
+  // The raw response encodes '=' as '\u003d'; handle both forms.
+  const photoRe =
+    /"(https:\/\/lh3\.googleusercontent\.com\/gps-cs-s\/[^"\\]{30,})(?:\\u003d|=)w\d+-h\d+-[^"\\]*k-no[^"]*"/g
+  const photos: string[] = []
+  const seenPhotos = new Set<string>()
+  let pm: RegExpExecArray | null
+  while ((pm = photoRe.exec(raw)) !== null && photos.length < 5) {
+    const base = pm[1]
+    if (!seenPhotos.has(base)) {
+      seenPhotos.add(base)
+      photos.push(`${base}=w800-h600-k-no`)
+    }
+  }
+
+  return { rating, reviewCount, photos }
 }
 
 function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
@@ -71,6 +169,9 @@ function parseResults(
   // Verified pattern from data/f.txt
   const coordRe = /\[null,null,([\d]+\.[\d]+),([\d]+\.[\d]+)\]/g
 
+  // ── Extract hex place IDs: "0x{hex}:0x{hex}" ─────────────────────────────
+  const placeIdRe = /"(0x[0-9a-f]+:0x[0-9a-f]+)"/g
+
   // ── Extract phone numbers from tel:DIGITS pattern ─────────────────────────
   const phoneRe = /"tel:(\d{7,15})"/g
 
@@ -91,6 +192,7 @@ function parseResults(
   type Indexed<T> = T & { idx: number }
 
   const coords: Indexed<{ lat: number; lng: number }>[] = []
+  const placeIds: Indexed<{ id: string }>[] = []
   let m: RegExpExecArray | null
 
   while ((m = coordRe.exec(raw)) !== null) {
@@ -99,6 +201,10 @@ function parseResults(
     if (la > IN_LAT.min && la < IN_LAT.max && lo > IN_LNG.min && lo < IN_LNG.max) {
       coords.push({ lat: la, lng: lo, idx: m.index })
     }
+  }
+
+  while ((m = placeIdRe.exec(raw)) !== null) {
+    placeIds.push({ id: m[1], idx: m.index })
   }
 
   const phones: Indexed<{ digits: string }>[] = []
@@ -160,6 +266,10 @@ function parseResults(
       .filter((a) => Math.abs(a.idx - coord.idx) < WINDOW * 2)
       .sort((a, b) => Math.abs(a.idx - coord.idx) - Math.abs(b.idx - coord.idx))[0]
 
+    const closestPlaceId = placeIds
+      .filter((p) => Math.abs(p.idx - coord.idx) < WINDOW * 3)
+      .sort((a, b) => Math.abs(a.idx - coord.idx) - Math.abs(b.idx - coord.idx))[0]
+
     results.push({
       name: closestName.name,
       address: closestAddr?.addr ?? '',
@@ -167,6 +277,10 @@ function parseResults(
       website: closestWebsite?.url ?? null,
       lat: coord.lat,
       lng: coord.lng,
+      placeId: closestPlaceId?.id ?? null,
+      rating: null,
+      reviewCount: null,
+      photos: [],
     })
 
     if (results.length >= 10) break
