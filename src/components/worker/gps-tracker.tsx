@@ -6,19 +6,21 @@ import { Navigation } from 'lucide-react'
 type GpsStatus = 'idle' | 'active' | 'error'
 
 export default function GpsTracker() {
-  const [status, setStatus] = useState<GpsStatus>('idle')
+  const [status, setStatus] = useState<GpsStatus>(() =>
+    typeof navigator !== 'undefined' && !navigator.geolocation ? 'error' : 'idle'
+  )
 
   useEffect(() => {
-    if (!navigator.geolocation) {
-      setStatus('error')
+    if (typeof navigator === 'undefined' || !navigator.geolocation) {
       return
     }
 
     async function sendLocation() {
+      if (typeof navigator === 'undefined') return
       navigator.geolocation.getCurrentPosition(
         async (pos) => {
           try {
-            await fetch('/api/field-worker/location', {
+            const res = await fetch('/api/field-worker/location', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
@@ -26,7 +28,8 @@ export default function GpsTracker() {
                 lng: pos.coords.longitude,
               }),
             })
-            setStatus('active')
+            if (res.ok) setStatus('active')
+            else setStatus('error')
           } catch {
             setStatus('error')
           }

@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
@@ -117,16 +116,7 @@ export default function ReportPage() {
   return (
     <main className="min-h-screen bg-gray-50 relative overflow-hidden">
       <ScrollAnimationObserver />
-      
-      {/* Parallax Decorative Elements */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute top-20 right-10 w-64 h-64 bg-primary/5 rounded-full blur-3xl parallax-slow float"></div>
-        <div className="absolute top-40 left-10 w-96 h-96 bg-green-200/10 rounded-full blur-3xl parallax-medium"></div>
-        <div className="absolute bottom-20 right-20 w-80 h-80 bg-primary/5 rounded-full blur-3xl parallax-fast"></div>
-        <div className="absolute top-1/2 left-1/4 w-32 h-32 bg-green-300/10 rounded-full blur-2xl parallax-slow"></div>
-        <div className="absolute top-1/3 right-1/3 w-48 h-48 bg-primary/5 rounded-full blur-3xl parallax-medium float" style={{ animationDelay: '2s' }}></div>
-      </div>
-      
+
       {/* Header */}
       <div className="bg-white/95 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-10">
         <div className="mx-auto max-w-4xl px-6 py-6">
@@ -308,7 +298,7 @@ export default function ReportPage() {
                 <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 shrink-0" />
                 <div className="flex-1">
                   <h4 className="font-semibold text-gray-900 mb-1">Report Submitted Successfully!</h4>
-                  <p className="text-sm text-gray-700 mb-3">Your emergency report has been sent to nearby rescue teams. They'll respond shortly.</p>
+                  <p className="text-sm text-gray-700 mb-3">Your emergency report has been sent to nearby rescue teams. They&apos;ll respond shortly.</p>
                   <Badge className={urgencyColors[urgencyResult.urgencyScore]}>
                     Urgency: {urgencyResult.urgencyScore}
                   </Badge>

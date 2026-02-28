@@ -1,25 +1,27 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useSyncExternalStore } from 'react'
 import { WifiOff } from 'lucide-react'
 
+function subscribe(callback: () => void) {
+  window.addEventListener('online', callback)
+  window.addEventListener('offline', callback)
+  return () => {
+    window.removeEventListener('online', callback)
+    window.removeEventListener('offline', callback)
+  }
+}
+
+function getSnapshot() {
+  return !navigator.onLine
+}
+
+function getServerSnapshot() {
+  return false
+}
+
 export default function OfflineBanner() {
-  const [isOffline, setIsOffline] = useState(false)
-
-  useEffect(() => {
-    setIsOffline(!navigator.onLine)
-
-    function handleOffline() { setIsOffline(true) }
-    function handleOnline() { setIsOffline(false) }
-
-    window.addEventListener('offline', handleOffline)
-    window.addEventListener('online', handleOnline)
-
-    return () => {
-      window.removeEventListener('offline', handleOffline)
-      window.removeEventListener('online', handleOnline)
-    }
-  }, [])
+  const isOffline = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
 
   if (!isOffline) return null
 

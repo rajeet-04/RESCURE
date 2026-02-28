@@ -4,6 +4,7 @@ import './globals.css'
 import { PostHogProvider } from '@/lib/posthog-provider'
 import OfflineBanner from '@/components/pwa/offline-banner'
 import InstallPrompt from '@/components/pwa/install-prompt'
+import { PageTransition } from './_components/page-transition'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -53,7 +54,9 @@ export default function RootLayout({
       <body className={`${inter.variable} font-sans antialiased`}>
         <PostHogProvider>
           <OfflineBanner />
-          {children}
+          <PageTransition>
+            {children}
+          </PageTransition>
           <InstallPrompt />
         </PostHogProvider>
       </body>
