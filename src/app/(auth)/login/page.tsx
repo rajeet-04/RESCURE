@@ -1,5 +1,6 @@
 import { signIn } from '@/lib/auth'
 import type { Metadata } from 'next'
+import { Heart } from 'lucide-react'
 
 export const metadata: Metadata = { title: 'Login' }
 
@@ -12,11 +13,17 @@ export default async function LoginPage({
   const callbackUrl = rawCallbackUrl ?? '/auth/redirect'
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 flex items-center justify-center p-6">
-      <div className="bg-white rounded-3xl shadow-xl p-8 w-full max-w-sm">
+    <main className="min-h-screen relative flex items-center justify-center p-6 overflow-hidden">
+      {/* Mesh gradient background */}
+      <div className="absolute inset-0 mesh-gradient-soft"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-green-50/80 via-white/60 to-green-50/80"></div>
+      
+      <div className="relative bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl p-8 w-full max-w-sm border border-green-100 animate-scale-in">
         <div className="text-center mb-8">
-          <span className="text-5xl">🐾</span>
-          <h1 className="text-2xl font-bold text-gray-900 mt-3">Welcome to RESCURE</h1>
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-2xl mb-3">
+            <Heart className="w-8 h-8 text-primary" fill="currentColor" />
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900">Welcome to RESCURE</h1>
           <p className="text-gray-500 text-sm mt-1">Sign in to report, rescue, or sponsor</p>
         </div>
 
@@ -29,7 +36,7 @@ export default async function LoginPage({
         >
           <button
             type="submit"
-            className="w-full flex items-center justify-center gap-3 bg-white border-2 border-gray-200 text-gray-700 font-medium py-3 px-4 rounded-xl hover:border-orange-300 hover:bg-orange-50 transition-all"
+            className="w-full flex items-center justify-center gap-3 bg-white border-2 border-gray-200 text-gray-700 font-medium py-3 px-4 rounded-xl hover:border-primary hover:bg-primary/5 transition-all"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -61,11 +68,11 @@ export default async function LoginPage({
               type="email"
               required
               placeholder="you@example.com"
-              className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-orange-400 transition-colors"
+              className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary transition-colors"
             />
             <button
               type="submit"
-              className="w-full bg-orange-500 text-white font-medium py-3 px-4 rounded-xl hover:bg-orange-600 transition-colors"
+              className="w-full bg-primary text-white font-medium py-3 px-4 rounded-xl hover:bg-primary/90 active:scale-[0.98] transition-all"
             >
               Send Magic Link
             </button>

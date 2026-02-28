@@ -1,5 +1,7 @@
 'use client'
 
+import { Medal, Trophy, Award, Building2 } from 'lucide-react'
+
 type TopReporter = {
   userId: string
   name: string | null
@@ -19,21 +21,30 @@ type LeaderboardData = {
   topNGOs: TopNGO[]
 }
 
-const rankEmoji = (i: number) =>
-  i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`
+const rankIcon = (i: number) => {
+  if (i === 0) return <Trophy className="w-5 h-5 text-yellow-500" />
+  if (i === 1) return <Medal className="w-5 h-5 text-gray-400" />
+  if (i === 2) return <Medal className="w-5 h-5 text-amber-600" />
+  return <span className="text-sm font-bold text-gray-500">#{i + 1}</span>
+}
 
 function LeaderboardColumn<T extends { count: number }>({
   title,
+  icon: Icon,
   items,
   renderItem,
 }: {
   title: string
+  icon: React.ComponentType<{ className?: string }>
   items: T[]
   renderItem: (item: T, index: number) => React.ReactNode
 }) {
   return (
     <div className="flex-1 min-w-0">
-      <h3 className="font-bold text-gray-900 text-lg mb-4">{title}</h3>
+      <div className="flex items-center gap-2 mb-4">
+        <Icon className="w-5 h-5 text-primary" />
+        <h3 className="font-bold text-gray-900 text-lg">{title}</h3>
+      </div>
       <div className="space-y-3">
         {items.length === 0 && (
           <p className="text-sm text-gray-500 py-4 text-center">No data yet</p>
@@ -41,12 +52,12 @@ function LeaderboardColumn<T extends { count: number }>({
         {items.map((item, i) => (
           <div
             key={i}
-            className="flex items-center gap-3 bg-white rounded-xl p-3 shadow-sm border border-gray-100"
+            className="flex items-center gap-3 bg-white rounded-xl p-3 shadow-sm border border-green-100 hover:border-green-200 transition-all"
             style={{ animationDelay: `${i * 60}ms`, animation: 'fadeSlideIn 0.3s ease both' }}
           >
-            <span className="text-xl w-8 text-center">{rankEmoji(i)}</span>
+            <div className="w-8 flex items-center justify-center">{rankIcon(i)}</div>
             {renderItem(item, i)}
-            <span className="ml-auto font-bold text-orange-600 text-sm">{item.count}</span>
+            <span className="ml-auto font-bold text-primary text-sm">{item.count}</span>
           </div>
         ))}
       </div>
@@ -66,7 +77,8 @@ export default function Leaderboard({ data }: { data: LeaderboardData }) {
 
       <div className="flex flex-col md:flex-row gap-8">
         <LeaderboardColumn
-          title="🏅 Top Reporters"
+          title="Top Reporters"
+          icon={Award}
           items={data.topReporters}
           renderItem={(reporter) => (
             <div className="flex items-center gap-2 min-w-0">
@@ -75,10 +87,10 @@ export default function Leaderboard({ data }: { data: LeaderboardData }) {
                 <img
                   src={reporter.image}
                   alt={reporter.name ?? 'User'}
-                  className="w-8 h-8 rounded-full object-cover border-2 border-orange-200"
+                  className="w-8 h-8 rounded-full object-cover border-2 border-green-200"
                 />
               ) : (
-                <span className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-700 font-bold text-sm border-2 border-orange-200">
+                <span className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm border-2 border-green-200">
                   {reporter.name?.charAt(0)?.toUpperCase() ?? '?'}
                 </span>
               )}
@@ -90,7 +102,8 @@ export default function Leaderboard({ data }: { data: LeaderboardData }) {
         />
 
         <LeaderboardColumn
-          title="🏥 Top NGOs"
+          title="Top NGOs"
+          icon={Building2}
           items={data.topNGOs}
           renderItem={(ngo) => (
             <div className="flex items-center gap-2 min-w-0">
@@ -99,12 +112,12 @@ export default function Leaderboard({ data }: { data: LeaderboardData }) {
                 <img
                   src={ngo.logo}
                   alt={ngo.name}
-                  className="w-8 h-8 rounded-full object-cover border-2 border-orange-200"
+                  className="w-8 h-8 rounded-full object-cover border-2 border-green-200"
                 />
               ) : (
-                <span className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-700 font-bold text-xs border-2 border-orange-200">
-                  🏥
-                </span>
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center border-2 border-green-200">
+                  <Building2 className="w-4 h-4 text-primary" />
+                </div>
               )}
               <span className="text-sm font-medium text-gray-700 truncate">{ngo.name}</span>
             </div>

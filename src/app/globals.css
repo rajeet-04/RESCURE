@@ -19,55 +19,263 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
+    --foreground: 0 0% 15%;
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
+    --card-foreground: 0 0% 15%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
-    --destructive: 0 84.2% 60.2%;
+    --popover-foreground: 0 0% 15%;
+    --primary: 142 76% 36%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 98%;
+    --secondary-foreground: 142 76% 36%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+    --accent: 142 76% 36%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
-    --chart-1: 12 76% 61%;
+    --border: 0 0% 92%;
+    --input: 0 0% 90%;
+    --ring: 142 76% 36%;
+    --success: 142 76% 36%;
+    --warning: 45 93% 47%;
+    --critical: 0 84% 60%;
+    --chart-1: 142 76% 36%;
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
+    --chart-4: 45 93% 47%;
+    --chart-5: 0 84% 60%;
+    --radius: 0.75rem;
   }
   .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
+    --background: 0 0% 10%;
+    --foreground: 0 0% 95%;
+    --card: 0 0% 12%;
+    --card-foreground: 0 0% 95%;
+    --popover: 0 0% 12%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 142 76% 36%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 18%;
+    --secondary-foreground: 0 0% 95%;
+    --muted: 0 0% 18%;
+    --muted-foreground: 0 0% 60%;
+    --accent: 142 76% 36%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 62% 50%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
-    --chart-1: 220 70% 50%;
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 142 76% 36%;
+    --success: 142 76% 36%;
+    --warning: 45 93% 47%;
+    --critical: 0 84% 60%;
+    --chart-1: 142 76% 36%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+    --chart-4: 45 93% 47%;
+    --chart-5: 0 84% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: 'rlig' 1, 'calt' 1;
+    letter-spacing: -0.011em;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold text-foreground;
+    letter-spacing: -0.022em;
+  }
+}
+
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-in;
+  }
+  .animate-slide-up {
+    animation: slideUp 0.6s ease-out;
+  }
+  .animate-scale-in {
+    animation: scaleIn 0.4s ease-out;
+  }
+  
+  /* Scroll Animation States */
+  .scroll-animate {
+    opacity: 0;
+    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  .scroll-animate.animate-in {
+    opacity: 1;
+  }
+  
+  /* Slide Up on Scroll */
+  .scroll-slide-up {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  .scroll-slide-up.animate-in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  /* Slide Left on Scroll */
+  .scroll-slide-left {
+    opacity: 0;
+    transform: translateX(40px);
+    transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  .scroll-slide-left.animate-in {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  
+  /* Slide Right on Scroll */
+  .scroll-slide-right {
+    opacity: 0;
+    transform: translateX(-40px);
+    transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  .scroll-slide-right.animate-in {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  
+  /* Zoom In on Scroll */
+  .scroll-zoom-in {
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  .scroll-zoom-in.animate-in {
+    opacity: 1;
+    transform: scale(1);
+  }
+  
+  /* Unblur on Scroll */
+  .scroll-blur {
+    opacity: 0;
+    filter: blur(10px);
+    transform: translateY(20px);
+    transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  .scroll-blur.animate-in {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
+  }
+  
+  /* Fade In on Scroll */
+  .scroll-fade {
+    opacity: 0;
+    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  .scroll-fade.animate-in {
+    opacity: 1;
+  }
+  
+  /* Stagger delays */
+  .delay-100 { transition-delay: 100ms; }
+  .delay-200 { transition-delay: 200ms; }
+  .delay-300 { transition-delay: 300ms; }
+  .delay-400 { transition-delay: 400ms; }
+  .delay-500 { transition-delay: 500ms; }
+  
+  /* Hover lift effect */
+  .hover-lift {
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  .hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.15);
+  }
+  
+  /* Smooth scale on hover */
+  .hover-scale {
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  .hover-scale:hover {
+    transform: scale(1.02);
+  }
+  
+  /* Input focus effects */
+  input:focus, textarea:focus, select:focus {
+    transform: scale(1.005);
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  .mesh-gradient {
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 25%, #bbf7d0 50%, #86efac 75%, #4ade80 100%);
+    background-size: 400% 400%;
+    animation: meshMove 15s ease infinite;
+  }
+  .mesh-gradient-soft {
+    background: radial-gradient(at 27% 37%, hsla(142, 76%, 90%, 0.3) 0px, transparent 50%),
+                radial-gradient(at 97% 21%, hsla(142, 76%, 85%, 0.2) 0px, transparent 50%),
+                radial-gradient(at 52% 99%, hsla(142, 76%, 80%, 0.25) 0px, transparent 50%),
+                radial-gradient(at 10% 29%, hsla(142, 76%, 88%, 0.2) 0px, transparent 50%),
+                radial-gradient(at 97% 96%, hsla(142, 76%, 82%, 0.15) 0px, transparent 50%),
+                radial-gradient(at 33% 50%, hsla(142, 76%, 86%, 0.2) 0px, transparent 50%),
+                radial-gradient(at 79% 53%, hsla(142, 76%, 84%, 0.25) 0px, transparent 50%);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes meshMove {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
   }
 }

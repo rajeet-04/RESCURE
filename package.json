@@ -12,7 +12,7 @@
     "@auth/prisma-adapter": "^2.11.1",
     "@google/generative-ai": "^0.24.1",
     "@hookform/resolvers": "^5.2.2",
-    "@prisma/client": "^5.22.0",
+    "@prisma/client": "5.22.0",
     "@radix-ui/react-avatar": "^1.1.11",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-label": "^2.1.8",
@@ -78,11 +78,11 @@
       "@auth/core": "0.41.1"
     },
     "onlyBuiltDependencies": [
+      "@prisma/client",
       "@prisma/engines",
       "core-js",
       "prisma",
       "protobufjs",
-      "sharp",
       "unrs-resolver"
     ]
   }

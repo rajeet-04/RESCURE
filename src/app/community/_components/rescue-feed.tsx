@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
+import { Heart, AlertTriangle } from 'lucide-react'
 
 type FeedItem = {
   id: string
@@ -30,8 +31,8 @@ type FeedItem = {
 
 const urgencyColors: Record<string, string> = {
   CRITICAL: 'bg-red-100 text-red-700',
-  HIGH: 'bg-orange-100 text-orange-700',
-  MEDIUM: 'bg-yellow-100 text-yellow-700',
+  HIGH: 'bg-yellow-100 text-yellow-700',
+  MEDIUM: 'bg-blue-100 text-blue-700',
   LOW: 'bg-green-100 text-green-700',
 }
 
@@ -45,11 +46,13 @@ export default function RescueFeed({ items }: { items: FeedItem[] }) {
   if (items.length === 0) {
     return (
       <div className="text-center py-16 text-gray-500">
-        <p className="text-4xl mb-4">🐾</p>
+        <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-2xl mb-4">
+          <Heart className="w-8 h-8 text-primary" />
+        </div>
         <p className="text-lg font-medium">No rescues yet — be the first to report!</p>
         <Link
           href="/report"
-          className="mt-4 inline-block bg-orange-500 text-white px-6 py-2 rounded-full text-sm font-medium hover:bg-orange-600 transition-colors"
+          className="mt-4 inline-block bg-primary text-white px-6 py-2 rounded-full text-sm font-medium hover:bg-primary/90 active:scale-[0.98] transition-all"
         >
           Report an Animal
         </Link>
@@ -66,14 +69,14 @@ export default function RescueFeed({ items }: { items: FeedItem[] }) {
         const stateClass = stateColors[item.state] ?? 'bg-gray-100 text-gray-700'
 
         const card = (
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+          <div className="bg-white rounded-2xl border border-green-100 shadow-sm overflow-hidden hover:shadow-md hover:border-green-200 transition-all">
             {/* Photo */}
-            <div className="h-48 bg-orange-50 flex items-center justify-center overflow-hidden">
+            <div className="h-48 bg-green-50/50 flex items-center justify-center overflow-hidden">
               {photo ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={photo} alt={animalName} className="w-full h-full object-cover" />
               ) : (
-                <span className="text-6xl opacity-30">🐾</span>
+                <Heart className="w-12 h-12 text-primary/30" />
               )}
             </div>
 

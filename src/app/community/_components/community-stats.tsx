@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma'
+import { Heart, MapPin, Building2 } from 'lucide-react'
 
 export default async function CommunityStats() {
   const [totalRescued, totalReports, activeNGOs] = await Promise.all([
@@ -8,9 +9,9 @@ export default async function CommunityStats() {
   ])
 
   const stats = [
-    { icon: '🐾', label: 'Animals Rescued', value: totalRescued.toLocaleString() },
-    { icon: '📍', label: 'Reports Submitted', value: totalReports.toLocaleString() },
-    { icon: '🏥', label: 'Active NGOs', value: activeNGOs.toLocaleString() },
+    { Icon: Heart, label: 'Animals Rescued', value: totalRescued.toLocaleString() },
+    { Icon: MapPin, label: 'Reports Submitted', value: totalReports.toLocaleString() },
+    { Icon: Building2, label: 'Active NGOs', value: activeNGOs.toLocaleString() },
   ]
 
   return (
@@ -18,9 +19,11 @@ export default async function CommunityStats() {
       {stats.map((s) => (
         <div
           key={s.label}
-          className="bg-white rounded-2xl p-6 shadow-sm border border-orange-100 flex items-center gap-4"
+          className="bg-white rounded-2xl p-6 shadow-sm border border-green-100 hover:border-green-200 transition-all flex items-center gap-4 animate-scale-in"
         >
-          <span className="text-4xl">{s.icon}</span>
+          <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+            <s.Icon className="w-6 h-6 text-primary" />
+          </div>
           <div>
             <p className="text-2xl font-bold text-gray-900">{s.value}</p>
             <p className="text-sm text-gray-500">{s.label}</p>
