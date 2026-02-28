@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
-import { Heart, AlertTriangle } from 'lucide-react'
+import { Heart } from 'lucide-react'
 
 type FeedItem = {
   id: string
