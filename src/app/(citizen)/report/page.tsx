@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
@@ -116,7 +115,7 @@ export default function ReportPage() {
   return (
     <main className="min-h-screen bg-gray-50">
       <ScrollAnimationObserver />
-      
+
       {/* Header */}
       <div className="bg-white border-b border-gray-100 sticky top-0 z-10">
         <div className="mx-auto max-w-4xl px-6 py-6">
@@ -300,7 +299,7 @@ export default function ReportPage() {
                 <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 shrink-0" />
                 <div className="flex-1">
                   <h4 className="font-semibold text-gray-900 mb-1">Report Submitted Successfully!</h4>
-                  <p className="text-sm text-gray-700 mb-3">Your emergency report has been sent to nearby rescue teams. They'll respond shortly.</p>
+                  <p className="text-sm text-gray-700 mb-3">Your emergency report has been sent to nearby rescue teams. They&apos;ll respond shortly.</p>
                   <Badge className={urgencyColors[urgencyResult.urgencyScore]}>
                     Urgency: {urgencyResult.urgencyScore}
                   </Badge>
