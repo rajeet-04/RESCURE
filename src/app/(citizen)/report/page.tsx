@@ -20,7 +20,8 @@ import { Badge } from '@/components/ui/badge'
 import LocationPicker from '@/components/report/location-picker'
 import ImageUploader from '@/components/report/image-uploader'
 import { saveOfflineReport } from '@/lib/offline/report-queue'
-import { AlertTriangle, CheckCircle2, AlertCircle, Heart, Clock } from 'lucide-react'
+import Image from 'next/image'
+import { AlertTriangle, CheckCircle2, AlertCircle, Clock } from 'lucide-react'
 import { ScrollAnimationObserver } from '@/components/ScrollAnimationObserver'
 
 const reportSchema = z.object({
@@ -130,9 +131,7 @@ export default function ReportPage() {
       <div className="bg-white/95 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-10">
         <div className="mx-auto max-w-4xl px-6 py-6">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
-              <Heart className="h-5 w-5 text-white" fill="currentColor" />
-            </div>
+            <Image src="/logo.png" alt="RESCURE" width={40} height={40} className="rounded-full" />
             <div>
               <h1 className="text-xl font-bold text-gray-900">rescure</h1>
               <p className="text-sm text-gray-500">Emergency Animal Report</p>

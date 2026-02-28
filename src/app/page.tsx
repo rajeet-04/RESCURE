@@ -1,9 +1,12 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import type { Metadata } from 'next'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import UserMenu from '@/components/layout/user-menu'
-import { Heart, TrendingUp, Building2, Users, AlertCircle, Activity, Shield, MapPin, Smartphone, Truck, CheckCircle } from 'lucide-react'
+import PawSplash from '@/components/landing/paw-splash'
+import HeroFloatingCards from '@/components/landing/hero-floating-cards'
+import { Heart, TrendingUp, Building2, Users, AlertCircle, Activity, Shield, MapPin, Smartphone, Truck, CheckCircle, Phone, Mail, ArrowRight, Github, Twitter, Instagram } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'RESCURE — Stray Animal Rescue Platform',
@@ -86,14 +89,15 @@ export default async function HomePage() {
 
   return (
     <main className="min-h-screen bg-white">
+      {/* ── Paw Splash Intro ── */}
+      <PawSplash />
+
       {/* ── Header ── */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-white/98 backdrop-blur-md border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 shrink-0 group">
-            <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center transition-transform group-hover:scale-105">
-              <Heart className="h-5 w-5 text-white" fill="currentColor" />
-            </div>
+            <Image src="/logo.png" alt="RESCURE" width={40} height={40} className="rounded-full transition-transform group-hover:scale-105" />
             <span className="font-bold text-2xl text-gray-900 tracking-tight">rescure</span>
           </Link>
 
@@ -191,36 +195,21 @@ export default async function HomePage() {
               </div>
             </div>
 
-            {/* Right - Hero Images */}
+            {/* Right - Hero Image */}
             <div className="relative lg:block hidden animate-scale-in">
-              <div className="relative">
-                {/* Main large image */}
-                <div className="relative w-full h-[600px] rounded-3xl overflow-hidden shadow-2xl transform rotate-2 hover:rotate-0 transition-transform duration-500">
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-green-600/20"></div>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="text-center space-y-4">
-                      <Heart className="h-24 w-24 text-primary mx-auto" strokeWidth={1.5} />
-                      <p className="text-2xl font-bold text-gray-700">Rescue in Action</p>
-                      <p className="text-gray-500 max-w-xs mx-auto">Real-time emergency response for stray and injured animals</p>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Side smaller cards */}
-                <div className="absolute -left-12 top-20 w-48 h-56 bg-white rounded-2xl shadow-xl transform -rotate-12 hover:rotate-0 transition-transform duration-500 overflow-hidden opacity-80">
-                  <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-green-100"></div>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <Activity className="h-16 w-16 text-primary" strokeWidth={1.5} />
-                  </div>
-                </div>
-                
-                <div className="absolute -right-12 bottom-20 w-48 h-56 bg-white rounded-2xl shadow-xl transform rotate-12 hover:rotate-0 transition-transform duration-500 overflow-hidden opacity-80">
-                  <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-green-100"></div>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <Building2 className="h-16 w-16 text-primary" strokeWidth={1.5} />
-                  </div>
-                </div>
+              <div className="relative w-full h-[600px] rounded-3xl overflow-hidden shadow-2xl">
+                <Image
+                  src="/rescure_hero.png"
+                  alt="Rescure — Stray animal rescue in action"
+                  fill
+                  className="object-cover"
+                  priority
+                  sizes="(max-width: 1024px) 0px, 50vw"
+                />
               </div>
+
+              {/* ── Floating Cycling Cards ── */}
+              <HeroFloatingCards />
             </div>
           </div>
         </div>
@@ -374,75 +363,130 @@ export default async function HomePage() {
       </section>
 
       {/* ── Footer ── */}
-      <footer className="bg-gray-900 text-gray-400 py-16 px-6 border-t border-gray-800">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-4 gap-8 mb-12">
-            {/* Logo & Description */}
-            <div className="md:col-span-1">
-              <div className="flex items-center gap-2.5 mb-4">
-                <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
-                  <Heart className="h-5 w-5 text-white" fill="currentColor" />
-                </div>
-                <span className="font-bold text-white text-xl">rescure</span>
-              </div>
-              <p className="text-sm text-gray-500 leading-relaxed">Real-time rescue. Transparent care. Every animal counts.</p>
-            </div>
-            
-            {/* Quick Links */}
+      <footer className="relative bg-gray-950 text-gray-400 overflow-hidden">
+        {/* Gradient accent stripe */}
+        <div className="h-1 bg-gradient-to-r from-primary via-emerald-400 to-teal-400" />
+
+        {/* Decorative blurred shapes */}
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
+
+        {/* Newsletter CTA strip */}
+        <div className="relative border-b border-gray-800/60">
+          <div className="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row items-center justify-between gap-6">
             <div>
-              <h4 className="font-bold text-white mb-4 text-sm uppercase tracking-wider">Platform</h4>
-              <div className="space-y-2 text-sm">
+              <h3 className="text-xl font-bold text-white mb-1">Stay in the loop</h3>
+              <p className="text-sm text-gray-500">Get updates on rescues, features, and community milestones.</p>
+            </div>
+            <div className="flex w-full md:w-auto">
+              <input
+                type="email"
+                placeholder="your@email.com"
+                className="flex-1 md:w-72 bg-gray-900 border border-gray-800 rounded-l-full px-5 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/25 transition-all"
+              />
+              <button className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-r-full text-sm font-bold transition-all active:scale-[0.98] flex items-center gap-2 shrink-0">
+                Subscribe <ArrowRight className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Main footer grid */}
+        <div className="relative max-w-6xl mx-auto px-6 py-14">
+          <div className="grid md:grid-cols-12 gap-10 mb-14">
+            {/* Brand */}
+            <div className="md:col-span-4">
+              <div className="flex items-center gap-2.5 mb-5">
+                <Image src="/logo.png" alt="RESCURE" width={44} height={44} className="rounded-full shadow-lg shadow-primary/20" />
+                <span className="font-bold text-white text-2xl tracking-tight">rescure</span>
+              </div>
+              <p className="text-sm text-gray-500 leading-relaxed mb-6 max-w-xs">
+                Real-time rescue. Transparent care. Every animal counts. Connecting citizens, NGOs, and vets across India.
+              </p>
+              {/* Social icons */}
+              <div className="flex gap-3">
+                {[
+                  { icon: Twitter, href: '#', label: 'Twitter' },
+                  { icon: Instagram, href: '#', label: 'Instagram' },
+                  { icon: Github, href: '#', label: 'GitHub' },
+                ].map((s) => (
+                  <a
+                    key={s.label}
+                    href={s.href}
+                    aria-label={s.label}
+                    className="w-10 h-10 rounded-xl bg-gray-800/60 hover:bg-primary/20 flex items-center justify-center text-gray-500 hover:text-primary transition-all"
+                  >
+                    <s.icon className="h-4 w-4" />
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            {/* Platform */}
+            <div className="md:col-span-2">
+              <h4 className="font-bold text-white mb-5 text-xs uppercase tracking-widest">Platform</h4>
+              <div className="space-y-3 text-sm">
                 {[
                   { href: '/community', label: 'Community' },
                   { href: '/adopt', label: 'Adopt' },
                   { href: '/marketplace', label: 'Marketplace' },
                   { href: '/api-docs', label: 'API Docs' },
                 ].map((l) => (
-                  <Link key={l.href} href={l.href} className="block hover:text-primary transition-colors">
+                  <Link key={l.href} href={l.href} className="block text-gray-500 hover:text-white transition-colors">
                     {l.label}
                   </Link>
                 ))}
               </div>
             </div>
-            
+
             {/* Services */}
-            <div>
-              <h4 className="font-bold text-white mb-4 text-sm uppercase tracking-wider">Services</h4>
-              <div className="space-y-2 text-sm">
+            <div className="md:col-span-3">
+              <h4 className="font-bold text-white mb-5 text-xs uppercase tracking-widest">Services</h4>
+              <div className="space-y-3 text-sm">
                 {[
                   { href: '/report', label: 'Report Emergency' },
                   { href: '/surge', label: 'Surge Mode' },
                   { href: '/hotspots', label: 'Hotspot Map' },
                   { href: '/impact', label: 'Impact Dashboard' },
                 ].map((l) => (
-                  <Link key={l.href} href={l.href} className="block hover:text-primary transition-colors">
+                  <Link key={l.href} href={l.href} className="block text-gray-500 hover:text-white transition-colors">
                     {l.label}
                   </Link>
                 ))}
               </div>
             </div>
-            
+
             {/* Contact */}
-            <div>
-              <h4 className="font-bold text-white mb-4 text-sm uppercase tracking-wider">Contact</h4>
-              <div className="space-y-3 text-sm">
-                <p className="flex items-center gap-2">
-                  <span>📞</span>
-                  <span>(213) 555 - 8742</span>
-                </p>
-                <p className="flex items-center gap-2">
-                  <span>✉️</span>
-                  <span>rescue@rescure.org</span>
-                </p>
+            <div className="md:col-span-3">
+              <h4 className="font-bold text-white mb-5 text-xs uppercase tracking-widest">Contact</h4>
+              <div className="space-y-4 text-sm">
+                <a href="tel:+12135558742" className="flex items-center gap-3 text-gray-500 hover:text-white transition-colors group">
+                  <div className="w-9 h-9 rounded-lg bg-gray-800/60 group-hover:bg-primary/20 flex items-center justify-center transition-all">
+                    <Phone className="h-4 w-4 text-gray-500 group-hover:text-primary transition-colors" />
+                  </div>
+                  (213) 555 - 8742
+                </a>
+                <a href="mailto:rescue@rescure.org" className="flex items-center gap-3 text-gray-500 hover:text-white transition-colors group">
+                  <div className="w-9 h-9 rounded-lg bg-gray-800/60 group-hover:bg-primary/20 flex items-center justify-center transition-all">
+                    <Mail className="h-4 w-4 text-gray-500 group-hover:text-primary transition-colors" />
+                  </div>
+                  rescue@rescure.org
+                </a>
               </div>
             </div>
           </div>
-          
-          <div className="border-t border-gray-800 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-500">
-            <p>© {new Date().getFullYear()} RESCURE · Built for animals in need</p>
-            <div className="flex gap-4">
-              <Link href="/api-docs" className="hover:text-primary transition-colors">Privacy</Link>
-              <Link href="/api-docs" className="hover:text-primary transition-colors">Terms</Link>
+
+          {/* Bottom bar */}
+          <div className="border-t border-gray-800/60 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-600">
+            <p className="flex items-center gap-1.5">
+              © {new Date().getFullYear()} RESCURE · Built with
+              <Heart className="h-3 w-3 text-primary inline" fill="currentColor" />
+              for animals in need
+            </p>
+            <div className="flex gap-6">
+              <Link href="/api-docs" className="hover:text-gray-400 transition-colors">Privacy Policy</Link>
+              <Link href="/api-docs" className="hover:text-gray-400 transition-colors">Terms of Service</Link>
+              <Link href="/api-docs" className="hover:text-gray-400 transition-colors">Status</Link>
             </div>
           </div>
         </div>

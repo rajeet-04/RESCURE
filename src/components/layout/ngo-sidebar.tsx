@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import {
@@ -40,7 +41,10 @@ export default function NGOSidebar({ notificationCount = 0 }: NGOSidebarProps) {
     <div className="flex h-full flex-col">
       {/* Brand */}
       <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
-        <span className="text-xl font-bold tracking-tight text-primary">RESCURE</span>
+        <div className="flex items-center gap-2.5">
+          <Image src="/logo.png" alt="RESCURE" width={36} height={36} className="rounded-full" />
+          <span className="text-xl font-bold tracking-tight text-primary">RESCURE</span>
+        </div>
         <button
           className="lg:hidden text-gray-400 hover:text-gray-600"
           onClick={() => setMobileOpen(false)}
