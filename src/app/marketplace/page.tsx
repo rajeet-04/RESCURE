@@ -15,5 +15,14 @@ export default async function MarketplacePage() {
     createdAt: p.createdAt.toISOString(),
   }))
 
-  return <MarketplaceClient products={serialised} />
+  return (
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Mesh gradient background */}
+      <div className="absolute inset-0 mesh-gradient-soft opacity-50"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-green-50/30 via-white/90 to-green-50/30"></div>
+      <div className="relative">
+        <MarketplaceClient products={serialised} />
+      </div>
+    </div>
+  )
 }

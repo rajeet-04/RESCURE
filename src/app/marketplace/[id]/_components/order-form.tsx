@@ -115,7 +115,7 @@ export default function OrderForm({ productId, productName, ngoPrice, supplierId
         </div>
         <div className="flex justify-between font-bold text-gray-900 mt-1 pt-1 border-t">
           <span>Total</span>
-          <span className="text-orange-600">₹{(total / 100).toFixed(2)}</span>
+          <span className="text-primary">₹{(total / 100).toFixed(2)}</span>
         </div>
       </div>
 
@@ -124,7 +124,7 @@ export default function OrderForm({ productId, productName, ngoPrice, supplierId
       <Button
         type="submit"
         disabled={loading}
-        className="w-full bg-orange-600 hover:bg-orange-700 text-white"
+        className="w-full bg-primary hover:bg-primary/90 text-white active:scale-[0.98] transition-all"
       >
         {loading ? 'Placing order…' : 'Place Order'}
       </Button>

@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma'
+import { BarChart3 } from 'lucide-react'
 import StatCard from './_components/stat-card'
 import ImpactCharts from './_components/impact-charts'
 
@@ -89,8 +90,8 @@ export default async function ImpactPage() {
 
   const urgencyBreakdown = [
     { label: 'Critical', count: criticalCount, color: 'bg-red-500', total: totalReports },
-    { label: 'High', count: highCount, color: 'bg-orange-500', total: totalReports },
-    { label: 'Medium', count: mediumCount, color: 'bg-yellow-500', total: totalReports },
+    { label: 'High', count: highCount, color: 'bg-yellow-500', total: totalReports },
+    { label: 'Medium', count: mediumCount, color: 'bg-blue-500', total: totalReports },
     { label: 'Low', count: lowCount, color: 'bg-green-500', total: totalReports },
   ]
 
@@ -105,12 +106,18 @@ export default async function ImpactPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white relative overflow-hidden">
+      {/* Mesh gradient background */}
+      <div className="absolute inset-0 mesh-gradient-soft opacity-40"></div>
+      
       {/* Hero */}
-      <div className="bg-gradient-to-br from-orange-500 to-orange-700 py-16 text-white">
+      <div className="relative bg-gradient-to-br from-primary via-green-600 to-green-700 py-16 text-white">
         <div className="mx-auto max-w-6xl px-4">
-          <h1 className="mb-2 text-3xl font-bold">RESCURE Impact Dashboard</h1>
-          <p className="mb-8 text-orange-100">Real-time data on animal rescue operations across cities.</p>
+          <div className="flex items-center gap-3 mb-2 animate-fade-in">
+            <BarChart3 className="w-8 h-8" />
+            <h1 className="text-3xl font-bold">RESCURE Impact Dashboard</h1>
+          </div>
+          <p className="mb-8 text-green-100">Real-time data on animal rescue operations across cities.</p>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
             <StatCard label="Total Reports" value={totalReports} icon="📋" />
             <StatCard label="Verified NGOs" value={totalNGOs} icon="🏥" />
@@ -151,7 +158,7 @@ export default async function ImpactPage() {
             {pipeline.map(({ label, count }, i) => (
               <div key={label} className="flex items-center gap-2">
                 <div className="rounded-lg border bg-gray-50 px-4 py-3 text-center min-w-[90px]">
-                  <p className="text-xl font-bold text-orange-600">{count}</p>
+                  <p className="text-xl font-bold text-primary">{count}</p>
                   <p className="text-xs text-gray-500 mt-0.5">{label}</p>
                 </div>
                 {i < pipeline.length - 1 && (

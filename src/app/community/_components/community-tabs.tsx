@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { Heart, Trophy, Award } from 'lucide-react'
 import RescueFeed from './rescue-feed'
 import Leaderboard from './leaderboard'
 import BadgesPanel from './badges-panel'
@@ -36,9 +37,9 @@ type LeaderboardData = {
 }
 
 const TABS = [
-  { id: 'feed', label: '🐾 Recent Rescues' },
-  { id: 'leaderboard', label: '🏆 Leaderboard' },
-  { id: 'badges', label: '🏅 My Badges' },
+  { id: 'feed', label: 'Recent Rescues', Icon: Heart },
+  { id: 'leaderboard', label: 'Leaderboard', Icon: Trophy },
+  { id: 'badges', label: 'My Badges', Icon: Award },
 ]
 
 export default function CommunityTabs({
@@ -60,12 +61,13 @@ export default function CommunityTabs({
           <button
             key={tab.id}
             onClick={() => setActive(tab.id)}
-            className={`px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors border-b-2 -mb-px ${
+            className={`px-4 py-3 text-sm font-medium whitespace-nowrap transition-all border-b-2 -mb-px flex items-center gap-2 ${
               active === tab.id
-                ? 'border-orange-500 text-orange-600'
+                ? 'border-primary text-primary'
                 : 'border-transparent text-gray-500 hover:text-gray-700'
             }`}
           >
+            <tab.Icon className="w-4 h-4" />
             {tab.label}
           </button>
         ))}
