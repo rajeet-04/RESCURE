@@ -1,6 +1,6 @@
 {
-  "name": "PawCivic — Stray Animal Rescue",
-  "short_name": "PawCivic",
+  "name": "RESCURE — Stray Animal Rescue",
+  "short_name": "RESCURE",
   "description": "Report, rescue, and sponsor stray animals in your city",
   "start_url": "/",
   "display": "standalone",

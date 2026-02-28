@@ -1,4 +1,4 @@
-// PawCivic — Prisma Schema
+// RESCURE — Prisma Schema
 // PostgreSQL via Supabase
 
 generator client {
