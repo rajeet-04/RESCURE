@@ -15,10 +15,15 @@ const onboardSchema = z.object({
   name: z.string().min(3),
   city: z.string().min(2),
   registrationNumber: z.string().min(3),
-  coverageCities: z.array(z.string()).min(1),
-  teamSize: z.string(),
-  primaryContact: z.string().min(2),
-})
+  // wizard sends a comma-separated string; coverageCities array is also accepted
+  coverageArea: z.string().optional(),
+  coverageCities: z.array(z.string()).optional(),
+  teamSize: z.string().optional(),
+  primaryContact: z.string().optional(),
+}).refine(
+  (d) => d.coverageCities?.length || d.coverageArea,
+  { message: 'Coverage area is required', path: ['coverageArea'] },
+)
 
 export async function POST(req: NextRequest) {
   try {
@@ -30,10 +35,24 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const parsed = onboardSchema.safeParse(body)
     if (!parsed.success) {
-      return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
+      const flat = parsed.error.flatten()
+      const messages = [
+        ...flat.formErrors,
+        ...Object.entries(flat.fieldErrors).map(
+          ([field, errs]) => `${field}: ${errs?.join(', ')}`
+        ),
+      ]
+      return NextResponse.json(
+        { error: messages.join(' | ') || 'Validation failed' },
+        { status: 400 },
+      )
     }
 
-    const { name, city, registrationNumber, coverageCities } = parsed.data
+    const { name, city, registrationNumber, coverageCities, coverageArea } = parsed.data
+    // Normalise coverage: prefer the array, fall back to parsing the free-text string
+    const resolvedCities: string[] =
+      coverageCities ??  
+      (coverageArea ? coverageArea.split(',').map((s) => s.trim()).filter(Boolean) : [])
 
     const ngo = await prisma.nGO.upsert({
       where: { userId: session.user.id },
@@ -43,7 +62,7 @@ export async function POST(req: NextRequest) {
         registrationNo: registrationNumber,
         coverageZones: {
           deleteMany: {},
-          create: coverageCities.map((c) => {
+          create: resolvedCities.map((c) => {
             const coords = CITY_COORDS[c]
             return {
               geohash: coords ? encodeGeohash(coords[0], coords[1], 5) : c.toLowerCase().slice(0, 5),
@@ -59,7 +78,7 @@ export async function POST(req: NextRequest) {
         userId: session.user.id,
         tier: 'FREE',
         coverageZones: {
-          create: coverageCities.map((c) => {
+          create: resolvedCities.map((c) => {
             const coords = CITY_COORDS[c]
             return {
               geohash: coords ? encodeGeohash(coords[0], coords[1], 5) : c.toLowerCase().slice(0, 5),
