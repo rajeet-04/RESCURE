@@ -74,6 +74,18 @@ export default async function AdminDashboardPage() {
         >
           🌍 Multi-city Ops
         </Link>
+        <Link
+          href="/admin/whitelabel"
+          className="rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white hover:bg-purple-700 transition-colors"
+        >
+          🎨 White-Label
+        </Link>
+        <Link
+          href="/api-docs"
+          className="rounded-lg bg-gray-700 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 transition-colors"
+        >
+          📖 API Docs
+        </Link>
         <a
           href="/api/export/cases?format=csv"
           className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
