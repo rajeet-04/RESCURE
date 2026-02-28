@@ -2,7 +2,11 @@
 
 ## Current Phase
 
-Phase `01-animations` — **COMPLETE** (3/3 plans done)
+Phase `01-animations` — **COMPLETE**
+
+## Next Phase
+
+Phase `02-report-wizard-ngo` — **PLANNED** (0/4 plans done) (3/3 plans done)
 
 ## Stack (Confirmed)
 
@@ -42,3 +46,18 @@ Phase `01-animations` — **COMPLETE** (3/3 plans done)
 
 Stopped at: Phase 01-animations — all plans complete. Human verify checkpoint pending (Task 3 of Plan 01-03).
 
+
+## Phase 02 Decisions (LOCKED)
+
+- Use Google Maps `tbm=map` scraper (data/f.txt format confirmed) — NOT Google Places API
+- Use Bitrix24 REST webhook API for CRM lead creation — NOT Twilio
+- Gemini model升级: `gemini-2.0-flash` (unified analyzer) replacing `gemini-1.5-flash`
+- Report page: 2-step wizard, state machine: capture → analyzing → review → submitted
+- Internal endpoint security via `x-internal-key` header matching `INTERNAL_API_KEY` env var
+- `NGOOutreach` model logs all contact attempts (source: google_maps | db)
+- Reporter contact info remains optional in Step 2
+
+## Phase 02 New Env Vars
+
+- `BITRIX24_WEBHOOK_URL` — Bitrix24 REST webhook (format: https://portal.bitrix24.com/rest/userId/token/)
+- `INTERNAL_API_KEY` — shared secret for internal fire-and-forget endpoints

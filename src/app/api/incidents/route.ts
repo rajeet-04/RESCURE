@@ -3,13 +3,20 @@ import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 
 const incidentSchema = z.object({
-  description: z.string().min(3).max(1000),
+  description: z.string().min(3).max(1000).optional(),
   lat: z.number(),
   lng: z.number(),
   geohash: z.string().min(6),
   photos: z.array(z.string()).optional().default([]),
   address: z.string().optional(),
   citizenId: z.string().optional(),
+  // Wizard Step-2 fields (optional at creation, filled in during review)
+  title: z.string().max(120).optional(),
+  animalType: z.string().max(50).optional(),
+  reporterName: z.string().max(100).optional(),
+  reporterPhone: z.string().max(20).optional(),
+  city: z.string().max(100).optional(),
+  landmark: z.string().max(200).optional(),
 })
 
 export async function POST(req: NextRequest) {
@@ -42,7 +49,7 @@ export async function POST(req: NextRequest) {
 
     const incident = await prisma.incidentReport.create({
       data: {
-        description: data.description,
+        description: data.description ?? '',
         lat: data.lat,
         lng: data.lng,
         geohash: data.geohash,
@@ -51,18 +58,43 @@ export async function POST(req: NextRequest) {
         citizenId: data.citizenId,
         status: 'PENDING',
         urgencyScore: 'MEDIUM',
+        title: data.title,
+        animalType: data.animalType,
+        reporterName: data.reporterName,
+        reporterPhone: data.reporterPhone,
+        city: data.city,
+        landmark: data.landmark,
       },
     })
 
-    // Fire-and-forget urgency scoring
-    const scoreUrl = new URL('/api/incidents/score', req.nextUrl.origin)
-    fetch(scoreUrl.toString(), {
+    const origin = req.nextUrl.origin
+    const internalKey = process.env.INTERNAL_API_KEY ?? ''
+
+    // Fire-and-forget: AI photo analysis (pre-populate wizard Step 2)
+    if (incident.photos.length > 0) {
+      fetch(`${origin}/api/incidents/${incident.id}/analyze`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      }).catch(() => {})
+    }
+
+    // Fire-and-forget: legacy urgency scoring
+    fetch(`${origin}/api/incidents/score`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         incidentId: incident.id,
         imageUrl: data.photos[0] ?? null,
       }),
+    }).catch(() => {})
+
+    // Fire-and-forget: NGO + external shelter outreach
+    fetch(`${origin}/api/incidents/${incident.id}/notify-external`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-internal-key': internalKey,
+      },
     }).catch(() => {})
 
     return NextResponse.json(incident, { status: 201 })
