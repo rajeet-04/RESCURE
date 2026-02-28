@@ -30,9 +30,9 @@ export default async function ConsultationDetailPage({
   const userId = (session.user as { id: string }).id
 
   return (
-    <div className="container py-8 max-w-4xl space-y-6">
+    <div className="space-y-6 max-w-4xl">
       <div className="flex items-center gap-3 flex-wrap">
-        <h1 className="text-2xl font-bold">Consultation</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Consultation</h1>
         {consultation.isEmergency && <Badge variant="destructive">Emergency</Badge>}
         <Badge variant="outline">{consultation.status.replace(/_/g, ' ')}</Badge>
       </div>
