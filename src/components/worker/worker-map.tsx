@@ -1,7 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
+import { useEffect, useRef } from 'react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { useRouter } from 'next/navigation'
@@ -51,86 +50,94 @@ function createUserIcon() {
   })
 }
 
-function RecenterMap({ center }: { center: [number, number] }) {
-  const map = useMap()
-  useEffect(() => {
-    map.setView(center, 13)
-  }, [map, center])
-  return null
-}
-
 export default function WorkerMap({ cases, userLocation }: WorkerMapProps) {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const mapRef = useRef<L.Map | null>(null)
   const router = useRouter()
-  const [mapId, setMapId] = useState<string>('')
 
   useEffect(() => {
-    delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)
-      ._getIconUrl
+    delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)._getIconUrl
     L.Icon.Default.mergeOptions({
       iconRetinaUrl: '/leaflet/marker-icon-2x.png',
       iconUrl: '/leaflet/marker-icon.png',
       shadowUrl: '/leaflet/marker-shadow.png',
     })
-    
-    setMapId(Date.now().toString())
   }, [])
 
-  const defaultCenter: [number, number] = userLocation ?? [20.5937, 78.9629]
-  const casesWithLocation = cases.filter((c) => c.report?.lat && c.report?.lng)
+  useEffect(() => {
+    if (!containerRef.current || mapRef.current) return
 
-  if (!mapId) return null
+    const defaultCenter: [number, number] = userLocation ?? [20.5937, 78.9629]
+    const map = L.map(containerRef.current, { center: defaultCenter, zoom: 12 })
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    }).addTo(map)
+
+    mapRef.current = map
+
+    return () => {
+      map.remove()
+      mapRef.current = null
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map) return
+
+    map.eachLayer((layer) => {
+      if (layer instanceof L.Marker) {
+        map.removeLayer(layer)
+      }
+    })
+
+    if (userLocation) {
+      map.setView(userLocation, 13)
+      L.marker(userLocation, { icon: createUserIcon() })
+        .bindPopup('You are here')
+        .addTo(map)
+    }
+
+    const casesWithLocation = cases.filter((c) => c.report?.lat && c.report?.lng)
+
+    for (const c of casesWithLocation) {
+      const color = urgencyColorMap[c.report!.urgencyScore] ?? '#f97316'
+      const marker = L.marker([c.report!.lat, c.report!.lng], {
+        icon: createColoredIcon(color)
+      }).addTo(map)
+
+      const popupContent = document.createElement('div')
+      popupContent.className = 'space-y-1 min-w-[150px]'
+      popupContent.innerHTML = `
+        <p class="text-xs font-semibold" style="color: ${color}">
+          ${c.report!.urgencyScore}
+        </p>
+        ${c.report!.address ? `<p class="text-xs text-gray-600">${c.report!.address}</p>` : ''}
+        <button class="text-xs text-orange-600 hover:underline mt-1 view-case-btn" data-id="${c.id}">
+          View case →
+        </button>
+      `
+      marker.bindPopup(popupContent)
+    }
+
+    map.on('popupopen', (e) => {
+      const btn = e.popup.getElement()?.querySelector('.view-case-btn') as HTMLButtonElement
+      if (btn) {
+        btn.onclick = () => {
+          const id = btn.getAttribute('data-id')
+          if (id) router.push(`/worker/cases/${id}`)
+        }
+      }
+    })
+
+    // Remove the event listener on cleanup
+    return () => {
+      map.off('popupopen')
+    }
+  }, [cases, userLocation, router])
 
   return (
-    <MapContainer
-      key={mapId}
-      center={defaultCenter}
-      zoom={12}
-      style={{ height: '100%', width: '100%' }}
-    >
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
-      {userLocation && <RecenterMap center={userLocation} />}
-      {userLocation && (
-        <Marker position={userLocation} icon={createUserIcon()}>
-          <Popup>You are here</Popup>
-        </Marker>
-      )}
-      {casesWithLocation.map((c) => (
-        <Marker
-          key={c.id}
-          position={[c.report!.lat, c.report!.lng]}
-          icon={createColoredIcon(
-            urgencyColorMap[c.report!.urgencyScore] ?? '#f97316'
-          )}
-          eventHandlers={{
-            click: () => router.push(`/worker/cases/${c.id}`),
-          }}
-        >
-          <Popup>
-            <div className="space-y-1 min-w-[150px]">
-              <p
-                className="text-xs font-semibold"
-                style={{
-                  color: urgencyColorMap[c.report!.urgencyScore] ?? '#f97316',
-                }}
-              >
-                {c.report!.urgencyScore}
-              </p>
-              {c.report!.address && (
-                <p className="text-xs text-gray-600">{c.report!.address}</p>
-              )}
-              <button
-                className="text-xs text-orange-600 hover:underline mt-1"
-                onClick={() => router.push(`/worker/cases/${c.id}`)}
-              >
-                View case →
-              </button>
-            </div>
-          </Popup>
-        </Marker>
-      ))}
-    </MapContainer>
+    <div ref={containerRef} style={{ height: '100%', width: '100%' }} />
   )
 }

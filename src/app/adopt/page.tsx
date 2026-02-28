@@ -2,7 +2,7 @@ import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth'
 import Link from 'next/link'
 import Image from 'next/image'
-import { AlertCircle } from 'lucide-react'
+import { AlertCircle, Heart } from 'lucide-react'
 import UserMenu from '@/components/layout/user-menu'
 import AdoptClient from './_components/adopt-client'
 
@@ -55,9 +55,8 @@ export default async function AdoptPage() {
               <Link
                 key={l.href}
                 href={l.href}
-                className={`text-sm font-semibold tracking-wide transition-colors ${
-                  l.href === '/adopt' ? 'text-primary' : 'text-gray-700 hover:text-primary'
-                }`}
+                className={`text-sm font-semibold tracking-wide transition-colors ${l.href === '/adopt' ? 'text-primary' : 'text-gray-700 hover:text-primary'
+                  }`}
               >
                 {l.label}
               </Link>
