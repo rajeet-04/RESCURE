@@ -64,7 +64,7 @@ export async function syncUserWithDatabase(auth0User: {
 
   if (!existing) {
     return prisma.user.create({
-      data: { email, name, image, role: 'Citizen' as Role },
+      data: { email, name, image, role: 'CITIZEN' },
     })
   }
 

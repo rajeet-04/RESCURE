@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
+import { auth } from '@/lib/auth'
 
 const incidentSchema = z.object({
   description: z.string().min(3).max(1000).optional(),
@@ -9,7 +10,6 @@ const incidentSchema = z.object({
   geohash: z.string().min(6),
   photos: z.array(z.string()).optional().default([]),
   address: z.string().optional(),
-  citizenId: z.string().optional(),
   // Wizard Step-2 fields (optional at creation, filled in during review)
   title: z.string().max(120).optional(),
   animalType: z.string().max(50).optional(),
@@ -27,15 +27,22 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
     }
 
-    const data = parsed.data
-    const geohash6 = data.geohash.slice(0, 6)
-    const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000)
+    // Resolve the logged-in user server-side — never trust client-supplied IDs
+    const session = await auth()
+    const citizenId = (session?.user as { id?: string } | undefined)?.id ?? undefined
 
+    const data = parsed.data
+    const geohash7 = data.geohash.slice(0, 7)
+    const thirtyMinsAgo = new Date(Date.now() - 30 * 60 * 1000)
+
+    // Only deduplicate the same user's own reports (or anonymous vs anonymous).
+    // Different logged-in users at the same spot can each file a report independently.
     const duplicate = await prisma.incidentReport.findFirst({
       where: {
-        geohash: { startsWith: geohash6 },
+        geohash: { startsWith: geohash7 },
         status: { in: ['PENDING', 'ASSIGNED'] },
-        createdAt: { gte: twoHoursAgo },
+        createdAt: { gte: thirtyMinsAgo },
+        citizenId: citizenId ?? null, // null matches anonymous; a real ID matches only that user
       },
       select: { id: true },
     })
@@ -55,7 +62,7 @@ export async function POST(req: NextRequest) {
         geohash: data.geohash,
         photos: data.photos,
         address: data.address,
-        citizenId: data.citizenId,
+        citizenId,
         status: 'PENDING',
         urgencyScore: 'MEDIUM',
         title: data.title,
