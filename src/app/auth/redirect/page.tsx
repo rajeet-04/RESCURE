@@ -28,7 +28,7 @@ export default async function AuthRedirectPage() {
       redirect('/admin/dashboard')
     case 'CITIZEN':
     default:
-      // New users land on register to pick their role; returning citizens go to report
-      redirect('/report')
+      // Citizens return to the homepage
+      redirect('/')
   }
 }
