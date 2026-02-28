@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { MapContainer, TileLayer, Circle, Marker, Popup } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
@@ -12,6 +12,10 @@ interface SurgeMapProps {
 }
 
 export default function SurgeMapInner({ lat, lng, radius }: SurgeMapProps) {
+  const [mapId, setMapId] = useState<string>('')
+  useEffect(() => {
+    setMapId(Date.now().toString())
+  }, [])
   useEffect(() => {
     delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)._getIconUrl
     L.Icon.Default.mergeOptions({
@@ -39,7 +43,9 @@ export default function SurgeMapInner({ lat, lng, radius }: SurgeMapProps) {
   })
 
   return (
-    <MapContainer center={center} zoom={11} style={{ height: '100%', width: '100%' }}>
+    <>
+    {mapId && (
+    <MapContainer key={mapId} center={center} zoom={11} style={{ height: '100%', width: '100%' }}>
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -53,5 +59,7 @@ export default function SurgeMapInner({ lat, lng, radius }: SurgeMapProps) {
         <Popup>Surge zone center</Popup>
       </Marker>
     </MapContainer>
+    )}
+    </>
   )
 }

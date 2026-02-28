@@ -1,7 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from 'react-leaflet'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
@@ -46,60 +45,133 @@ function riskColor(score: number): string {
   return score >= 0.6 ? '#9333ea' : '#c084fc'
 }
 
-function MapLegend({ showHistorical, showPredictive }: { showHistorical: boolean; showPredictive: boolean }) {
-  const map = useMap()
-
-  useEffect(() => {
-    const legend = new L.Control({ position: 'bottomright' })
-    legend.onAdd = () => {
-      const div = L.DomUtil.create('div', '')
-      div.style.cssText =
-        'background:white;padding:10px 12px;border-radius:8px;box-shadow:0 1px 5px rgba(0,0,0,.2);font-size:12px;line-height:1.8'
-      const items: string[] = ['<strong style="display:block;margin-bottom:4px">Legend</strong>']
-      if (showHistorical) {
-        items.push(
-          '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#ef4444;margin-right:6px"></span>Critical incidents',
-          '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#f97316;margin-right:6px"></span>High incidents',
-          '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#eab308;margin-right:6px"></span>Medium incidents',
-          '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#22c55e;margin-right:6px"></span>Low incidents',
-        )
-      }
-      if (showPredictive) {
-        items.push(
-          '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#9333ea;margin-right:6px"></span>High risk (&ge;0.6)',
-          '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#c084fc;margin-right:6px"></span>Moderate risk',
-        )
-      }
-      div.innerHTML = items.join('<br>')
-      return div
-    }
-    legend.addTo(map)
-    return () => { legend.remove() }
-  }, [map, showHistorical, showPredictive])
-
-  return null
+function buildLegendHtml(showHistorical: boolean, showPredictive: boolean): string {
+  const items: string[] = ['<strong style="display:block;margin-bottom:4px">Legend</strong>']
+  if (showHistorical) {
+    items.push(
+      '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#ef4444;margin-right:6px"></span>Critical incidents',
+      '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#f97316;margin-right:6px"></span>High incidents',
+      '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#eab308;margin-right:6px"></span>Medium incidents',
+      '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#22c55e;margin-right:6px"></span>Low incidents',
+    )
+  }
+  if (showPredictive) {
+    items.push(
+      '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#9333ea;margin-right:6px"></span>High risk (&ge;0.6)',
+      '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#c084fc;margin-right:6px"></span>Moderate risk',
+    )
+  }
+  return items.join('<br>')
 }
 
 export default function HotspotMapInner({ hotspots, days, riskZones }: HotspotMapProps) {
   const [showHistorical, setShowHistorical] = useState(true)
   const [showPredictive, setShowPredictive] = useState(true)
 
-  useEffect(() => {
-    delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)._getIconUrl
-    L.Icon.Default.mergeOptions({
-      iconRetinaUrl: '/leaflet/marker-icon-2x.png',
-      iconUrl: '/leaflet/marker-icon.png',
-      shadowUrl: '/leaflet/marker-shadow.png',
-    })
-  }, [])
+  const containerRef = useRef<HTMLDivElement>(null)
+  const mapRef = useRef<L.Map | null>(null)
+  const layersRef = useRef<L.LayerGroup>(L.layerGroup())
+  const legendRef = useRef<L.Control | null>(null)
 
-  const center: [number, number] = hotspots.length > 0
+  const center: L.LatLngExpression = hotspots.length > 0
     ? [hotspots[0].lat, hotspots[0].lng]
     : riskZones.length > 0
-    ? [riskZones[0].lat, riskZones[0].lng]
-    : [20.5937, 78.9629]
+      ? [riskZones[0].lat, riskZones[0].lng]
+      : [20.5937, 78.9629]
 
   const maxCount = Math.max(...hotspots.map((h) => h.count), 1)
+
+  // Initialise map imperatively – full control over create / destroy
+  useEffect(() => {
+    if (!containerRef.current || mapRef.current) return
+
+    const map = L.map(containerRef.current, { center, zoom: 5 })
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    }).addTo(map)
+
+    layersRef.current = L.layerGroup().addTo(map)
+    mapRef.current = map
+
+    return () => {
+      map.remove()
+      mapRef.current = null
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Draw / redraw data layers whenever data or visibility toggles change
+  const drawLayers = useCallback(() => {
+    const group = layersRef.current
+    group.clearLayers()
+
+    if (showHistorical) {
+      for (const h of hotspots) {
+        const color = urgencyColor(h.avgUrgency)
+        L.circleMarker([h.lat, h.lng], {
+          radius: urgencyRadius(h.count, maxCount),
+          color,
+          fillColor: color,
+          fillOpacity: 0.5 + (h.count / maxCount) * 0.4,
+          weight: 1,
+        })
+          .bindPopup(
+            `<div style="min-width:140px">
+              <p style="font-weight:600;font-size:14px">${h.count} incidents</p>
+              <p style="font-size:12px;color:#6b7280">in last ${days} days</p>
+              <p style="font-size:12px;color:#6b7280">Avg urgency: ${h.avgUrgency.toFixed(1)}/4</p>
+            </div>`,
+          )
+          .addTo(group)
+      }
+    }
+
+    if (showPredictive) {
+      for (const z of riskZones) {
+        const color = riskColor(z.riskScore)
+        L.circleMarker([z.lat, z.lng], {
+          radius: 8 + z.riskScore * 18,
+          color,
+          fillColor: color,
+          fillOpacity: 0.4 + z.riskScore * 0.45,
+          weight: z.hasActiveSurge ? 2 : 1,
+          dashArray: z.hasActiveSurge ? '4 2' : undefined,
+        })
+          .bindPopup(
+            `<div style="min-width:140px">
+              <p style="font-weight:600;font-size:14px">Risk Zone</p>
+              <p style="font-size:12px;color:#6b7280">Score: ${(z.riskScore * 100).toFixed(0)}%</p>
+              ${z.hasActiveSurge ? '<p style="font-size:12px;font-weight:500;color:#9333ea">Active surge event</p>' : ''}
+            </div>`,
+          )
+          .addTo(group)
+      }
+    }
+  }, [hotspots, riskZones, showHistorical, showPredictive, days, maxCount])
+
+  useEffect(() => {
+    if (mapRef.current) drawLayers()
+  }, [drawLayers])
+
+  // Legend control
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map) return
+
+    if (legendRef.current) legendRef.current.remove()
+
+    const legend = new L.Control({ position: 'bottomright' })
+    legend.onAdd = () => {
+      const div = L.DomUtil.create('div', '')
+      div.style.cssText =
+        'background:white;padding:10px 12px;border-radius:8px;box-shadow:0 1px 5px rgba(0,0,0,.2);font-size:12px;line-height:1.8'
+      div.innerHTML = buildLegendHtml(showHistorical, showPredictive)
+      return div
+    }
+    legend.addTo(map)
+    legendRef.current = legend
+
+    return () => { legend.remove() }
+  }, [showHistorical, showPredictive])
 
   return (
     <div className="flex flex-col h-full">
@@ -125,61 +197,7 @@ export default function HotspotMapInner({ hotspots, days, riskZones }: HotspotMa
       </div>
 
       <div className="flex-1">
-        <MapContainer center={center} zoom={5} style={{ height: '100%', width: '100%' }}>
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-
-          {showHistorical && hotspots.map((hotspot) => (
-            <CircleMarker
-              key={`h-${hotspot.geohash}`}
-              center={[hotspot.lat, hotspot.lng]}
-              radius={urgencyRadius(hotspot.count, maxCount)}
-              pathOptions={{
-                color: urgencyColor(hotspot.avgUrgency),
-                fillColor: urgencyColor(hotspot.avgUrgency),
-                fillOpacity: 0.5 + (hotspot.count / maxCount) * 0.4,
-                weight: 1,
-              }}
-            >
-              <Popup>
-                <div className="min-w-[140px]">
-                  <p className="font-semibold text-sm">{hotspot.count} incidents</p>
-                  <p className="text-xs text-gray-500">in last {days} days</p>
-                  <p className="text-xs text-gray-500">Avg urgency: {hotspot.avgUrgency.toFixed(1)}/4</p>
-                </div>
-              </Popup>
-            </CircleMarker>
-          ))}
-
-          {showPredictive && riskZones.map((zone) => (
-            <CircleMarker
-              key={`p-${zone.geohash}`}
-              center={[zone.lat, zone.lng]}
-              radius={8 + zone.riskScore * 18}
-              pathOptions={{
-                color: riskColor(zone.riskScore),
-                fillColor: riskColor(zone.riskScore),
-                fillOpacity: 0.4 + zone.riskScore * 0.45,
-                weight: zone.hasActiveSurge ? 2 : 1,
-                dashArray: zone.hasActiveSurge ? '4 2' : undefined,
-              }}
-            >
-              <Popup>
-                <div className="min-w-[140px]">
-                  <p className="font-semibold text-sm">Risk Zone</p>
-                  <p className="text-xs text-gray-500">Score: {(zone.riskScore * 100).toFixed(0)}%</p>
-                  {zone.hasActiveSurge && (
-                    <p className="text-xs font-medium text-purple-600">Active surge event</p>
-                  )}
-                </div>
-              </Popup>
-            </CircleMarker>
-          ))}
-
-          <MapLegend showHistorical={showHistorical} showPredictive={showPredictive} />
-        </MapContainer>
+        <div ref={containerRef} style={{ height: '100%', width: '100%' }} />
       </div>
     </div>
   )
