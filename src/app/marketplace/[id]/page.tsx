@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth'
 import { Badge } from '@/components/ui/badge'
@@ -34,12 +35,14 @@ export default async function ProductDetailPage({ params }: Props) {
     <div className="max-w-4xl mx-auto px-4 py-8 space-y-8">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Image */}
-        <div className="h-72 rounded-2xl bg-gray-100 overflow-hidden flex items-center justify-center">
+        <div className="h-72 relative rounded-2xl bg-gray-100 overflow-hidden flex items-center justify-center">
           {product.images[0] ? (
-            <img
+            <Image
               src={product.images[0]}
               alt={product.name}
-              className="w-full h-full object-cover"
+              fill
+              className="object-cover"
+              unoptimized
             />
           ) : (
             <span className="text-7xl">📦</span>

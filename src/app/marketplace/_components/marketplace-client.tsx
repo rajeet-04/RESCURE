@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -68,11 +69,10 @@ export default function MarketplaceClient({ products }: { products: ProductItem[
           <button
             key={t.key}
             onClick={() => setCategory(t.key)}
-            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
-              category === t.key
+            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${category === t.key
                 ? 'bg-orange-600 text-white'
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
+              }`}
           >
             {t.label}
           </button>
@@ -90,12 +90,14 @@ export default function MarketplaceClient({ products }: { products: ProductItem[
 
           return (
             <Card key={product.id} className="overflow-hidden flex flex-col">
-              <div className="h-44 bg-gray-100 flex items-center justify-center overflow-hidden">
+              <div className="h-44 relative bg-gray-100 flex items-center justify-center overflow-hidden">
                 {product.images[0] ? (
-                  <img
+                  <Image
                     src={product.images[0]}
                     alt={product.name}
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
+                    unoptimized
                   />
                 ) : (
                   <span className="text-5xl">📦</span>

@@ -1,8 +1,6 @@
-import dynamic from 'next/dynamic'
 import { prisma } from '@/lib/prisma'
 import VolunteerButton from './_components/volunteer-button'
-
-const SurgeMap = dynamic(() => import('./_components/surge-map'), { ssr: false })
+import SurgeMapLoader from '@/components/maps/surge-map-loader'
 
 interface SurgeEvent {
   id: string
@@ -69,7 +67,7 @@ export default async function SurgePage() {
 
                 {/* Map */}
                 <div className="mt-4 h-72 overflow-hidden rounded-lg">
-                  <SurgeMap lat={event.lat} lng={event.lng} radius={event.radius} />
+                  <SurgeMapLoader lat={event.lat} lng={event.lng} radius={event.radius} />
                 </div>
 
                 {/* Instructions */}

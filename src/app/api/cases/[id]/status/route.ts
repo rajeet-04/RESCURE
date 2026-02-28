@@ -12,9 +12,10 @@ const statusSchema = z.object({
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await auth()
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -34,7 +35,7 @@ export async function PATCH(
     const { status, note, assignedWorkerId } = parsed.data
 
     const rescueCase = await prisma.rescueCase.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: { report: { select: { citizenId: true } } },
     })
 
@@ -46,7 +47,7 @@ export async function PATCH(
 
     const [updatedCase] = await prisma.$transaction([
       prisma.rescueCase.update({
-        where: { id: params.id },
+        where: { id },
         data: {
           state: status as ReportStatus,
           workerId: assignedWorkerId !== undefined ? assignedWorkerId : undefined,
@@ -55,7 +56,7 @@ export async function PATCH(
       }),
       prisma.caseTimeline.create({
         data: {
-          caseId: params.id,
+          caseId: id,
           state: status as ReportStatus,
           note: note ?? null,
           actorId: session.user.id,

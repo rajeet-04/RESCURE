@@ -15,11 +15,12 @@ const patchAnimalSchema = z.object({
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const animal = await prisma.animal.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         healthRecords: { orderBy: { date: 'desc' } },
         expenses: { orderBy: { date: 'desc' } },
@@ -41,9 +42,10 @@ export async function GET(
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await auth()
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -56,7 +58,7 @@ export async function PATCH(
     }
 
     const animal = await prisma.animal.update({
-      where: { id: params.id },
+      where: { id },
       data: parsed.data,
     })
 

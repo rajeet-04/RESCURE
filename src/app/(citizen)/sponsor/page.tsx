@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { Badge } from '@/components/ui/badge'
@@ -76,12 +77,14 @@ export default async function SponsorDashboardPage() {
               return (
                 <Card key={sp.id} className="overflow-hidden">
                   <div className="flex gap-4 p-4">
-                    <div className="h-24 w-24 flex-shrink-0 rounded-xl bg-gray-100 overflow-hidden flex items-center justify-center">
+                    <div className="h-24 w-24 relative flex-shrink-0 rounded-xl bg-gray-100 overflow-hidden flex items-center justify-center">
                       {animal.photos[0] ? (
-                        <img
+                        <Image
                           src={animal.photos[0]}
                           alt={animal.name ?? animal.species}
-                          className="w-full h-full object-cover"
+                          fill
+                          className="object-cover"
+                          unoptimized
                         />
                       ) : (
                         <span className="text-3xl">🐾</span>

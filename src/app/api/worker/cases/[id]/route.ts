@@ -5,9 +5,10 @@ import { ReportStatus } from '@prisma/client'
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await auth()
     const user = session?.user as { id: string; role: string } | undefined
     if (!user || user.role !== 'NGO_WORKER') {
@@ -15,7 +16,7 @@ export async function GET(
     }
 
     const rescueCase = await prisma.rescueCase.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         report: true,
         animal: {
@@ -38,9 +39,10 @@ export async function GET(
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await auth()
     const user = session?.user as { id: string; role: string } | undefined
     if (!user || user.role !== 'NGO_WORKER') {
@@ -58,7 +60,7 @@ export async function PATCH(
     const { state, note } = body
 
     const existingCase = await prisma.rescueCase.findUnique({
-      where: { id: params.id },
+      where: { id },
     })
     if (!existingCase) {
       return NextResponse.json({ error: 'Case not found' }, { status: 404 })
@@ -68,7 +70,7 @@ export async function PATCH(
     }
 
     const updatedCase = await prisma.rescueCase.update({
-      where: { id: params.id },
+      where: { id },
       data: { state },
       include: {
         report: true,
@@ -79,7 +81,7 @@ export async function PATCH(
 
     await prisma.caseTimeline.create({
       data: {
-        caseId: params.id,
+        caseId: id,
         state,
         actorId: user.id,
         note: note ?? null,

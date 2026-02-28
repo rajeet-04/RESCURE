@@ -5,8 +5,9 @@ import { sendPushToUser } from '@/lib/push/server'
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   const session = await auth()
   const user = session?.user as { id: string; role: string } | undefined
   if (!user || (user.role !== 'NGO_ADMIN' && user.role !== 'VETERINARIAN')) {
@@ -19,7 +20,7 @@ export async function POST(
   }
 
   const animal = await prisma.animal.findUnique({
-    where: { id: params.id },
+    where: { id },
     select: { id: true, name: true },
   })
   if (!animal) {
@@ -27,7 +28,7 @@ export async function POST(
   }
 
   const sponsorships = await prisma.sponsorship.findMany({
-    where: { animalId: params.id, active: true },
+    where: { animalId: id, active: true },
     select: { sponsorId: true },
   })
 
@@ -42,7 +43,7 @@ export async function POST(
           title,
           body: notificationBody,
           url: `/sponsor/impact`,
-          tag: `milestone-${params.id}`,
+          tag: `milestone-${id}`,
         }),
         prisma.notification.create({
           data: {
@@ -50,7 +51,7 @@ export async function POST(
             type: 'milestone',
             title,
             body: notificationBody,
-            payload: { animalId: params.id },
+            payload: { animalId: id },
           },
         }),
       ])

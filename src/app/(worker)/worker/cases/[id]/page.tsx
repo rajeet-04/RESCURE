@@ -22,14 +22,15 @@ const urgencyColors: Record<UrgencyLevel, string> = {
 export default async function WorkerCaseDetailPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
+  const { id } = await params
   const session = await auth()
   const user = session?.user as { id: string; role: string } | undefined
   if (!user) redirect('/login')
 
   const rescueCase = await prisma.rescueCase.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       report: true,
       animal: {

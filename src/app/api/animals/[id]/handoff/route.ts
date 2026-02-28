@@ -10,9 +10,10 @@ const handoffSchema = z.object({
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await auth()
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -32,7 +33,7 @@ export async function POST(
     const { targetNgoId, reason } = parsed.data
 
     const animal = await prisma.animal.findUnique({
-      where: { id: params.id },
+      where: { id },
       select: { caseId: true },
     })
 

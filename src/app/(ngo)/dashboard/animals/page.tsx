@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -24,7 +25,7 @@ function AnimalCard({ animal }: { animal: AnimalCardData }) {
     <Card className="overflow-hidden hover:shadow-md transition-shadow">
       <div className="aspect-video bg-gray-100 relative">
         {photo ? (
-          <img src={photo} alt={animal.name ?? animal.species} className="w-full h-full object-cover" />
+          <Image src={photo} alt={animal.name ?? animal.species} fill className="object-cover" unoptimized />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-gray-400 text-4xl">
             🐾

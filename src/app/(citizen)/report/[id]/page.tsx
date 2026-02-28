@@ -26,10 +26,11 @@ const caseStateLabel: Record<string, string> = {
 export default async function IncidentTrackingPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
+  const { id } = await params
   const incident = await prisma.incidentReport.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       rescueCase: {
         select: {

@@ -12,9 +12,10 @@ const urgencyColors: Record<string, string> = {
   LOW: 'bg-green-100 text-green-800',
 }
 
-export default async function CaseDetailPage({ params }: { params: { id: string } }) {
+export default async function CaseDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const rescueCase = await prisma.rescueCase.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       report: true,
       ngo: {

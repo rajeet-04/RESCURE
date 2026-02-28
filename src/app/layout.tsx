@@ -1,11 +1,9 @@
 import type { Metadata, Viewport } from 'next'
 import localFont from 'next/font/local'
-import dynamic from 'next/dynamic'
 import './globals.css'
 import { PostHogProvider } from '@/lib/posthog-provider'
-
-const OfflineBanner = dynamic(() => import('@/components/pwa/offline-banner'), { ssr: false })
-const InstallPrompt = dynamic(() => import('@/components/pwa/install-prompt'), { ssr: false })
+import OfflineBanner from '@/components/pwa/offline-banner'
+import InstallPrompt from '@/components/pwa/install-prompt'
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
