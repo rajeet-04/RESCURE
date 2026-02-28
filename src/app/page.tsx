@@ -56,6 +56,12 @@ export default async function HomePage() {
             Community
           </Link>
           <Link
+            href="/api-docs"
+            className="text-sm font-medium text-gray-600 hover:text-orange-600 transition-colors hidden sm:inline"
+          >
+            API Docs
+          </Link>
+          <Link
             href="/report"
             className="text-sm font-medium bg-orange-500 text-white px-4 py-2 rounded-full hover:bg-orange-600 transition-colors"
           >
