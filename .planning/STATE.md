@@ -2,11 +2,11 @@
 
 ## Current Phase
 
-Phase `01-animations` — **COMPLETE**
+Phase `03-predictive-engine` — **COMPLETE** (4/4 plans done)
 
 ## Next Phase
 
-Phase `02-report-wizard-ngo` — **PLANNED** (0/4 plans done) (3/3 plans done)
+Phase `04` — **PLANNED**
 
 ## Stack (Confirmed)
 
@@ -16,6 +16,8 @@ Phase `02-report-wizard-ngo` — **PLANNED** (0/4 plans done) (3/3 plans done)
 - pnpm package manager
 - framer-motion 12.34.3 (installed Plan 01-01)
 - gsap 3.14.2 + ScrollTrigger (installed Plan 01-01)
+- Prisma 5.22.0 + Supabase PostgreSQL
+- react-leaflet (hotspot map)
 - Primary color: `--primary: 142 76% 36%` (green)
 
 ## Key Constraints
@@ -24,6 +26,8 @@ Phase `02-report-wizard-ngo` — **PLANNED** (0/4 plans done) (3/3 plans done)
 - All GSAP code must run in `useEffect` / `useGSAP` with cleanup via `gsap.context().revert()`
 - Must register GSAP plugins once globally (ScrollTrigger, etc.)
 - Next.js Strict Mode may double-invoke effects — use `once: true` on ScrollTrigger or guard with refs
+- `prisma db push` (not `migrate dev`) — DB has no migration history baseline
+- DIRECT_URL must use session pooler port 5432 (direct DB host unreachable from dev)
 
 ## Decisions
 
@@ -33,6 +37,10 @@ Phase `02-report-wizard-ngo` — **PLANNED** (0/4 plans done) (3/3 plans done)
 - `SiteHeader` extracted from `HeroSection` for DRY nav + scroll effect
 - `PageTransition` uses `AnimatePresence` + `usePathname` as thin client wrapper in Server layout
 - `ScrollAnimationObserver` decommissioned (returns null) — not deleted to avoid import breaks
+- SurgeEvent model replaces `Notification.type=SURGE_EVENT` hack for all surge data
+- Predictive engine: BASE_RISK=0.1, SURGE_THRESHOLD=0.6
+- getRiskZones() uses direct Prisma queries server-side (same pattern as getHotspots)
+- Inline state feedback for RunAnalysisBtn (sonner not installed, no Toaster in layout)
 
 ## Completed Plans
 
@@ -41,10 +49,14 @@ Phase `02-report-wizard-ngo` — **PLANNED** (0/4 plans done) (3/3 plans done)
 | 01-01 | Animation primitive library | `6e90104` | ✅ |
 | 01-02 | Hero, Stats, Steps, Features sections | `4497ac0` | ✅ |
 | 01-03 | CTA animations, page transitions, nav scroll | `d96e2b8` | ✅ |
+| 03-01 | RiskFactor + SurgeEvent schema + predictive engine service | `5ec95f3` | ✅ |
+| 03-02 | Risk factor APIs + engine trigger + risk-zones endpoint | `cfe339d` | ✅ |
+| 03-03 | Surge system migration to SurgeEvent model | `421fb79` | ✅ |
+| 03-04 | Predictive risk overlay on hotspot map | `6fd27b1` | ✅ |
 
 ## Last Session
 
-Stopped at: Phase 01-animations — all plans complete. Human verify checkpoint pending (Task 3 of Plan 01-03).
+Stopped at: Phase 03-predictive-engine — all 4 plans complete.
 
 
 ## Phase 02 Decisions (LOCKED)
