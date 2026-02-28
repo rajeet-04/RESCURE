@@ -8,14 +8,14 @@ export default function LoginPage({
 }: {
   searchParams: { callbackUrl?: string }
 }) {
-  const callbackUrl = searchParams.callbackUrl ?? '/'
+  const callbackUrl = searchParams.callbackUrl ?? '/auth/redirect'
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 flex items-center justify-center p-6">
       <div className="bg-white rounded-3xl shadow-xl p-8 w-full max-w-sm">
         <div className="text-center mb-8">
           <span className="text-5xl">🐾</span>
-          <h1 className="text-2xl font-bold text-gray-900 mt-3">Welcome to PawCivic</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mt-3">Welcome to RESCURE</h1>
           <p className="text-gray-500 text-sm mt-1">Sign in to report, rescue, or sponsor</p>
         </div>
 
