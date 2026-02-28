@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { signOut } from 'next-auth/react'
 
 interface UserMenuProps {
   user: {
@@ -57,10 +56,10 @@ export default function UserMenu({ user }: UserMenuProps) {
           <img
             src={user.image}
             alt={user.name ?? 'User'}
-            className="w-9 h-9 rounded-full border-2 border-orange-300 object-cover"
+            className="w-9 h-9 rounded-full border-2 border-primary/30 object-cover"
           />
         ) : (
-          <span className="w-9 h-9 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold text-sm border-2 border-orange-300">
+          <span className="w-9 h-9 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm border-2 border-primary/30">
             {initial}
           </span>
         )}
@@ -130,12 +129,12 @@ export default function UserMenu({ user }: UserMenuProps) {
 
           <div className="border-t border-gray-100 my-1" />
 
-          <button
-            onClick={() => signOut({ callbackUrl: '/' })}
+          <a
+            href="/auth/logout"
             className="flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors w-full text-left"
           >
             🚪 Sign Out
-          </button>
+          </a>
         </div>
       )}
     </div>
