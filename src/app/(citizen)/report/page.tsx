@@ -113,11 +113,11 @@ export default function ReportPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50">
+    <main className="min-h-screen bg-gray-50 relative overflow-hidden">
       <ScrollAnimationObserver />
 
       {/* Header */}
-      <div className="bg-white border-b border-gray-100 sticky top-0 z-10">
+      <div className="bg-white/95 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-10">
         <div className="mx-auto max-w-4xl px-6 py-6">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
@@ -131,14 +131,14 @@ export default function ReportPage() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-4xl px-6 py-12">
+      <div className="mx-auto max-w-4xl px-6 py-12 relative z-1">
         {/* Hero Section */}
         <div className="mb-12 text-center">
-          <div className="inline-flex items-center gap-2 bg-primary/10 text-primary text-sm font-bold px-5 py-2.5 rounded-full mb-6 border border-primary/20 scroll-zoom-in">
+          <div className="inline-flex items-center gap-2 bg-primary/10 text-primary text-sm font-bold px-5 py-2.5 rounded-full mb-6 border border-primary/20 scroll-zoom-in pulse-glow">
             <AlertCircle className="h-4 w-4" />
             EMERGENCY RESCUE REQUEST
           </div>
-          <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4 scroll-blur delay-100">
+          <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4 scroll-reveal delay-100">
             Report an Animal in Need
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed scroll-fade delay-200">
@@ -149,7 +149,7 @@ export default function ReportPage() {
         {/* Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
           {/* Animal Information Section */}
-          <div className="rounded-2xl bg-white p-8 shadow-sm border border-gray-100 scroll-slide-up hover-lift">
+          <div className="rounded-2xl bg-white p-8 shadow-sm border border-gray-100 scroll-reveal hover-lift">
             <div className="mb-6">
               <h3 className="text-xl font-bold text-gray-900 mb-2">Animal Information</h3>
               <p className="text-sm text-gray-600">Tell us about the animal that needs help</p>
@@ -207,7 +207,7 @@ export default function ReportPage() {
           </div>
 
           {/* Location Section */}
-          <div className="rounded-2xl bg-white p-8 shadow-sm border border-gray-100 scroll-slide-up delay-200 hover-lift">
+          <div className="rounded-2xl bg-white p-8 shadow-sm border border-gray-100 scroll-reveal delay-200 hover-lift">
             <div className="mb-6">
               <h3 className="text-xl font-bold text-gray-900 mb-2">Location Details</h3>
               <p className="text-sm text-gray-600">Precise location helps teams reach the animal faster</p>
@@ -248,7 +248,7 @@ export default function ReportPage() {
           </div>
 
           {/* Reporter Information Section */}
-          <div className="rounded-2xl bg-white p-8 shadow-sm border border-gray-100 scroll-slide-up delay-300 hover-lift">
+          <div className="rounded-2xl bg-white p-8 shadow-sm border border-gray-100 scroll-reveal delay-300 hover-lift">
             <div className="mb-6">
               <h3 className="text-xl font-bold text-gray-900 mb-2">Your Contact Information</h3>
               <p className="text-sm text-gray-600">Optional, but helps rescue teams reach you for updates or additional information</p>

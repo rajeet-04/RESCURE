@@ -1,42 +1,75 @@
-import NextAuth from 'next-auth'
-import { PrismaAdapter } from '@auth/prisma-adapter'
-import Google from 'next-auth/providers/google'
-import Resend from 'next-auth/providers/resend'
+import { auth0 } from '@/lib/auth0'
 import { prisma } from '@/lib/prisma'
 import { Role } from '@prisma/client'
+import { redirect } from 'next/navigation'
 
-const providers = [
-  Google({
-    clientId: process.env.GOOGLE_CLIENT_ID!,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-  }),
-]
+// Get the current authenticated session (wraps Auth0 + database lookup)
+export async function auth() {
+  try {
+    const session = await auth0.getSession()
+    if (!session) return null
 
-// Only enable Resend if a real API key is configured
-if (process.env.RESEND_API_KEY && !process.env.RESEND_API_KEY.startsWith('re_...')) {
-  providers.push(
-    Resend({
-      apiKey: process.env.RESEND_API_KEY,
-      from: process.env.EMAIL_FROM!,
-    }) as never
-  )
+    let user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+    })
+
+    // First-time login — provision user in DB
+    if (!user) {
+      user = await syncUserWithDatabase(session.user)
+    }
+
+    if (!user) return null
+
+    return {
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        image: user.image,
+        role: user.role as Role,
+      },
+    }
+  } catch {
+    return null
+  }
 }
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: PrismaAdapter(prisma),
-  providers,
-  callbacks: {
-    session({ session, user }) {
-      if (session.user) {
-        session.user.id = user.id
-        session.user.role = (user as { role: Role }).role
-      }
-      return session
-    },
-  },
-  pages: {
-    signIn: '/login',
-    error: '/login',
-    newUser: '/register',   // First-time users → role picker
-  },
-})
+// Redirect to Auth0 login
+export async function signIn(_provider?: string, options?: { redirectTo?: string }) {
+  'use server'
+  const returnTo = options?.redirectTo ?? '/auth/redirect'
+  redirect(`/auth/login?returnTo=${encodeURIComponent(returnTo)}`)
+}
+
+// Redirect to Auth0 logout
+export async function signOut() {
+  'use server'
+  redirect('/auth/logout')
+}
+
+// Upsert Auth0 user into Prisma
+export async function syncUserWithDatabase(auth0User: {
+  email?: string
+  name?: string
+  picture?: string
+  [key: string]: unknown
+}) {
+  const email = auth0User.email
+  const name = (auth0User.name as string) || email?.split('@')[0]
+  const image = auth0User.picture as string | undefined
+
+  if (!email) throw new Error('No email provided from Auth0')
+
+  const existing = await prisma.user.findUnique({ where: { email } })
+
+  if (!existing) {
+    return prisma.user.create({
+      data: { email, name, image, role: 'Citizen' as Role },
+    })
+  }
+
+  return prisma.user.update({
+    where: { email },
+    data: { name, image },
+  })
+}
