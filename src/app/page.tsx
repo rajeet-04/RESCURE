@@ -6,6 +6,7 @@ import { prisma } from '@/lib/prisma'
 import UserMenu from '@/components/layout/user-menu'
 import PawSplash from '@/components/landing/paw-splash'
 import HeroFloatingCards from '@/components/landing/hero-floating-cards'
+import { ScrollReveal } from '@/components/ui/scroll-reveal'
 import { Heart, TrendingUp, Building2, Users, AlertCircle, Activity, Shield, MapPin, Smartphone, Truck, CheckCircle, Phone, Mail, ArrowRight, Github, Twitter, Instagram } from 'lucide-react'
 
 export const metadata: Metadata = {
@@ -220,13 +221,15 @@ export default async function HomePage() {
         <div className="max-w-6xl mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((s, i) => (
-              <div key={s.label} className="text-center space-y-3 animate-fade-in" style={{ animationDelay: `${i * 0.1}s` }}>
-                <div className="inline-flex items-center justify-center w-12 h-12 bg-primary/10 rounded-full">
-                  {getIcon(s.icon, 'h-6 w-6 text-primary')}
+              <ScrollReveal key={s.label} delay={i * 120}>
+                <div className="text-center space-y-3">
+                  <div className="inline-flex items-center justify-center w-12 h-12 bg-primary/10 rounded-full">
+                    {getIcon(s.icon, 'h-6 w-6 text-primary')}
+                  </div>
+                  <div className="text-4xl font-bold text-gray-900">{s.value}</div>
+                  <div className="text-sm font-medium text-gray-600 uppercase tracking-wide">{s.label}</div>
                 </div>
-                <div className="text-4xl font-bold text-gray-900">{s.value}</div>
-                <div className="text-sm font-medium text-gray-600 uppercase tracking-wide">{s.label}</div>
-              </div>
+              </ScrollReveal>
             ))}
           </div>
         </div>
@@ -235,14 +238,15 @@ export default async function HomePage() {
       {/* ── How It Works ── */}
       <section className="py-24 px-6 bg-gray-50">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
+          <ScrollReveal className="text-center mb-16">
             <p className="text-sm font-bold text-primary uppercase tracking-widest mb-4">HOW IT WORKS</p>
             <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">Three Steps to Save a Life</h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">Our streamlined process ensures every reported animal gets immediate attention</p>
-          </div>
+          </ScrollReveal>
           <div className="grid md:grid-cols-3 gap-8">
             {steps.map((s, i) => (
-              <div key={s.step} className="relative bg-white rounded-2xl p-8 shadow-sm hover:shadow-xl transition-all group animate-scale-in" style={{ animationDelay: `${i * 0.15}s` }}>
+              <ScrollReveal key={s.step} delay={i * 150}>
+              <div className="relative bg-white rounded-2xl p-8 shadow-sm hover:shadow-xl transition-all group">
                 <div className="absolute -top-5 left-8 w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-bold text-lg shadow-lg">
                   {i + 1}
                 </div>
@@ -254,6 +258,7 @@ export default async function HomePage() {
                 <h3 className="font-bold text-gray-900 text-xl mb-3 text-center">{s.title}</h3>
                 <p className="text-gray-600 text-center leading-relaxed">{s.desc}</p>
               </div>
+              </ScrollReveal>
             ))}
           </div>
         </div>
@@ -262,14 +267,15 @@ export default async function HomePage() {
       {/* ── Features Grid ── */}
       <section className="py-24 px-6 bg-white">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
+          <ScrollReveal className="text-center mb-16">
             <p className="text-sm font-bold text-primary uppercase tracking-widest mb-4">PLATFORM FEATURES</p>
             <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">Built for Rescue Teams</h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">Comprehensive tools designed to maximize rescue efficiency and animal welfare</p>
-          </div>
+          </ScrollReveal>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {features.map((f, i) => (
-              <div key={f.title} className="bg-gray-50 rounded-2xl p-8 hover:bg-primary/5 hover:shadow-md transition-all group animate-fade-in border border-transparent hover:border-primary/20" style={{ animationDelay: `${i * 0.1}s` }}>
+              <ScrollReveal key={f.title} delay={i * 80}>
+              <div className="bg-gray-50 rounded-2xl p-8 hover:bg-primary/5 hover:shadow-md transition-all group border border-transparent hover:border-primary/20">
                 <div className="flex justify-center mb-5">
                   <div className="p-3 bg-white rounded-xl shadow-sm group-hover:shadow-md transition-all">
                     {getIcon(f.icon, 'h-7 w-7 text-primary')}
@@ -278,6 +284,7 @@ export default async function HomePage() {
                 <h3 className="font-bold text-gray-900 text-lg mb-3 text-center">{f.title}</h3>
                 <p className="text-gray-600 text-sm leading-relaxed text-center">{f.desc}</p>
               </div>
+              </ScrollReveal>
             ))}
           </div>
         </div>
@@ -286,6 +293,7 @@ export default async function HomePage() {
       {/* ── NGO CTA ── */}
       <section className="py-24 px-6 bg-gray-50">
         <div className="max-w-5xl mx-auto">
+          <ScrollReveal>
           <div className="bg-primary rounded-3xl p-12 md:p-16 text-center text-white relative overflow-hidden shadow-2xl">
             <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
             <div className="absolute bottom-0 left-0 w-80 h-80 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2"></div>
@@ -325,29 +333,35 @@ export default async function HomePage() {
               </div>
             </div>
           </div>
+          </ScrollReveal>
         </div>
       </section>
 
       {/* ── Citizens CTA ── */}
       <section className="py-24 px-6 bg-white">
         <div className="max-w-5xl mx-auto text-center">
-          <p className="text-sm font-bold text-primary uppercase tracking-widest mb-4">FOR CITIZENS</p>
-          <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">Every Report Saves a Life</h2>
-          <p className="text-gray-600 mb-12 max-w-2xl mx-auto text-lg leading-relaxed">
-            Spotted an injured animal? Report in under 60 seconds. Your location, photo, and description instantly routes help.
-          </p>
+          <ScrollReveal>
+            <p className="text-sm font-bold text-primary uppercase tracking-widest mb-4">FOR CITIZENS</p>
+            <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">Every Report Saves a Life</h2>
+            <p className="text-gray-600 mb-12 max-w-2xl mx-auto text-lg leading-relaxed">
+              Spotted an injured animal? Report in under 60 seconds. Your location, photo, and description instantly routes help.
+            </p>
+          </ScrollReveal>
           <div className="grid sm:grid-cols-3 gap-6 max-w-3xl mx-auto mb-12">
             {[
               { icon: <Smartphone className="h-10 w-10 text-primary" />, label: 'Take a photo' },
               { icon: <MapPin className="h-10 w-10 text-primary" />, label: 'Share location' },
               { icon: <Truck className="h-10 w-10 text-primary" />, label: 'Help dispatched' },
             ].map((s, i) => (
-              <div key={s.label} className="bg-gray-50 rounded-2xl p-8 hover:bg-primary/5 hover:shadow-md transition-all animate-scale-in border border-transparent hover:border-primary/20" style={{ animationDelay: `${i * 0.1}s` }}>
+              <ScrollReveal key={s.label} delay={i * 100}>
+              <div className="bg-gray-50 rounded-2xl p-8 hover:bg-primary/5 hover:shadow-md transition-all border border-transparent hover:border-primary/20">
                 <div className="flex justify-center mb-4">{s.icon}</div>
                 <div className="font-bold text-gray-900 text-lg">{s.label}</div>
               </div>
+              </ScrollReveal>
             ))}
           </div>
+          <ScrollReveal delay={200}>
           <Link
             href="/report"
             className="inline-flex items-center gap-2 bg-gray-900 text-white font-bold px-10 py-4 rounded-full hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl active:scale-[0.98] group"
@@ -359,6 +373,7 @@ export default async function HomePage() {
               </svg>
             </span>
           </Link>
+          </ScrollReveal>
         </div>
       </section>
 
