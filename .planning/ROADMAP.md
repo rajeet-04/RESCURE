@@ -20,6 +20,6 @@ RESCURE is a Next.js 16 / React 18 stray-animal rescue platform. This roadmap tr
 **Plans:** 3 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — Install packages + animation primitive library (`src/components/animations/`)
-- [ ] 01-02-PLAN.md — Animate hero, stats, steps, features sections of landing page
-- [ ] 01-03-PLAN.md — CTA animations, route transitions, nav scroll effects + human verify
+- [x] 01-01-PLAN.md — Install packages + animation primitive library (`src/components/animations/`) — commit `6e90104`
+- [x] 01-02-PLAN.md — Animate hero, stats, steps, features sections of landing page — commit `4497ac0`
+- [x] 01-03-PLAN.md — CTA animations, route transitions, nav scroll effects + human verify — commit `d96e2b8`
