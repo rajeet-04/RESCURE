@@ -15,8 +15,9 @@ const STATUS_COLORS: Record<string, string> = {
   DECEASED: 'bg-red-100 text-red-700',
 }
 
-function AnimalCard({ animal }: { animal: any }) {
-  const expenseTotal = animal.expenses?.reduce((sum: number, e: any) => sum + e.amount, 0) ?? 0
+type AnimalCardData = { id: string; name?: string | null; species: string; status: string; photos: string[]; expenses?: { amount: number }[]; publicSlug?: string | null; intakeDate?: Date | string | null; _count?: { healthRecords: number; sponsorships: number } }
+function AnimalCard({ animal }: { animal: AnimalCardData }) {
+  const expenseTotal = animal.expenses?.reduce((sum: number, e: { amount: number }) => sum + e.amount, 0) ?? 0
   const photo = animal.photos?.[0]
 
   return (
@@ -67,7 +68,7 @@ export default async function AnimalsPage() {
   const session = await auth()
   if (!session?.user) redirect('/login')
 
-  const userId = (session.user as any).id
+  const userId = (session.user as { id: string }).id
 
   const ngo = await prisma.nGO.findUnique({ where: { userId } })
   if (!ngo) redirect('/onboarding')

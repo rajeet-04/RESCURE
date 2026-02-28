@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+﻿import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth'
@@ -18,7 +18,7 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const role = (session.user as any).role
+    const role = (session.user as { id: string; role: string }).role
     if (role !== 'NGO_ADMIN') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
@@ -51,7 +51,7 @@ export async function POST(
           note: reason
             ? `Handed off to ${targetNgoId}: ${reason}`
             : `Handed off to ${targetNgoId}`,
-          actorId: (session.user as any).id,
+          actorId: (session.user as { id: string }).id,
         },
       }),
     ])

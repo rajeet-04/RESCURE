@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const role = (session.user as any).role
+    const role = (session.user as { id: string; role: string }).role
     if (role !== 'NGO_ADMIN' && role !== 'NGO_WORKER') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
@@ -66,3 +66,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
+
