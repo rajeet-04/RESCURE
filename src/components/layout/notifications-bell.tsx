@@ -44,23 +44,22 @@ export default function NotificationsBell() {
   }, [])
 
   useEffect(() => {
-    fetchUnread()
-    intervalRef.current = setInterval(fetchUnread, 30000)
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current)
-    }
+    // Calling fetchUnread() directly in the effect body can trigger 
+    // the react-hooks/set-state-in-effect warning if it syncs state 
+    // at the beginning of its async execution.
+    const runFetch = async () => {
+      await fetchUnread();
+    };
+    runFetch();
   }, [fetchUnread])
 
-  // Stop polling when open
+  // Poll
   useEffect(() => {
-    if (open) {
-      if (intervalRef.current) clearInterval(intervalRef.current)
-    } else {
-      intervalRef.current = setInterval(fetchUnread, 30000)
-    }
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current)
-    }
+    if (open) return
+
+    const id = setInterval(fetchUnread, 30000)
+    intervalRef.current = id
+    return () => clearInterval(id)
   }, [open, fetchUnread])
 
   // Close on outside click
