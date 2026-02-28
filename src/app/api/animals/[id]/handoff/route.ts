@@ -47,6 +47,7 @@ export async function POST(
       }),
       prisma.caseTimeline.create({
         data: {
+          state: 'ASSIGNED',
           caseId: animal.caseId,
           note: reason
             ? `Handed off to ${targetNgoId}: ${reason}`
