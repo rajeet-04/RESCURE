@@ -21,6 +21,7 @@ export default function PawSplash() {
   })
 
   useEffect(() => {
+    // If user prefers reduced motion, initial state is 'done', so we skip timeouts.
     if (phase === 'done') return
 
     const t1 = setTimeout(() => setPhase('hold'), 800)   // paws finish opening
@@ -28,7 +29,8 @@ export default function PawSplash() {
     const t3 = setTimeout(() => setPhase('done'), 2600)   // unmount
 
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3) }
-  }, [phase])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   if (phase === 'done') return null
 
