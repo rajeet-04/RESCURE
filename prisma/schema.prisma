@@ -1,0 +1,515 @@
+// PawCivic — Prisma Schema
+// PostgreSQL via Supabase
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum Role {
+  CITIZEN
+  NGO_ADMIN
+  NGO_WORKER
+  VETERINARIAN
+  SUPPLIER
+  SPONSOR
+  PLATFORM_ADMIN
+}
+
+enum UrgencyLevel {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum ReportStatus {
+  PENDING
+  ASSIGNED
+  EN_ROUTE
+  RESCUED
+  IN_CARE
+  RELEASED
+  CLOSED
+  DUPLICATE
+}
+
+enum AnimalStatus {
+  IN_TREATMENT
+  STABLE
+  READY_FOR_ADOPTION
+  ADOPTED
+  RELEASED
+  DECEASED
+}
+
+enum ConsultationStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum SubscriptionTier {
+  FREE
+  PRO
+  ENTERPRISE
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum HealthRecordType {
+  VACCINATION
+  TREATMENT
+  DIAGNOSIS
+  SURGERY
+  CHECKUP
+  NOTE
+}
+
+// ─── Core Models ─────────────────────────────────────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  email         String?   @unique
+  emailVerified DateTime?
+  phone         String?   @unique
+  name          String?
+  image         String?
+  role          Role      @default(CITIZEN)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Auth
+  accounts Account[]
+  sessions Session[]
+
+  // Relations by role
+  ngo            NGO?
+  fieldWorker    FieldWorker?
+  vet            Vet?
+  supplier       Supplier?
+  incidentReports IncidentReport[]
+  sponsorships   Sponsorship[]
+  notifications  Notification[]
+  pushSubscriptions PushSubscription[]
+
+  @@index([email])
+  @@index([role])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ─── NGO ─────────────────────────────────────────────────────────────────────
+
+model NGO {
+  id             String           @id @default(cuid())
+  userId         String           @unique
+  name           String
+  description    String?          @db.Text
+  logo           String?
+  verified       Boolean          @default(false)
+  verifiedAt     DateTime?
+  tier           SubscriptionTier @default(FREE)
+  stripeCustomerId String?        @unique
+  stripeSubId    String?          @unique
+  coverageZones  CoverageZone[]
+  city           String?
+  state          String?
+  country        String           @default("India")
+  registrationNo String?
+  documents      String[]         // Cloudinary URLs
+  activeCaseCount Int             @default(0)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id])
+  fieldWorkers FieldWorker[]
+  rescueCases  RescueCase[]
+  orders       Order[]
+  consultations Consultation[]
+
+  @@index([verified])
+  @@index([tier])
+}
+
+model CoverageZone {
+  id        String @id @default(cuid())
+  ngoId     String
+  geohash   String // precision-5 geohash for zone
+  label     String?
+
+  ngo NGO @relation(fields: [ngoId], references: [id], onDelete: Cascade)
+
+  @@index([geohash])
+}
+
+model FieldWorker {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  ngoId       String
+  available   Boolean  @default(true)
+  lat         Float?
+  lng         Float?
+  lastSeenAt  DateTime?
+  createdAt   DateTime @default(now())
+
+  user        User        @relation(fields: [userId], references: [id])
+  ngo         NGO         @relation(fields: [ngoId], references: [id])
+  rescueCases RescueCase[]
+
+  @@index([ngoId, available])
+}
+
+// ─── Incident & Rescue ───────────────────────────────────────────────────────
+
+model IncidentReport {
+  id            String       @id @default(cuid())
+  citizenId     String?      // null = anonymous
+  lat           Float
+  lng           Float
+  geohash       String       // precision-6 for dedup
+  address       String?
+  description   String?      @db.Text
+  photos        String[]     // Cloudinary URLs
+  urgencyScore  UrgencyLevel @default(MEDIUM)
+  aiRawResponse Json?        // raw Gemini response
+  status        ReportStatus @default(PENDING)
+  isDuplicate   Boolean      @default(false)
+  duplicateOf   String?      // ref to original report id
+  volunteerHelp Boolean      @default(false)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  citizen    User?       @relation(fields: [citizenId], references: [id])
+  rescueCase RescueCase?
+
+  @@index([geohash])
+  @@index([status])
+  @@index([urgencyScore])
+  @@index([createdAt])
+}
+
+model RescueCase {
+  id           String       @id @default(cuid())
+  reportId     String       @unique
+  ngoId        String
+  workerId     String?
+  state        ReportStatus @default(ASSIGNED)
+  slaDeadline  DateTime?
+  resolvedAt   DateTime?
+  notes        String?      @db.Text
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  report     IncidentReport @relation(fields: [reportId], references: [id])
+  ngo        NGO            @relation(fields: [ngoId], references: [id])
+  worker     FieldWorker?   @relation(fields: [workerId], references: [id])
+  animal     Animal?
+  timeline   CaseTimeline[]
+
+  @@index([ngoId, state])
+  @@index([workerId])
+}
+
+model CaseTimeline {
+  id        String   @id @default(cuid())
+  caseId    String
+  state     ReportStatus
+  note      String?
+  actorId   String?
+  createdAt DateTime @default(now())
+
+  case RescueCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  @@index([caseId])
+}
+
+// ─── Animal ──────────────────────────────────────────────────────────────────
+
+model Animal {
+  id          String       @id @default(cuid())
+  caseId      String       @unique
+  qrCode      String       @unique @default(cuid())
+  species     String       // dog, cat, bird, etc.
+  breed       String?
+  estimatedAge String?
+  gender      String?
+  color       String?
+  photos      String[]
+  status      AnimalStatus @default(IN_TREATMENT)
+  intakeDate  DateTime     @default(now())
+  name        String?      // given by NGO
+  publicSlug  String?      @unique
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  case          RescueCase    @relation(fields: [caseId], references: [id])
+  healthRecords HealthRecord[]
+  expenses      Expense[]
+  sponsorships  Sponsorship[]
+  consultations Consultation[]
+
+  @@index([status])
+  @@index([qrCode])
+  @@index([publicSlug])
+}
+
+model HealthRecord {
+  id        String           @id @default(cuid())
+  animalId  String
+  vetId     String?
+  type      HealthRecordType
+  title     String
+  notes     String?          @db.Text
+  documents String[]
+  date      DateTime         @default(now())
+  createdAt DateTime         @default(now())
+
+  animal Animal @relation(fields: [animalId], references: [id], onDelete: Cascade)
+  vet    Vet?   @relation(fields: [vetId], references: [id])
+
+  @@index([animalId])
+  @@index([type])
+}
+
+model Expense {
+  id        String   @id @default(cuid())
+  animalId  String
+  amount    Float
+  currency  String   @default("INR")
+  category  String   // food, medicine, surgery, transport, etc.
+  note      String?
+  receipt   String?  // Cloudinary URL
+  date      DateTime @default(now())
+
+  animal Animal @relation(fields: [animalId], references: [id], onDelete: Cascade)
+
+  @@index([animalId])
+}
+
+// ─── Veterinarian ────────────────────────────────────────────────────────────
+
+model Vet {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  licenseNo     String
+  licenseDoc    String?  // Cloudinary URL
+  specialization String?
+  verified      Boolean  @default(false)
+  available     Boolean  @default(true)
+  onCallAvailable Boolean @default(false)
+  city          String?
+  rating        Float?
+  totalConsultations Int @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user          User           @relation(fields: [userId], references: [id])
+  healthRecords HealthRecord[]
+  consultations Consultation[]
+
+  @@index([verified, available])
+  @@index([onCallAvailable])
+}
+
+model Consultation {
+  id        String             @id @default(cuid())
+  ngoId     String
+  vetId     String?
+  animalId  String
+  status    ConsultationStatus @default(OPEN)
+  isEmergency Boolean          @default(false)
+  question  String             @db.Text
+  photos    String[]
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+
+  ngo      NGO     @relation(fields: [ngoId], references: [id])
+  vet      Vet?    @relation(fields: [vetId], references: [id])
+  animal   Animal  @relation(fields: [animalId], references: [id])
+  messages ConsultationMessage[]
+
+  @@index([ngoId, status])
+  @@index([vetId, status])
+}
+
+model ConsultationMessage {
+  id             String   @id @default(cuid())
+  consultationId String
+  senderId       String
+  content        String   @db.Text
+  attachments    String[]
+  createdAt      DateTime @default(now())
+
+  consultation Consultation @relation(fields: [consultationId], references: [id], onDelete: Cascade)
+
+  @@index([consultationId])
+}
+
+// ─── Sponsorship ─────────────────────────────────────────────────────────────
+
+model Sponsorship {
+  id              String   @id @default(cuid())
+  sponsorId       String
+  animalId        String
+  planAmount      Int      // in paise (INR)
+  stripeSubId     String?  @unique
+  stripeCustomerId String?
+  active          Boolean  @default(true)
+  startedAt       DateTime @default(now())
+  cancelledAt     DateTime?
+  isCorporate     Boolean  @default(false)
+  corporateName   String?
+
+  sponsor User   @relation(fields: [sponsorId], references: [id])
+  animal  Animal @relation(fields: [animalId], references: [id])
+
+  @@index([sponsorId])
+  @@index([animalId, active])
+}
+
+// ─── Supplier & Marketplace ──────────────────────────────────────────────────
+
+model Supplier {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  name        String
+  description String?  @db.Text
+  verified    Boolean  @default(false)
+  city        String?
+  createdAt   DateTime @default(now())
+
+  user     User      @relation(fields: [userId], references: [id])
+  products Product[]
+  orders   Order[]
+}
+
+model Product {
+  id          String  @id @default(cuid())
+  supplierId  String
+  name        String
+  description String? @db.Text
+  category    String  // food-dry, food-wet, medicine, accessory
+  priceRetail Int     // in paise
+  priceNGO    Int     // discounted NGO price in paise
+  unit        String  // kg, piece, pack
+  stock       Int     @default(0)
+  images      String[]
+  active      Boolean @default(true)
+  createdAt   DateTime @default(now())
+
+  supplier   Supplier    @relation(fields: [supplierId], references: [id])
+  orderItems OrderItem[]
+
+  @@index([category, active])
+  @@index([supplierId])
+}
+
+model Order {
+  id         String      @id @default(cuid())
+  ngoId      String
+  supplierId String
+  status     OrderStatus @default(PENDING)
+  total      Int         // in paise
+  isNGOPrice Boolean     @default(false)
+  stripePaymentId String?
+  address    String?     @db.Text
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  ngo      NGO         @relation(fields: [ngoId], references: [id])
+  supplier Supplier    @relation(fields: [supplierId], references: [id])
+  items    OrderItem[]
+
+  @@index([ngoId, status])
+}
+
+model OrderItem {
+  id        String @id @default(cuid())
+  orderId   String
+  productId String
+  quantity  Int
+  unitPrice Int    // price at time of order
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+}
+
+// ─── Notifications ───────────────────────────────────────────────────────────
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String   // report_update, case_assigned, milestone, etc.
+  title     String
+  body      String
+  payload   Json?
+  read      Boolean  @default(false)
+  readAt    DateTime?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read])
+  @@index([createdAt])
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
