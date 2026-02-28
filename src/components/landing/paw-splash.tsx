@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Image from 'next/image'
 
 /**
  * Paw Splash — A soothing fullscreen intro animation.
@@ -11,67 +12,65 @@ import { useEffect, useState } from 'react'
  * Total duration ≈ 2.6 s  (plays once on mount, then unmounts itself).
  */
 export default function PawSplash() {
-  const [phase, setPhase] = useState<'enter' | 'hold' | 'exit' | 'done'>('enter')
+  const [phase, setPhase] = useState<'enter' | 'hold' | 'exit' | 'done'>(() => {
+    // Skip if user prefers reduced motion (set initial state to 'done')
+    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return 'done'
+    }
+    return 'enter'
+  })
 
   useEffect(() => {
-    // Skip if user prefers reduced motion
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      setPhase('done')
-      return
-    }
+    if (phase === 'done') return
 
     const t1 = setTimeout(() => setPhase('hold'), 800)   // paws finish opening
     const t2 = setTimeout(() => setPhase('exit'), 2000)   // start fade-out
     const t3 = setTimeout(() => setPhase('done'), 2600)   // unmount
 
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3) }
-  }, [])
+  }, [phase])
 
   if (phase === 'done') return null
 
   return (
     <div
       aria-hidden
-      className={`fixed inset-0 z-[9999] flex items-center justify-center bg-white transition-opacity duration-[600ms] ease-out ${
-        phase === 'exit' ? 'opacity-0 pointer-events-none' : 'opacity-100'
-      }`}
+      className={`fixed inset-0 z-[9999] flex items-center justify-center bg-white transition-opacity duration-[600ms] ease-out ${phase === 'exit' ? 'opacity-0 pointer-events-none' : 'opacity-100'
+        }`}
     >
       {/* Gentle radial glow behind the logo */}
       <div className="absolute w-[420px] h-[420px] rounded-full bg-gradient-radial from-green-100/70 via-green-50/30 to-transparent animate-[breathe_3s_ease-in-out_infinite] blur-2xl" />
 
       {/* LEFT PAW — slides left */}
       <div
-        className={`absolute transition-all duration-[800ms] ease-[cubic-bezier(.4,0,.2,1)] ${
-          phase === 'enter'
-            ? 'translate-x-0 opacity-100'
-            : '-translate-x-[140px] sm:-translate-x-[180px] opacity-40'
-        }`}
+        className={`absolute transition-all duration-[800ms] ease-[cubic-bezier(.4,0,.2,1)] ${phase === 'enter'
+          ? 'translate-x-0 opacity-100'
+          : '-translate-x-[140px] sm:-translate-x-[180px] opacity-40'
+          }`}
       >
         <PawSVG className="w-20 h-20 sm:w-28 sm:h-28 text-primary/80 -rotate-[25deg]" />
       </div>
 
       {/* RIGHT PAW — slides right */}
       <div
-        className={`absolute transition-all duration-[800ms] ease-[cubic-bezier(.4,0,.2,1)] ${
-          phase === 'enter'
-            ? 'translate-x-0 opacity-100'
-            : 'translate-x-[140px] sm:translate-x-[180px] opacity-40'
-        }`}
+        className={`absolute transition-all duration-[800ms] ease-[cubic-bezier(.4,0,.2,1)] ${phase === 'enter'
+          ? 'translate-x-0 opacity-100'
+          : 'translate-x-[140px] sm:translate-x-[180px] opacity-40'
+          }`}
       >
         <PawSVG className="w-20 h-20 sm:w-28 sm:h-28 text-primary/80 rotate-[25deg] scale-x-[-1]" />
       </div>
 
       {/* CENTER LOGO — fades in after paws open */}
       <div
-        className={`relative flex flex-col items-center gap-3 transition-all duration-700 ease-out ${
-          phase === 'enter'
-            ? 'opacity-0 scale-90'
-            : 'opacity-100 scale-100'
-        }`}
+        className={`relative flex flex-col items-center gap-3 transition-all duration-700 ease-out ${phase === 'enter'
+          ? 'opacity-0 scale-90'
+          : 'opacity-100 scale-100'
+          }`}
       >
         {/* Logo with pulse ring */}
         <div className="relative">
-          <img src="/logo.png" alt="RESCURE" width={64} height={64} className="rounded-full shadow-lg shadow-primary/25" />
+          <Image src="/logo.png" alt="RESCURE" width={64} height={64} className="rounded-full shadow-lg shadow-primary/25" />
           {/* Pulse ring */}
           <div className="absolute inset-0 rounded-full border-2 border-primary/40 animate-[ping-slow_1.8s_ease-out_infinite]" />
         </div>
