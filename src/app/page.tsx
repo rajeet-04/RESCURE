@@ -131,8 +131,22 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <footer className="text-center py-8 text-sm text-gray-400 border-t mt-8">
-        © {new Date().getFullYear()} RESCURE · Built for stray animals across India
+      <footer className="text-center py-8 text-sm text-gray-400 border-t mt-8 space-y-3">
+        <div className="flex flex-wrap justify-center gap-4">
+          <Link href="/api-docs" className="hover:text-orange-500 transition-colors">
+            📖 API Documentation
+          </Link>
+          <Link href="/surge" className="hover:text-orange-500 transition-colors">
+            🚨 Surge Control
+          </Link>
+          <Link href="/hotspots" className="hover:text-orange-500 transition-colors">
+            🗺️ Hotspot Map
+          </Link>
+          <Link href="/community" className="hover:text-orange-500 transition-colors">
+            🤝 Community
+          </Link>
+        </div>
+        <p>© {new Date().getFullYear()} RESCURE · Built for stray animals across India</p>
       </footer>
     </main>
   )

@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import { auth } from '@/lib/auth'
+import Image from 'next/image'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import { Badge } from '@/components/ui/badge'
@@ -9,13 +10,14 @@ import ConsultationChat from './_components/consultation-chat'
 export default async function ConsultationDetailPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
+  const { id } = await params
   const session = await auth()
   if (!session?.user) redirect('/login')
 
   const consultation = await prisma.consultation.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       animal: { select: { id: true, name: true, species: true, photos: true, status: true } },
       ngo: { select: { name: true, city: true } },
@@ -66,12 +68,15 @@ export default async function ConsultationDetailPage({
           {consultation.photos.length > 0 && (
             <div className="mt-3 flex gap-2 flex-wrap">
               {consultation.photos.map((url, i) => (
-                <img
-                  key={i}
-                  src={url}
-                  alt="Attached photo"
-                  className="w-24 h-24 object-cover rounded border"
-                />
+                <div key={i} className="relative w-24 h-24 border rounded overflow-hidden">
+                  <Image
+                    src={url}
+                    alt="Attached photo"
+                    fill
+                    className="object-cover"
+                    unoptimized
+                  />
+                </div>
               ))}
             </div>
           )}

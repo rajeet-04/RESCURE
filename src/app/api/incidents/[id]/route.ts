@@ -6,11 +6,12 @@ import { ReportStatus } from '@prisma/client'
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const incident = await prisma.incidentReport.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         rescueCase: {
           select: {
@@ -43,9 +44,10 @@ const patchSchema = z.object({
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await auth()
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -63,7 +65,7 @@ export async function PATCH(
     }
 
     const updated = await prisma.incidentReport.update({
-      where: { id: params.id },
+      where: { id },
       data: { status: parsed.data.status as ReportStatus | undefined },
     })
 

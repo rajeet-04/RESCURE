@@ -1,5 +1,6 @@
 ﻿import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import QRCode from 'qrcode'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
@@ -35,14 +36,16 @@ export default async function AnimalDetailPage({
   params,
   searchParams,
 }: {
-  params: { id: string }
-  searchParams: { tab?: string }
+  params: Promise<{ id: string }>
+  searchParams: Promise<{ tab?: string }>
 }) {
+  const { id } = await params
+  const resolvedSearchParams = await searchParams
   const session = await auth()
   if (!session?.user) redirect('/login')
 
   const animal = await prisma.animal.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       healthRecords: { orderBy: { date: 'desc' } },
       expenses: { orderBy: { date: 'desc' } },
@@ -55,16 +58,16 @@ export default async function AnimalDetailPage({
 
   const qrDataUrl = await QRCode.toDataURL(animal.qrCode)
   const expenseTotal = animal.expenses.reduce((sum, e) => sum + e.amount, 0)
-  const defaultTab = searchParams.tab ?? 'overview'
+  const defaultTab = resolvedSearchParams.tab ?? 'overview'
 
   return (
     <div className="container py-8 space-y-6 max-w-4xl">
       {/* Header */}
       <div className="flex flex-col sm:flex-row gap-6">
         {/* Photo */}
-        <div className="w-full sm:w-48 h-48 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+        <div className="w-full sm:w-48 h-48 relative rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
           {animal.photos[0] ? (
-            <img src={animal.photos[0]} alt={animal.name ?? ''} className="w-full h-full object-cover" />
+            <Image src={animal.photos[0]} alt={animal.name ?? ''} fill className="object-cover" unoptimized />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-5xl">🐾</div>
           )}
@@ -99,7 +102,7 @@ export default async function AnimalDetailPage({
 
         {/* QR Code */}
         <div className="flex flex-col items-center gap-2 flex-shrink-0">
-          <img src={qrDataUrl} alt="QR Code" className="w-28 h-28" />
+          <Image src={qrDataUrl} alt="QR Code" width={112} height={112} className="w-28 h-28" unoptimized />
           <p className="text-xs text-muted-foreground text-center">Scan to view public profile</p>
         </div>
       </div>

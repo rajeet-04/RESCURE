@@ -10,11 +10,12 @@ const addMessageSchema = z.object({
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const consultation = await prisma.consultation.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         messages: { orderBy: { createdAt: 'asc' } },
         animal: true,
@@ -35,9 +36,10 @@ export async function GET(
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await auth()
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -56,7 +58,7 @@ export async function POST(
 
     const message = await prisma.consultationMessage.create({
       data: {
-        consultationId: params.id,
+        consultationId: id,
         senderId: userId,
         content,
         attachments: attachments ?? [],
@@ -66,7 +68,7 @@ export async function POST(
     // If vet is posting and consultation is still OPEN, assign vet and move to IN_PROGRESS
     if (role === 'VETERINARIAN') {
       const consultation = await prisma.consultation.findUnique({
-        where: { id: params.id },
+        where: { id },
         select: { status: true, vetId: true },
       })
 
@@ -74,7 +76,7 @@ export async function POST(
         const vet = await prisma.vet.findUnique({ where: { userId } })
         if (vet) {
           await prisma.consultation.update({
-            where: { id: params.id },
+            where: { id },
             data: { status: 'IN_PROGRESS', vetId: vet.id },
           })
         }

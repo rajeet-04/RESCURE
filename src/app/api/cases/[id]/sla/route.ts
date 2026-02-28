@@ -11,8 +11,9 @@ const SLA_MINUTES: Record<string, number> = {
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   const session = await auth()
   const user = session?.user as { id: string; role: string } | undefined
   if (!user || (user.role !== 'NGO_ADMIN' && user.role !== 'NGO_WORKER')) {
@@ -20,7 +21,7 @@ export async function GET(
   }
 
   const rescueCase = await prisma.rescueCase.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       report: { select: { urgencyScore: true } },
     },

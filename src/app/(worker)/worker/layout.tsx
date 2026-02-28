@@ -1,13 +1,8 @@
 import { redirect } from 'next/navigation'
 import { auth } from '@/lib/auth'
-import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { Home, Briefcase, Map, User } from 'lucide-react'
-
-const GpsTracker = dynamic(
-  () => import('@/components/worker/gps-tracker'),
-  { ssr: false }
-)
+import GpsTracker from '@/components/worker/gps-tracker'
 
 export default async function WorkerLayout({
   children,

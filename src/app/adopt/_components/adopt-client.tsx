@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -51,11 +52,10 @@ export default function AdoptClient({ animals }: { animals: AnimalItem[] }) {
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
-            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
-              tab === t.key
+            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${tab === t.key
                 ? 'bg-orange-600 text-white'
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
+              }`}
           >
             {t.label}
           </button>
@@ -73,12 +73,14 @@ export default function AdoptClient({ animals }: { animals: AnimalItem[] }) {
 
           return (
             <Card key={animal.id} className="overflow-hidden">
-              <div className="h-48 bg-gray-100 flex items-center justify-center overflow-hidden">
+              <div className="h-48 relative bg-gray-100 flex items-center justify-center overflow-hidden">
                 {animal.photos[0] ? (
-                  <img
+                  <Image
                     src={animal.photos[0]}
                     alt={animal.name ?? animal.species}
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
+                    unoptimized
                   />
                 ) : (
                   <span className="text-5xl">🐾</span>

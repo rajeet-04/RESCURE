@@ -13,11 +13,12 @@ const addExpenseSchema = z.object({
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const expenses = await prisma.expense.findMany({
-      where: { animalId: params.id },
+      where: { animalId: id },
       orderBy: { date: 'desc' },
     })
 
@@ -32,9 +33,10 @@ export async function GET(
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await auth()
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -50,7 +52,7 @@ export async function POST(
 
     const expense = await prisma.expense.create({
       data: {
-        animalId: params.id,
+        animalId: id,
         amount,
         currency: 'INR',
         category,

@@ -1,5 +1,6 @@
 ﻿import { notFound } from 'next/navigation'
 import QRCode from 'qrcode'
+import Image from 'next/image'
 import { prisma } from '@/lib/prisma'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -16,9 +17,10 @@ const STATUS_COLORS: Record<string, string> = {
   DECEASED: 'bg-red-100 text-red-700',
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
   const animal = await prisma.animal.findFirst({
-    where: { publicSlug: params.slug },
+    where: { publicSlug: slug },
     select: { name: true, species: true, photos: true, status: true },
   })
 
@@ -41,9 +43,10 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   }
 }
 
-export default async function PublicAnimalPage({ params }: { params: { slug: string } }) {
+export default async function PublicAnimalPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
   const animal = await prisma.animal.findFirst({
-    where: { publicSlug: params.slug },
+    where: { publicSlug: slug },
     include: {
       healthRecords: { orderBy: { date: 'desc' }, take: 3 },
       expenses: { select: { amount: true } },
@@ -68,11 +71,13 @@ export default async function PublicAnimalPage({ params }: { params: { slug: str
         {/* Hero card */}
         <Card className="overflow-hidden">
           {animal.photos[0] && (
-            <div className="aspect-video bg-gray-100">
-              <img
+            <div className="aspect-video relative bg-gray-100">
+              <Image
                 src={animal.photos[0]}
                 alt={animal.name ?? animal.species}
-                className="w-full h-full object-cover"
+                fill
+                className="object-cover"
+                unoptimized
               />
             </div>
           )}
@@ -86,7 +91,7 @@ export default async function PublicAnimalPage({ params }: { params: { slug: str
                 <Badge className={STATUS_COLORS[animal.status] ?? ''} variant="outline">
                   {animal.status.replace(/_/g, ' ')}
                 </Badge>
-                <img src={qrDataUrl} alt="QR" className="w-20 h-20" />
+                <Image src={qrDataUrl} alt="QR" width={80} height={80} className="w-20 h-20" unoptimized />
               </div>
             </div>
 

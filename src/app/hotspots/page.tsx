@@ -1,10 +1,8 @@
 import { redirect } from 'next/navigation'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import dynamic from 'next/dynamic'
 import Link from 'next/link'
-
-const HotspotMap = dynamic(() => import('./_components/hotspot-map'), { ssr: false })
+import HotspotMapLoader from '@/components/maps/hotspot-map-loader'
 
 interface Hotspot {
   geohash: string
@@ -95,7 +93,7 @@ export default async function HotspotsPage({ searchParams }: PageProps) {
 
       {/* Map */}
       <div className="mb-8 h-[480px] overflow-hidden rounded-xl border shadow-sm">
-        <HotspotMap hotspots={hotspots} days={days} />
+        <HotspotMapLoader hotspots={hotspots} days={days} />
       </div>
 
       {/* Top 10 table */}

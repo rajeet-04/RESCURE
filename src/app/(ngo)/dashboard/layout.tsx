@@ -1,9 +1,7 @@
 import { redirect } from 'next/navigation'
 import { auth } from '@/lib/auth'
 import NGOSidebar from '@/components/layout/ngo-sidebar'
-import dynamic from 'next/dynamic'
-
-const NotificationsBell = dynamic(() => import('@/components/layout/notifications-bell'), { ssr: false })
+import NotificationsBell from '@/components/layout/notifications-bell'
 
 export default async function NGODashboardLayout({
   children,

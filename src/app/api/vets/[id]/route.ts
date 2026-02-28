@@ -5,8 +5,9 @@ import { z } from 'zod'
 
 const schema = z.object({ onCallAvailable: z.boolean() })
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params
     const session = await auth()
     if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
@@ -15,7 +16,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     if (!parsed.success) return NextResponse.json({ error: 'Invalid body' }, { status: 400 })
 
     const vet = await prisma.vet.update({
-      where: { id: params.id },
+      where: { id },
       data: { onCallAvailable: parsed.data.onCallAvailable },
     })
 

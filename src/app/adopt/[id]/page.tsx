@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
+import Image from 'next/image'
 import QRCode from 'qrcode'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
@@ -52,12 +53,14 @@ export default async function AnimalSponsorPage({ params }: Props) {
       {/* Hero */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="space-y-3">
-          <div className="h-72 rounded-2xl bg-gray-100 overflow-hidden flex items-center justify-center">
+          <div className="h-72 relative rounded-2xl bg-gray-100 overflow-hidden flex items-center justify-center">
             {animal.photos[0] ? (
-              <img
+              <Image
                 src={animal.photos[0]}
                 alt={animal.name ?? animal.species}
-                className="w-full h-full object-cover"
+                fill
+                className="object-cover"
+                unoptimized
               />
             ) : (
               <span className="text-7xl">🐾</span>
@@ -66,12 +69,15 @@ export default async function AnimalSponsorPage({ params }: Props) {
           {animal.photos.length > 1 && (
             <div className="flex gap-2 overflow-x-auto pb-1">
               {animal.photos.slice(1).map((src, i) => (
-                <img
-                  key={i}
-                  src={src}
-                  alt=""
-                  className="h-16 w-16 rounded-lg object-cover flex-shrink-0"
-                />
+                <div key={i} className="relative h-16 w-16 rounded-lg overflow-hidden flex-shrink-0">
+                  <Image
+                    src={src}
+                    alt=""
+                    fill
+                    className="object-cover"
+                    unoptimized
+                  />
+                </div>
               ))}
             </div>
           )}
@@ -126,7 +132,7 @@ export default async function AnimalSponsorPage({ params }: Props) {
 
           {/* QR Code */}
           <div className="flex items-center gap-3">
-            <img src={qrDataUrl} alt="QR Code" className="h-16 w-16" />
+            <Image src={qrDataUrl} alt="QR Code" width={64} height={64} className="h-16 w-16" unoptimized />
             <p className="text-xs text-gray-400">Scan to share this animal&apos;s page</p>
           </div>
         </div>

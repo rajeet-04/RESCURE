@@ -13,11 +13,12 @@ const addHealthRecordSchema = z.object({
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const records = await prisma.healthRecord.findMany({
-      where: { animalId: params.id },
+      where: { animalId: id },
       orderBy: { date: 'desc' },
     })
     return NextResponse.json(records)
@@ -29,9 +30,10 @@ export async function GET(
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await auth()
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -54,7 +56,7 @@ export async function POST(
 
     const record = await prisma.healthRecord.create({
       data: {
-        animalId: params.id,
+        animalId: id,
         vetId,
         type,
         title,
