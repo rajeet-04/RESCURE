@@ -14,24 +14,21 @@ interface SurgeEvent {
 }
 
 async function getSurgeEvents(): Promise<SurgeEvent[]> {
-  const events = await prisma.notification.findMany({
-    where: { type: 'SURGE_EVENT' },
+  const events = await prisma.surgeEvent.findMany({
+    where: { isActive: true },
     orderBy: { createdAt: 'desc' },
     take: 5,
   })
-  return events.map((e) => {
-    const payload = e.payload as { lat?: number; lng?: number; radius?: number; volunteerCount?: number } | null
-    return {
-      id: e.id,
-      title: e.title,
-      description: e.body,
-      lat: payload?.lat ?? 20.5937,
-      lng: payload?.lng ?? 78.9629,
-      radius: payload?.radius ?? 5,
-      createdAt: e.createdAt,
-      volunteerCount: payload?.volunteerCount ?? 0,
-    }
-  })
+  return events.map((e) => ({
+    id: e.id,
+    title: e.title,
+    description: e.reason ?? '',
+    lat: e.lat,
+    lng: e.lng,
+    radius: e.radiusKm,
+    createdAt: e.createdAt,
+    volunteerCount: 0,
+  }))
 }
 
 export default async function SurgePage() {

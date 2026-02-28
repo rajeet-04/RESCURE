@@ -2,27 +2,25 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { sendPushToRole } from '@/lib/push/server'
+import { encodeGeohash } from '@/lib/geo/geohash'
 
 export async function GET() {
-  const events = await prisma.notification.findMany({
-    where: { type: 'SURGE_EVENT' },
+  const events = await prisma.surgeEvent.findMany({
+    where: { isActive: true },
     orderBy: { createdAt: 'desc' },
     take: 5,
   })
 
-  const result = events.map((e) => {
-    const payload = e.payload as { lat?: number; lng?: number; radius?: number; volunteerCount?: number } | null
-    return {
-      id: e.id,
-      title: e.title,
-      description: e.body,
-      lat: payload?.lat ?? 0,
-      lng: payload?.lng ?? 0,
-      radius: payload?.radius ?? 5,
-      createdAt: e.createdAt,
-      volunteerCount: payload?.volunteerCount ?? 0,
-    }
-  })
+  const result = events.map((e) => ({
+    id: e.id,
+    title: e.title,
+    description: e.reason ?? '',
+    lat: e.lat,
+    lng: e.lng,
+    radius: e.radiusKm,
+    createdAt: e.createdAt,
+    volunteerCount: 0,
+  }))
 
   return NextResponse.json(result)
 }
@@ -48,14 +46,29 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
   }
 
-  // Get all citizens (up to 1000)
+  const geohash = encodeGeohash(lat, lng, 5)
+
+  // Create the SurgeEvent record (admin-created, not proactive)
+  await prisma.surgeEvent.create({
+    data: {
+      geohash,
+      lat,
+      lng,
+      radiusKm: radius,
+      reason: description,
+      title,
+      isActive: true,
+      isProactive: false,
+    },
+  })
+
+  // Batch-create SURGE_ALERT notifications for all citizens
   const citizens = await prisma.user.findMany({
     where: { role: 'CITIZEN' },
     select: { id: true },
     take: 1000,
   })
 
-  // Batch create notifications for citizens
   const batchSize = 100
   let created = 0
   for (let i = 0; i < citizens.length; i += batchSize) {
@@ -72,18 +85,7 @@ export async function POST(request: NextRequest) {
     created += result.count
   }
 
-  // Store surge event record under admin userId
-  await prisma.notification.create({
-    data: {
-      userId: user.id,
-      type: 'SURGE_EVENT',
-      title,
-      body: description,
-      payload: { lat, lng, radius, volunteerCount: 0 },
-    },
-  })
-
-  // Broadcast push notification to all citizens
+  // Push to all citizens
   await sendPushToRole('CITIZEN', {
     title,
     body: message ?? description,

@@ -11,8 +11,7 @@ export default async function AdminSurgePage() {
     redirect('/unauthorized')
   }
 
-  const recentSurges = await prisma.notification.findMany({
-    where: { type: 'SURGE_EVENT' },
+  const recentSurges = await prisma.surgeEvent.findMany({
     orderBy: { createdAt: 'desc' },
     take: 10,
   })
@@ -35,23 +34,16 @@ export default async function AdminSurgePage() {
               <p className="text-sm text-gray-400">No surge events activated yet.</p>
             ) : (
               <div className="space-y-3">
-                {recentSurges.map((surge) => {
-                  const payload = surge.payload as {
-                    lat?: number
-                    lng?: number
-                    radius?: number
-                  } | null
-                  return (
+                {recentSurges.map((surge) => (
                     <div key={surge.id} className="rounded-lg border p-3">
                       <p className="font-semibold text-sm text-red-600">{surge.title}</p>
-                      <p className="mt-1 text-xs text-gray-500">{surge.body}</p>
+                      <p className="mt-1 text-xs text-gray-500">{surge.reason ?? ''}</p>
                       <p className="mt-1 text-xs text-gray-400">
-                        Radius: {payload?.radius ?? '?'} km ·{' '}
+                        Radius: {surge.radiusKm} km ·{' '}
                         {new Date(surge.createdAt).toLocaleString()}
                       </p>
                     </div>
-                  )
-                })}
+                  ))}
               </div>
             )}
           </CardContent>

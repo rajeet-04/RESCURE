@@ -13,9 +13,12 @@ export async function auth() {
       where: { email: session.user.email },
     })
 
+    let isNewUser = false
+
     // First-time login — provision user in DB
     if (!user) {
       user = await syncUserWithDatabase(session.user)
+      isNewUser = true
     }
 
     if (!user) return null
@@ -28,6 +31,7 @@ export async function auth() {
         image: user.image,
         role: user.role as Role,
       },
+      isNewUser,
     }
   } catch {
     return null
@@ -64,7 +68,7 @@ export async function syncUserWithDatabase(auth0User: {
 
   if (!existing) {
     return prisma.user.create({
-      data: { email, name, image, role: 'Citizen' as Role },
+      data: { email, name, image, role: 'CITIZEN' },
     })
   }
 
