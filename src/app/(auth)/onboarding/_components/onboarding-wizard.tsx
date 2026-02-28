@@ -86,7 +86,14 @@ export default function OnboardingWizard() {
         setDone(true)
       } else {
         const data = await res.json()
-        setError(data.error ?? 'Something went wrong')
+        const raw = data.error
+        setError(
+          typeof raw === 'string'
+            ? raw
+            : raw
+            ? JSON.stringify(raw)
+            : 'Something went wrong',
+        )
       }
     } catch {
       setSubmitting(false)
