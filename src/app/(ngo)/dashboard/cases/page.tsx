@@ -113,9 +113,17 @@ export default function NGOCasesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Case Queue</h1>
-        <span className="rounded-full bg-orange-100 px-3 py-1 text-sm font-medium text-orange-700">
-          {incidents.filter((i) => i.status === 'PENDING').length} pending
-        </span>
+        <div className="flex items-center gap-3">
+          <span className="rounded-full bg-orange-100 px-3 py-1 text-sm font-medium text-orange-700">
+            {incidents.filter((i) => i.status === 'PENDING').length} pending
+          </span>
+          <a
+            href="/api/export/cases?format=csv"
+            className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+          >
+            ⬇️ Export CSV
+          </a>
+        </div>
       </div>
 
       <Tabs value={activeFilter} onValueChange={(v) => setActiveFilter(v as UrgencyLevel | 'ALL')}>

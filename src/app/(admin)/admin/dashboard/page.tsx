@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { Badge } from '@/components/ui/badge'
@@ -52,6 +53,34 @@ export default async function AdminDashboardPage() {
   return (
     <div className="min-h-screen bg-gray-50 p-6 lg:p-8">
       <h1 className="mb-6 text-2xl font-bold text-gray-900">Platform Admin Dashboard</h1>
+
+      {/* Quick Navigation */}
+      <div className="mb-6 flex flex-wrap gap-3">
+        <Link
+          href="/admin/surge"
+          className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 transition-colors"
+        >
+          🚨 Surge Control
+        </Link>
+        <Link
+          href="/hotspots"
+          className="rounded-lg bg-orange-500 px-4 py-2 text-sm font-medium text-white hover:bg-orange-600 transition-colors"
+        >
+          🗺️ Hotspot Map
+        </Link>
+        <Link
+          href="/admin/multi-city"
+          className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
+        >
+          🌍 Multi-city Ops
+        </Link>
+        <a
+          href="/api/export/cases?format=csv"
+          className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+        >
+          ⬇️ Export Cases CSV
+        </a>
+      </div>
 
       {/* Stats Row */}
       <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
