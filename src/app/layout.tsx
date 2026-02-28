@@ -40,6 +40,12 @@ export const viewport: Viewport = {
   userScalable: false,
 }
 
+/**
+ * Root layout component that wraps application pages with global providers and UI.
+ *
+ * @param children - The page content to render inside the layout
+ * @returns The top-level HTML structure containing providers, global banners, and the provided page content
+ */
 export default function RootLayout({
   children,
 }: Readonly<{

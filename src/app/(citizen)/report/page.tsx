@@ -42,6 +42,18 @@ const urgencyColors: Record<string, string> = {
   LOW: 'bg-success text-white',
 }
 
+/**
+ * Render the emergency animal report page and manage the full report workflow.
+ *
+ * The component displays a multi-section form (animal info, location, reporter contact),
+ * validates input with the configured schema, uploads images, and submits a report to
+ * /api/incidents. On duplicate reports it navigates to the existing report; on success
+ * it shows an urgency result and navigates to the created report. If submission fails
+ * (for example when offline) it attempts to save the report locally and shows an
+ * appropriate inline error message.
+ *
+ * @returns The JSX element for the Report page UI.
+ */
 export default function ReportPage() {
   const router = useRouter()
   const [location, setLocation] = useState<{ lat: number; lng: number; geohash: string } | null>(null)

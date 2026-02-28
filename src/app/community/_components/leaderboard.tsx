@@ -28,6 +28,16 @@ const rankIcon = (i: number) => {
   return <span className="text-sm font-bold text-gray-500">#{i + 1}</span>
 }
 
+/**
+ * Renders a leaderboard column with a header icon, title, and a list of ranked items showing each item's content and count.
+ *
+ * @template T - Item type which must include a `count` number
+ * @param title - Column title text displayed next to the header icon
+ * @param icon - React component used as the header icon; receives an optional `className`
+ * @param items - Array of items to display in the column; an empty array shows a "No data yet" message
+ * @param renderItem - Function that renders the main content for each item given the item and its zero-based index
+ * @returns A JSX element representing the complete leaderboard column including header and animated item rows
+ */
 function LeaderboardColumn<T extends { count: number }>({
   title,
   icon: Icon,
@@ -65,6 +75,14 @@ function LeaderboardColumn<T extends { count: number }>({
   )
 }
 
+/**
+ * Render a responsive leaderboard with two columns showing top reporters and top NGOs.
+ *
+ * Renders column headers with icons, per-item avatars or placeholders, rank indicators, and counts.
+ *
+ * @param data - LeaderboardData containing `topReporters` and `topNGOs` used to populate each column
+ * @returns A React element containing the leaderboard UI
+ */
 export default function Leaderboard({ data }: { data: LeaderboardData }) {
   return (
     <>

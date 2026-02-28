@@ -3,6 +3,13 @@
 import { useEffect, useState } from 'react'
 import { WifiOff } from 'lucide-react'
 
+/**
+ * Displays a top-fixed banner when the browser is offline.
+ *
+ * Subscribes to the window 'online' and 'offline' events to track connectivity and renders a compact banner with an icon and message while offline.
+ *
+ * @returns A React element that renders a fixed offline banner when the browser is offline, or `null` when online.
+ */
 export default function OfflineBanner() {
   const [isOffline, setIsOffline] = useState(false)
 

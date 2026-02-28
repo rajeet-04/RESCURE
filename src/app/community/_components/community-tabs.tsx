@@ -42,6 +42,14 @@ const TABS = [
   { id: 'badges', label: 'My Badges', Icon: Award },
 ]
 
+/**
+ * Render the community tab interface that switches between the rescue feed, leaderboard, and badges panel.
+ *
+ * @param feedItems - Array of rescue posts displayed in the Feed tab
+ * @param leaderboard - Data for the Leaderboard tab (top reporters and NGOs)
+ * @param isAuthenticated - Whether the current user is authenticated (controls badges panel behavior)
+ * @returns The React element that renders tab buttons and the currently selected tab panel
+ */
 export default function CommunityTabs({
   feedItems,
   leaderboard,

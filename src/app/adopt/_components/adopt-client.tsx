@@ -31,6 +31,12 @@ const TABS = [
   { key: 'adopt', label: 'Ready to Adopt' },
 ]
 
+/**
+ * Renders a sponsor/adopt UI that lists and filters animals into "all", "care", and "adopt" tabs.
+ *
+ * @param animals - Array of animals to display; each item provides metadata, photos, expenses, and sponsorship counts used in the list.
+ * @returns A React element containing the tabbed list of animal cards with images, status badges, expense and sponsor info, and a "Sponsor now" action for each animal.
+ */
 export default function AdoptClient({ animals }: { animals: AnimalItem[] }) {
   const [tab, setTab] = useState('all')
 

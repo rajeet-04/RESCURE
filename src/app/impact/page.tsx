@@ -5,6 +5,16 @@ import ImpactCharts from './_components/impact-charts'
 
 export const dynamic = 'force-dynamic'
 
+/**
+ * Render the RESCURE Impact Dashboard page component.
+ *
+ * Fetches aggregated incident reports, urgency and status counts, animal status counts,
+ * recent reports (30-day window), and verified NGO totals, then renders a dashboard
+ * with summary stats, a 30-day trend chart, urgency breakdown, animal status visuals,
+ * and a status pipeline.
+ *
+ * @returns The dashboard page JSX element displaying aggregated incident and animal statistics, charts, and the status pipeline.
+ */
 export default async function ImpactPage() {
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
 

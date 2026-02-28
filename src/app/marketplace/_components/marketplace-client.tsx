@@ -44,6 +44,12 @@ const FILTER_TABS = [
   { key: 'accessory', label: 'Accessory' },
 ]
 
+/**
+ * Render a categorized product marketplace UI with client-side filtering, product details, and ephemeral add-to-cart feedback.
+ *
+ * @param products - Array of products to display; each product is shown in a responsive card and is filterable by its `category`
+ * @returns A React element that renders the marketplace interface
+ */
 export default function MarketplaceClient({ products }: { products: ProductItem[] }) {
   const [category, setCategory] = useState('all')
   const [added, setAdded] = useState<string | null>(null)

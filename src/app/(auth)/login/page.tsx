@@ -4,6 +4,15 @@ import { Heart } from 'lucide-react'
 
 export const metadata: Metadata = { title: 'Login' }
 
+/**
+ * Renders the login page with Google OAuth and email magic-link forms.
+ *
+ * The component reads an optional `callbackUrl` from `searchParams` to determine
+ * where to redirect after sign-in; if not provided, it defaults to `/auth/redirect`.
+ *
+ * @param searchParams - A promise resolving to an object that may contain `callbackUrl`, used as the post-auth redirect target.
+ * @returns A React element representing the login page UI with sign-in actions.
+ */
 export default async function LoginPage({
   searchParams,
 }: {

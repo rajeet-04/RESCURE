@@ -18,6 +18,13 @@ type BadgesResponse = {
   totalReports: number
 }
 
+/**
+ * Render the badges panel UI that conditionally shows a sign-in prompt, loading placeholders,
+ * an error message, or a grid of badge cards with progress and earned state.
+ *
+ * @param isAuthenticated - Whether the current user is signed in; when `true` the component fetches and displays badge data, otherwise it shows a sign-in prompt.
+ * @returns A JSX element containing the appropriate badges UI (sign-in prompt, loading skeletons, error text, or badge grid with progress indicators).
+ */
 export default function BadgesPanel({ isAuthenticated }: { isAuthenticated: boolean }) {
   const [data, setData] = useState<BadgesResponse | null>(null)
   const [loading, setLoading] = useState(true)

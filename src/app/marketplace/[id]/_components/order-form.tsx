@@ -14,6 +14,18 @@ type Props = {
   unit: string
 }
 
+/**
+ * Render an order form that lets an NGO enter quantity and delivery address and place an order for a product.
+ *
+ * The form validates inputs, submits a POST to `/api/orders`, displays server or network errors, and shows a confirmation block with the created order ID on success.
+ *
+ * @param productId - ID of the product to order
+ * @param productName - Human-readable product name shown in the summary
+ * @param ngoPrice - Price per unit in paise (integer); used to calculate and display unit and total prices
+ * @param supplierId - ID of the supplier to which the order will be sent
+ * @param unit - Unit label (e.g., "kg", "pcs") displayed alongside quantity
+ * @returns A React element containing the interactive order form and success confirmation UI
+ */
 export default function OrderForm({ productId, productName, ngoPrice, supplierId, unit }: Props) {
   const [quantity, setQuantity] = useState('1')
   const [address, setAddress] = useState('')

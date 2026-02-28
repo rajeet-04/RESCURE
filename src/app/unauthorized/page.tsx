@@ -4,6 +4,11 @@ import { ShieldAlert } from 'lucide-react'
 
 export const metadata: Metadata = { title: '403 Unauthorized — RESCURE' }
 
+/**
+ * Render the Access Denied page shown to users without permission.
+ *
+ * @returns A JSX element that displays an "Access Denied" message, a decorative alert icon, and navigation links to Home and Sign In.
+ */
 export default function UnauthorizedPage() {
   return (
     <main className="min-h-screen relative flex items-center justify-center p-6 overflow-hidden">

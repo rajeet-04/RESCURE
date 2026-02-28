@@ -18,6 +18,14 @@ const CATEGORY_LABELS: Record<string, string> = {
   accessory: 'Accessory',
 }
 
+/**
+ * Renders the product detail page for a given product id, including supplier info, pricing, stock and an order section.
+ *
+ * If the product does not exist or is inactive, a 404 page is triggered.
+ *
+ * @param params - Route params object; `params.id` is the product id to display.
+ * @returns The page's JSX showing product details and either an NGO order form (for NGO admins) or a prompt to sign in/register. 
+ */
 export default async function ProductDetailPage({ params }: Props) {
   const { id } = await params
 

@@ -2,6 +2,13 @@
 
 import { useEffect } from 'react'
 
+/**
+ * Registers an IntersectionObserver that adds the `animate-in` class to matching scroll-animation elements when they enter the viewport.
+ *
+ * Observes elements with the classes: `.scroll-animate`, `.scroll-slide-up`, `.scroll-slide-left`, `.scroll-slide-right`, `.scroll-zoom-in`, `.scroll-blur`, and `.scroll-fade`, and disconnects observation on unmount.
+ *
+ * @returns null — the component renders nothing
+ */
 export function ScrollAnimationObserver() {
   useEffect(() => {
     const observerCallback: IntersectionObserverCallback = (entries) => {
