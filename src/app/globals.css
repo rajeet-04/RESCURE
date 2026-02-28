@@ -279,3 +279,26 @@
     background-position: 0% 50%;
   }
 }
+
+/* ── Animation performance utilities (Framer Motion / GSAP targets) ── */
+.will-animate {
+  will-change: transform, opacity;
+}
+.will-animate-transform {
+  will-change: transform;
+}
+
+/* Clip container for text-reveal overflow */
+.clip-text {
+  overflow: hidden;
+  display: block;
+}
+
+/* Reduce motion: honour OS-level preference */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
