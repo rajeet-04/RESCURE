@@ -20,13 +20,13 @@ type BadgesResponse = {
 
 export default function BadgesPanel({ isAuthenticated }: { isAuthenticated: boolean }) {
   const [data, setData] = useState<BadgesResponse | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(() => isAuthenticated)
 
   useEffect(() => {
     if (!isAuthenticated) {
-      setLoading(false)
       return
     }
+    setTimeout(() => setLoading(true), 0)
     fetch('/api/community/badges')
       .then((r) => r.json())
       .then((d: BadgesResponse) => setData(d))
@@ -76,11 +76,10 @@ export default function BadgesPanel({ isAuthenticated }: { isAuthenticated: bool
         {data.badges.map((badge) => (
           <div
             key={badge.id}
-            className={`rounded-2xl border p-5 transition-all ${
-              badge.earned
-                ? 'bg-primary/5 border-green-200 shadow-sm'
-                : 'bg-gray-50 border-gray-200 opacity-60'
-            }`}
+            className={`rounded-2xl border p-5 transition-all ${badge.earned
+              ? 'bg-primary/5 border-green-200 shadow-sm'
+              : 'bg-gray-50 border-gray-200 opacity-60'
+              }`}
           >
             <div className="flex items-center gap-3 mb-3">
               <span className="text-3xl">{badge.icon}</span>
