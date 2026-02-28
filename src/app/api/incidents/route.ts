@@ -2,6 +2,69 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth'
+import type { ReportStatus } from '@prisma/client'
+
+const VALID_STATUSES: ReportStatus[] = [
+  'PENDING', 'ASSIGNED', 'EN_ROUTE', 'RESCUED', 'IN_CARE', 'RELEASED', 'CLOSED', 'DUPLICATE',
+]
+
+export async function GET(req: NextRequest) {
+  const session = await auth()
+  const user = session?.user as { id: string; role: string } | undefined
+  if (
+    !user ||
+    (user.role !== 'PLATFORM_ADMIN' &&
+      user.role !== 'NGO_ADMIN' &&
+      user.role !== 'NGO_WORKER')
+  ) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const { searchParams } = req.nextUrl
+  const rawStatuses = searchParams.get('status') ?? 'PENDING'
+  const statuses = rawStatuses
+    .split(',')
+    .map((s) => s.trim().toUpperCase())
+    .filter((s): s is ReportStatus => VALID_STATUSES.includes(s as ReportStatus))
+
+  const limit = Math.min(parseInt(searchParams.get('limit') ?? '100', 10), 500)
+
+  const reports = await prisma.incidentReport.findMany({
+    where: statuses.length > 0 ? { status: { in: statuses } } : undefined,
+    orderBy: { createdAt: 'desc' },
+    take: limit,
+    select: {
+      id: true,
+      title: true,
+      lat: true,
+      lng: true,
+      urgencyScore: true,
+      status: true,
+      city: true,
+      landmark: true,
+      animalType: true,
+      createdAt: true,
+      rescueCase: { select: { id: true } },
+    },
+  })
+
+  // Map lat/lng → latitude/longitude for component compatibility
+  const result = reports.map((r) => ({
+    id: r.id,
+    title: r.title ?? 'Incident',
+    latitude: r.lat,
+    longitude: r.lng,
+    urgencyScore: r.urgencyScore,
+    status: r.status,
+    city: r.city,
+    landmark: r.landmark,
+    animalType: r.animalType,
+    createdAt: r.createdAt,
+    rescueCaseId: r.rescueCase?.id ?? null,
+  }))
+
+  return NextResponse.json(result)
+}
 
 const incidentSchema = z.object({
   description: z.string().min(3).max(1000).optional(),

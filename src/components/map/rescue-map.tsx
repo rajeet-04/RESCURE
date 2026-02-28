@@ -12,6 +12,7 @@ interface Incident {
   longitude: number
   urgencyScore: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW'
   status: string
+  rescueCaseId?: string | null
 }
 
 interface RescueMapProps {
@@ -78,14 +79,15 @@ export default function RescueMap({ incidents }: RescueMapProps) {
 
       const popupContent = document.createElement('div')
       popupContent.className = 'space-y-1 min-w-[160px]'
+      const caseLink = incident.rescueCaseId
+        ? `<button class="block text-xs text-orange-600 hover:underline mt-1 view-case-btn" data-href="/dashboard/cases/${incident.rescueCaseId}">View case →</button>`
+        : `<span class="block text-xs text-gray-400 mt-1">No case assigned yet</span>`
       popupContent.innerHTML = `
         <p class="font-semibold text-sm leading-snug">${incident.title}</p>
         <p class="text-xs font-medium" style="color: ${urgencyColorMap[incident.urgencyScore]}">
           ${incident.urgencyScore}
         </p>
-        <button class="block text-xs text-orange-600 hover:underline mt-1 view-case-btn" data-id="${incident.id}">
-          View case →
-        </button>
+        ${caseLink}
       `
 
       marker.bindPopup(popupContent)
@@ -100,8 +102,8 @@ export default function RescueMap({ incidents }: RescueMapProps) {
       const btn = e.popup.getElement()?.querySelector('.view-case-btn') as HTMLButtonElement
       if (btn) {
         btn.onclick = () => {
-          const id = btn.getAttribute('data-id')
-          if (id) router.push(`/dashboard/cases/${id}`)
+          const href = btn.getAttribute('data-href')
+          if (href) router.push(href)
         }
       }
     })
