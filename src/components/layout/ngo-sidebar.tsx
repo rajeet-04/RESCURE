@@ -10,6 +10,8 @@ import {
   Map,
   Users,
   BarChart3,
+  ShoppingBag,
+  Stethoscope,
   Settings,
   Bell,
   Menu,
@@ -27,6 +29,8 @@ const navItems = [
   { href: '/dashboard/map', label: 'Map', icon: Map },
   { href: '/dashboard/team', label: 'Team', icon: Users },
   { href: '/dashboard/analytics', label: 'Analytics', icon: BarChart3 },
+  { href: '/dashboard/marketplace', label: 'Marketplace', icon: ShoppingBag },
+  { href: '/dashboard/book-vet', label: 'Book a Vet', icon: Stethoscope },
   { href: '/dashboard/settings', label: 'Settings', icon: Settings },
 ]
 
