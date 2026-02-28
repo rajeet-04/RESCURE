@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import CaseStatusForm from './_components/case-status-form'
+import SlaTimer from '@/components/cases/sla-timer'
 import { Badge } from '@/components/ui/badge'
 import { MapPin } from 'lucide-react'
 
@@ -43,6 +44,14 @@ export default async function CaseDetailPage({ params }: { params: { id: string 
           Case #{rescueCase.id.slice(0, 8)} · Created{' '}
           {new Date(rescueCase.createdAt).toLocaleDateString('en-IN')}
         </p>
+        <div className="mt-3">
+          <SlaTimer
+            caseId={rescueCase.id}
+            deadline={rescueCase.slaDeadline?.toISOString() ?? null}
+            urgency={report.urgencyScore}
+            state={rescueCase.state}
+          />
+        </div>
       </div>
 
       {/* Location */}
