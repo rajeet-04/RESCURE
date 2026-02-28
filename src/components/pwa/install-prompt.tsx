@@ -3,6 +3,16 @@
 import { useEffect, useState } from 'react'
 import { Heart, X } from 'lucide-react'
 
+/**
+ * Displays a bottom-mounted PWA install banner and controls prompting or dismissing it.
+ *
+ * Listens for the `beforeinstallprompt` event and shows a banner unless the app is in standalone
+ * display mode or the user previously dismissed the prompt (persisted in `localStorage` as
+ * `pwa-install-dismissed = '1'`). When the user chooses Install the saved prompt's `prompt()` is
+ * invoked; when the user dismisses the banner the dismissal is persisted and the banner is hidden.
+ *
+ * @returns The install banner element when visible, or `null` when hidden.
+ */
 export default function InstallPrompt() {
   const [showBanner, setShowBanner] = useState(false)
   const [deferredPrompt, setDeferredPrompt] = useState<Event & { prompt: () => void } | null>(null)

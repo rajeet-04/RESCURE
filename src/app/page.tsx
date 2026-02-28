@@ -10,6 +10,15 @@ export const metadata: Metadata = {
   description: 'AI-powered platform connecting citizens, NGOs and vets for real-time stray animal rescue across India.',
 }
 
+/**
+ * Render the platform home page with header, hero, stats, features, CTAs, and footer.
+ *
+ * Fetches the current session and constructs a serializable `user` object for client components.
+ * Server-side counts for reports, rescued animals, verified NGOs, and active sponsors are retrieved
+ * and used to populate the stats bar; if fetching fails all counts default to zero.
+ *
+ * @returns The homepage React node containing the header (with user-specific UI), hero section, stats bar, "How It Works" steps, features grid, NGO and citizen CTAs, and footer.
+ */
 export default async function HomePage() {
   const session = await auth()
   const sessionUser = session?.user as {

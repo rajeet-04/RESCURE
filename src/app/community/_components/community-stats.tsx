@@ -1,6 +1,13 @@
 import { prisma } from '@/lib/prisma'
 import { Heart, MapPin, Building2 } from 'lucide-react'
 
+/**
+ * Render a responsive grid of three community statistics cards.
+ *
+ * Fetches counts for rescued cases, incident reports, and verified NGOs, formats each count with locale-aware separators, and displays them with an associated icon and label.
+ *
+ * @returns A React element containing a responsive grid of three statistic cards, each showing an icon, a formatted numeric value, and a descriptive label.
+ */
 export default async function CommunityStats() {
   const [totalRescued, totalReports, activeNGOs] = await Promise.all([
     prisma.rescueCase.count({ where: { state: 'RESCUED' } }),

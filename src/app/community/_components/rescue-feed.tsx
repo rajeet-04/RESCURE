@@ -42,6 +42,16 @@ const stateColors: Record<string, string> = {
   RELEASED: 'bg-green-100 text-green-700',
 }
 
+/**
+ * Render a responsive grid of rescue feed cards, or an empty-state prompt when no items are provided.
+ *
+ * Each card displays a photo (with fallbacks), animal name, urgency and state badges, optional description,
+ * NGO info, and the relative creation time. If an item has an associated `animal.publicSlug`, the card is
+ * wrapped in a link to that animal's page.
+ *
+ * @param items - Array of feed items to display; each item supplies report, ngo, and optional animal data used for card content and fallbacks.
+ * @returns The feed UI as a JSX element.
+ */
 export default function RescueFeed({ items }: { items: FeedItem[] }) {
   if (items.length === 0) {
     return (

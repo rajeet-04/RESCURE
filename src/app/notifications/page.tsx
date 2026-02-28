@@ -18,6 +18,12 @@ function timeAgo(date: Date): string {
   return `${Math.floor(hrs / 24)}d ago`
 }
 
+/**
+ * Group notifications into three buckets — Today, Yesterday, and Older — based on each notification's `createdAt` date.
+ *
+ * @param notifications - Array of notification objects to group by creation date.
+ * @returns An object with keys `Today`, `Yesterday`, and `Older`, each containing the notifications whose `createdAt` falls on that local date bucket.
+ */
 function groupByDate(notifications: { createdAt: Date; id: string; type: string; title: string; body: string; read: boolean; readAt: Date | null; userId: string; payload: unknown }[]) {
   const now = new Date()
   const today = now.toDateString()
@@ -41,6 +47,16 @@ const typeIconMap: Record<string, React.ComponentType<{ className?: string }>> =
   system: Bell,
 }
 
+/**
+ * Render the notifications page for the current authenticated user, fetching their notifications,
+ * grouping them by date (Today, Yesterday, Older), and visually highlighting unread items.
+ *
+ * This page redirects unauthenticated users to `/login` and displays an empty-state when no
+ * notifications exist. Unread notifications are counted, shown with a "New" badge, and rendered
+ * with a distinct background/border.
+ *
+ * @returns A React element representing the notifications page UI
+ */
 export default async function NotificationsPage() {
   const session = await auth()
   const user = session?.user as { id: string; role: string; name?: string } | undefined

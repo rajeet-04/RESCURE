@@ -60,6 +60,12 @@ function urgencyLabel(avg: number): string {
   return 'Low'
 }
 
+/**
+ * Renders the Predictive Hotspot Map page: authenticates the user (redirects to `/unauthorized` if the user is not `PLATFORM_ADMIN` or `NGO_ADMIN`), loads hotspot data for the requested day range, and displays an interactive map alongside a Top 10 hotspot table.
+ *
+ * @param searchParams - Query parameters object; the `days` value controls the lookback window in days (defaults to 30)
+ * @returns The page JSX containing the hotspot map and a table of the top 10 hotspot zones for the selected range.
+ */
 export default async function HotspotsPage({ searchParams }: PageProps) {
   const session = await auth()
   const user = session?.user as { id: string; role: string } | undefined

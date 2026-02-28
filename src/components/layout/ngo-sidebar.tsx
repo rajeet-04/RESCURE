@@ -29,6 +29,16 @@ const navItems = [
   { href: '/dashboard/settings', label: 'Settings', icon: Settings },
 ]
 
+/**
+ * Sidebar component for NGO navigation with an optional notification indicator.
+ *
+ * Renders a responsive sidebar (mobile drawer + desktop pane) containing brand, an optional notification banner,
+ * navigation links with active highlighting based on the current path, and a footer. Clicking a navigation link
+ * closes the mobile drawer when open.
+ *
+ * @param notificationCount - Number of new alerts to display; when greater than zero a notification banner and badges are shown.
+ * @returns The NGOSidebar React element containing navigation and notification UI.
+ */
 export default function NGOSidebar({ notificationCount = 0 }: NGOSidebarProps) {
   const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)

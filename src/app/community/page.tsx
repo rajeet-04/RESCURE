@@ -12,6 +12,15 @@ export const metadata: Metadata = {
 
 export const dynamic = 'force-dynamic'
 
+/**
+ * Render the RESCUE community page with recent rescue cases, leaderboard, and stats.
+ *
+ * Authenticates the current user, fetches and assembles recent rescue cases and leaderboard data,
+ * serializes feed items for client components, and renders the community layout including
+ * CommunityStats and CommunityTabs. The rendered output reflects whether a user is authenticated.
+ *
+ * @returns The React element for the community page containing layout, stats, feed, and leaderboard.
+ */
 export default async function CommunityPage() {
   const session = await auth()
   const user = session?.user as { id: string; role: string } | undefined
