@@ -218,6 +218,12 @@ model IncidentReport {
   address       String?
   description   String?      @db.Text
   photos        String[]     // Cloudinary URLs
+  title         String?
+  animalType    String?       // Dog, Cat, Cow, Other
+  reporterName  String?
+  reporterPhone String?
+  city          String?
+  landmark      String?
   urgencyScore  UrgencyLevel @default(MEDIUM)
   aiRawResponse Json?        // raw Gemini response
   status        ReportStatus @default(PENDING)
@@ -269,6 +275,28 @@ model CaseTimeline {
   case RescueCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
 
   @@index([caseId])
+}
+
+model NGOOutreach {
+  id             String    @id @default(cuid())
+  incidentId     String
+  name           String
+  address        String?
+  phone          String?
+  email          String?
+  website        String?
+  lat            Float?
+  lng            Float?
+  source         String    // "google_maps" | "db"
+  contactType    String    // "bitrix24_lead" | "email" | "whatsapp"
+  status         String    @default("pending") // "sent" | "failed" | "pending"
+  bitrix24LeadId String?
+  errorMsg       String?
+  sentAt         DateTime?
+  createdAt      DateTime  @default(now())
+
+  @@index([incidentId])
+  @@index([status])
 }
 
 // ─── Animal ──────────────────────────────────────────────────────────────────
