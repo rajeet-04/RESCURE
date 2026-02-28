@@ -102,7 +102,7 @@ function urgencyLabel(avg: number): string {
 export default async function HotspotsPage({ searchParams }: PageProps) {
   const session = await auth()
   const user = session?.user as { id: string; role: string } | undefined
-  if (!user || (user.role !== 'PLATFORM_ADMIN' && user.role !== 'NGO_ADMIN')) {
+  if (!user || (user.role !== 'PLATFORM_ADMIN' && user.role !== 'NGO_ADMIN' && user.role !== 'NGO_WORKER')) {
     redirect('/unauthorized')
   }
 

@@ -16,6 +16,7 @@ import {
   Bell,
   Menu,
   X,
+  Flame,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 
@@ -27,6 +28,7 @@ const navItems = [
   { href: '/dashboard', label: 'Overview', icon: LayoutDashboard },
   { href: '/dashboard/cases', label: 'Cases', icon: Layers },
   { href: '/dashboard/map', label: 'Map', icon: Map },
+  { href: '/hotspots', label: 'Hotspot Map', icon: Flame },
   { href: '/dashboard/team', label: 'Team', icon: Users },
   { href: '/dashboard/analytics', label: 'Analytics', icon: BarChart3 },
   { href: '/dashboard/marketplace', label: 'Marketplace', icon: ShoppingBag },

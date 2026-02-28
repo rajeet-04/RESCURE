@@ -12,6 +12,7 @@ interface Incident {
   longitude: number
   urgencyScore: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW'
   status: string
+  rescueCaseId?: string | null
 }
 
 export default function MapPage() {
@@ -21,7 +22,7 @@ export default function MapPage() {
   useEffect(() => {
     async function load() {
       try {
-        const res = await fetch('/api/incidents?status=PENDING,ASSIGNED,IN_PROGRESS&limit=200')
+        const res = await fetch('/api/incidents?status=PENDING,ASSIGNED,EN_ROUTE&limit=200')
         if (res.ok) {
           const data = await res.json()
           setIncidents(data)
