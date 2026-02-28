@@ -30,14 +30,23 @@ const navItems = [
   { href: '/dashboard/settings', label: 'Settings', icon: Settings },
 ]
 
-export default function NGOSidebar({ notificationCount = 0 }: NGOSidebarProps) {
-  const pathname = usePathname()
-  const [mobileOpen, setMobileOpen] = useState(false)
+interface SidebarContentProps {
+  pathname: string
+  mobileOpen: boolean
+  setMobileOpen: (open: boolean) => void
+  notificationCount: number
+}
 
+const SidebarContent = ({
+  pathname,
+  mobileOpen,
+  setMobileOpen,
+  notificationCount,
+}: SidebarContentProps) => {
   const isActive = (href: string) =>
     href === '/dashboard' ? pathname === '/dashboard' : pathname.startsWith(href)
 
-  const SidebarContent = () => (
+  return (
     <div className="flex h-full flex-col">
       {/* Brand */}
       <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
@@ -60,7 +69,9 @@ export default function NGOSidebar({ notificationCount = 0 }: NGOSidebarProps) {
           <span className="text-sm text-foreground font-semibold">
             {notificationCount} new alert{notificationCount > 1 ? 's' : ''}
           </span>
-          <Badge className="ml-auto bg-primary text-primary-foreground text-xs">{notificationCount}</Badge>
+          <Badge className="ml-auto bg-primary text-primary-foreground text-xs">
+            {notificationCount}
+          </Badge>
         </div>
       )}
 
@@ -71,16 +82,17 @@ export default function NGOSidebar({ notificationCount = 0 }: NGOSidebarProps) {
             key={href}
             href={href}
             onClick={() => setMobileOpen(false)}
-            className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold transition-all ${
-              isActive(href)
+            className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold transition-all ${isActive(href)
                 ? 'bg-primary/10 text-primary'
                 : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
-            }`}
+              }`}
           >
             <Icon className="h-5 w-5 shrink-0" />
             {label}
             {label === 'Cases' && notificationCount > 0 && (
-              <Badge className="ml-auto bg-primary text-primary-foreground text-xs">{notificationCount}</Badge>
+              <Badge className="ml-auto bg-primary text-primary-foreground text-xs">
+                {notificationCount}
+              </Badge>
             )}
           </Link>
         ))}
@@ -91,6 +103,11 @@ export default function NGOSidebar({ notificationCount = 0 }: NGOSidebarProps) {
       </div>
     </div>
   )
+}
+
+export default function NGOSidebar({ notificationCount = 0 }: NGOSidebarProps) {
+  const pathname = usePathname()
+  const [mobileOpen, setMobileOpen] = useState(false)
 
   return (
     <>
@@ -112,16 +129,25 @@ export default function NGOSidebar({ notificationCount = 0 }: NGOSidebarProps) {
 
       {/* Mobile sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transform transition-transform lg:hidden ${
-          mobileOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transform transition-transform lg:hidden ${mobileOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
       >
-        <SidebarContent />
+        <SidebarContent
+          pathname={pathname}
+          mobileOpen={mobileOpen}
+          setMobileOpen={setMobileOpen}
+          notificationCount={notificationCount}
+        />
       </aside>
 
       {/* Desktop sidebar */}
       <aside className="hidden lg:flex h-screen w-64 shrink-0 flex-col border-r border-gray-100 bg-white">
-        <SidebarContent />
+        <SidebarContent
+          pathname={pathname}
+          mobileOpen={mobileOpen}
+          setMobileOpen={setMobileOpen}
+          notificationCount={notificationCount}
+        />
       </aside>
     </>
   )
