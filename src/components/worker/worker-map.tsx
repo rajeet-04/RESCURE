@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
@@ -61,6 +61,7 @@ function RecenterMap({ center }: { center: [number, number] }) {
 
 export default function WorkerMap({ cases, userLocation }: WorkerMapProps) {
   const router = useRouter()
+  const [mapId, setMapId] = useState<string>('')
 
   useEffect(() => {
     delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)
@@ -70,13 +71,18 @@ export default function WorkerMap({ cases, userLocation }: WorkerMapProps) {
       iconUrl: '/leaflet/marker-icon.png',
       shadowUrl: '/leaflet/marker-shadow.png',
     })
+    
+    setMapId(Date.now().toString())
   }, [])
 
   const defaultCenter: [number, number] = userLocation ?? [20.5937, 78.9629]
   const casesWithLocation = cases.filter((c) => c.report?.lat && c.report?.lng)
 
+  if (!mapId) return null
+
   return (
     <MapContainer
+      key={mapId}
       center={defaultCenter}
       zoom={12}
       style={{ height: '100%', width: '100%' }}
