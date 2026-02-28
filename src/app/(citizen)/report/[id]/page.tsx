@@ -29,23 +29,30 @@ export default async function IncidentTrackingPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const incident = await prisma.incidentReport.findUnique({
-    where: { id },
-    include: {
-      rescueCase: {
-        select: {
-          id: true,
-          state: true,
-          resolvedAt: true,
-          ngo: { select: { name: true, city: true } },
-          timeline: {
-            orderBy: { createdAt: 'desc' },
-            select: { id: true, state: true, note: true, createdAt: true },
+  const [incident, outreaches] = await Promise.all([
+    prisma.incidentReport.findUnique({
+      where: { id },
+      include: {
+        rescueCase: {
+          select: {
+            id: true,
+            state: true,
+            resolvedAt: true,
+            ngo: { select: { name: true, city: true } },
+            timeline: {
+              orderBy: { createdAt: 'desc' },
+              select: { id: true, state: true, note: true, createdAt: true },
+            },
           },
         },
       },
-    },
-  })
+    }),
+    prisma.nGOOutreach.findMany({
+      where: { incidentId: id },
+      orderBy: { createdAt: 'asc' },
+      select: { id: true, name: true, address: true, source: true, status: true, sentAt: true },
+    }),
+  ])
 
   if (!incident) notFound()
 
@@ -162,6 +169,43 @@ export default async function IncidentTrackingPage({
                   <p className="text-xs text-gray-400 mt-1">
                     {new Date(entry.createdAt).toLocaleString('en-IN')}
                   </p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Notified Organizations */}
+        {outreaches.length > 0 && (
+          <div className="rounded-2xl bg-white p-6 shadow-sm">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500 mb-4">
+              Shelters &amp; NGOs Informed
+            </h2>
+            <ul className="space-y-3">
+              {outreaches.map((org) => (
+                <li key={org.id} className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-gray-800 truncate">{org.name}</p>
+                    {org.address && (
+                      <p className="text-xs text-gray-500 truncate">📍 {org.address}</p>
+                    )}
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      {org.source === 'google_maps' ? 'Found via Google Maps' : 'Verified NGO'}
+                      {org.sentAt &&
+                        ` · ${new Date(org.sentAt).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}`}
+                    </p>
+                  </div>
+                  <span
+                    className={`shrink-0 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                      org.status === 'sent'
+                        ? 'bg-green-100 text-green-700'
+                        : org.status === 'failed'
+                        ? 'bg-red-100 text-red-700'
+                        : 'bg-yellow-100 text-yellow-700'
+                    }`}
+                  >
+                    {org.status === 'sent' ? '✓ Notified' : org.status === 'failed' ? 'Failed' : 'Pending'}
+                  </span>
                 </li>
               ))}
             </ul>
