@@ -80,6 +80,13 @@ enum HealthRecordType {
   NOTE
 }
 
+enum RiskCategory {
+  WEATHER
+  NOISE
+  CONSTRUCTION
+  CROWD
+}
+
 // ─── Core Models ─────────────────────────────────────────────────────────────
 
 model User {
@@ -180,10 +187,11 @@ model NGO {
 }
 
 model CoverageZone {
-  id        String @id @default(cuid())
-  ngoId     String
-  geohash   String // precision-5 geohash for zone
-  label     String?
+  id            String @id @default(cuid())
+  ngoId         String
+  geohash       String // precision-5 geohash for zone
+  label         String?
+  baseRiskScore Float  @default(0.1)
 
   ngo NGO @relation(fields: [ngoId], references: [id], onDelete: Cascade)
 
@@ -218,6 +226,12 @@ model IncidentReport {
   address       String?
   description   String?      @db.Text
   photos        String[]     // Cloudinary URLs
+  title         String?
+  animalType    String?       // Dog, Cat, Cow, Other
+  reporterName  String?
+  reporterPhone String?
+  city          String?
+  landmark      String?
   urgencyScore  UrgencyLevel @default(MEDIUM)
   aiRawResponse Json?        // raw Gemini response
   status        ReportStatus @default(PENDING)
@@ -269,6 +283,28 @@ model CaseTimeline {
   case RescueCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
 
   @@index([caseId])
+}
+
+model NGOOutreach {
+  id             String    @id @default(cuid())
+  incidentId     String
+  name           String
+  address        String?
+  phone          String?
+  email          String?
+  website        String?
+  lat            Float?
+  lng            Float?
+  source         String    // "google_maps" | "db"
+  contactType    String    // "bitrix24_lead" | "email" | "whatsapp"
+  status         String    @default("pending") // "sent" | "failed" | "pending"
+  bitrix24LeadId String?
+  errorMsg       String?
+  sentAt         DateTime?
+  createdAt      DateTime  @default(now())
+
+  @@index([incidentId])
+  @@index([status])
 }
 
 // ─── Animal ──────────────────────────────────────────────────────────────────
@@ -512,4 +548,35 @@ model PushSubscription {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+// ─── Predictive Engine ───────────────────────────────────────────────────────
+
+model RiskFactor {
+  id        String       @id @default(cuid())
+  geohash   String       // precision-5 geohash matching CoverageZone
+  category  RiskCategory
+  severity  Float        // 0.0–1.0
+  expiresAt DateTime
+  createdAt DateTime     @default(now())
+
+  @@index([geohash])
+}
+
+model SurgeEvent {
+  id          String    @id @default(cuid())
+  geohash     String
+  lat         Float
+  lng         Float
+  radiusKm    Float     @default(5)
+  reason      String?
+  title       String
+  isActive    Boolean   @default(true)
+  isProactive Boolean   @default(false)
+  riskScore   Float?
+  createdAt   DateTime  @default(now())
+  expiresAt   DateTime?
+
+  @@index([isActive])
+  @@index([geohash])
 }

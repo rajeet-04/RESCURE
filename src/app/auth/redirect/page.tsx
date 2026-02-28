@@ -13,6 +13,11 @@ export default async function AuthRedirectPage() {
     redirect('/login')
   }
 
+  // New Google users must select their user type before proceeding
+  if (session.isNewUser) {
+    redirect('/onboarding')
+  }
+
   const role = (session.user as { role?: string }).role
 
   switch (role) {

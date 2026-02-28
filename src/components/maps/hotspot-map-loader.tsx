@@ -10,8 +10,26 @@ interface Hotspot {
   avgUrgency: number
 }
 
+interface RiskZone {
+  geohash: string
+  lat: number
+  lng: number
+  riskScore: number
+  hasActiveSurge: boolean
+}
+
 const HotspotMap = dynamic(() => import('@/app/hotspots/_components/hotspot-map'), { ssr: false })
 
-export default function HotspotMapLoader({ hotspots, days }: { hotspots: Hotspot[]; days: number }) {
-  return <HotspotMap hotspots={hotspots} days={days} />
+export default function HotspotMapLoader({
+  hotspots,
+  days,
+  riskZones,
+  userRole,
+}: {
+  hotspots: Hotspot[]
+  days: number
+  riskZones: RiskZone[]
+  userRole: string
+}) {
+  return <HotspotMap hotspots={hotspots} days={days} riskZones={riskZones} userRole={userRole} />
 }
