@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { Users } from 'lucide-react'
 import CommunityStats from './_components/community-stats'
 import CommunityTabs from './_components/community-tabs'
 
@@ -111,18 +112,25 @@ export default async function CommunityPage() {
   }))
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50">
+    <main className="min-h-screen relative overflow-hidden">
+      {/* Mesh gradient background */}
+      <div className="absolute inset-0 mesh-gradient-soft"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-green-50/40 via-white/80 to-green-50/40"></div>
+      
       {/* Header */}
-      <div className="bg-white border-b px-6 py-8">
+      <div className="relative bg-white/80 backdrop-blur-sm border-b border-green-100 px-6 py-8">
         <div className="max-w-5xl mx-auto">
-          <h1 className="text-3xl font-bold text-gray-900 mb-1">🐾 RESCURE Community</h1>
-          <p className="text-gray-500">
+          <div className="flex items-center gap-3 mb-1 animate-fade-in">
+            <Users className="w-8 h-8 text-primary" />
+            <h1 className="text-3xl font-bold text-gray-900">RESCURE Community</h1>
+          </div>
+          <p className="text-gray-500 animate-slide-up">
             Together we&apos;re making a difference for stray animals across India.
           </p>
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-6 py-8">
+      <div className="relative max-w-5xl mx-auto px-6 py-8">
         {/* Stats bar */}
         <CommunityStats />
 

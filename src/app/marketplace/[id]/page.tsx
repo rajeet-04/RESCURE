@@ -6,6 +6,7 @@ import { auth } from '@/lib/auth'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Button } from '@/components/ui/button'
+import { Building2, Package } from 'lucide-react'
 import OrderForm from './_components/order-form'
 
 type Props = { params: Promise<{ id: string }> }
@@ -45,7 +46,7 @@ export default async function ProductDetailPage({ params }: Props) {
               unoptimized
             />
           ) : (
-            <span className="text-7xl">📦</span>
+            <Package className="w-16 h-16 text-gray-300" />
           )}
         </div>
 
@@ -115,17 +116,20 @@ export default async function ProductDetailPage({ params }: Props) {
           />
         </div>
       ) : (
-        <div className="rounded-xl border bg-orange-50 p-6 text-center space-y-3">
+        <div className="rounded-xl border border-green-200 bg-green-50/50 p-6 text-center space-y-3">
+          <div className="inline-flex items-center justify-center w-14 h-14 bg-primary/10 rounded-2xl mb-2">
+            <Building2 className="w-7 h-7 text-primary" />
+          </div>
           <p className="text-gray-700 font-medium">
-            🏢 The marketplace is exclusively for registered NGOs at NGO prices.
+            The marketplace is exclusively for registered NGOs at NGO prices.
           </p>
           <p className="text-sm text-gray-500">
             If you represent an NGO,{' '}
-            <Link href="/login" className="text-orange-600 underline font-medium">
+            <Link href="/login" className="text-primary underline font-medium">
               sign in
             </Link>{' '}
             or{' '}
-            <Link href="/ngo/onboarding" className="text-orange-600 underline font-medium">
+            <Link href="/ngo/onboarding" className="text-primary underline font-medium">
               register your NGO
             </Link>{' '}
             to place orders.

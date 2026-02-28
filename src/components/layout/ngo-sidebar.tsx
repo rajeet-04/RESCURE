@@ -39,8 +39,8 @@ export default function NGOSidebar({ notificationCount = 0 }: NGOSidebarProps) {
   const SidebarContent = () => (
     <div className="flex h-full flex-col">
       {/* Brand */}
-      <div className="flex items-center justify-between px-6 py-5 border-b border-orange-100">
-        <span className="text-2xl font-extrabold tracking-tight text-orange-500">RESCURE</span>
+      <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
+        <span className="text-xl font-bold tracking-tight text-primary">RESCURE</span>
         <button
           className="lg:hidden text-gray-400 hover:text-gray-600"
           onClick={() => setMobileOpen(false)}
@@ -51,12 +51,12 @@ export default function NGOSidebar({ notificationCount = 0 }: NGOSidebarProps) {
 
       {/* Notification Banner */}
       {notificationCount > 0 && (
-        <div className="mx-4 mt-4 flex items-center gap-2 rounded-lg bg-orange-50 px-3 py-2">
-          <Bell className="h-4 w-4 text-orange-500" />
-          <span className="text-sm text-orange-700 font-medium">
+        <div className="mx-4 mt-4 flex items-center gap-2 rounded-lg bg-green-50 px-3 py-2.5 border border-green-100">
+          <Bell className="h-4 w-4 text-primary" />
+          <span className="text-sm text-foreground font-semibold">
             {notificationCount} new alert{notificationCount > 1 ? 's' : ''}
           </span>
-          <Badge className="ml-auto bg-orange-500 text-white text-xs">{notificationCount}</Badge>
+          <Badge className="ml-auto bg-primary text-primary-foreground text-xs">{notificationCount}</Badge>
         </div>
       )}
 
@@ -67,23 +67,23 @@ export default function NGOSidebar({ notificationCount = 0 }: NGOSidebarProps) {
             key={href}
             href={href}
             onClick={() => setMobileOpen(false)}
-            className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+            className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold transition-all ${
               isActive(href)
-                ? 'bg-orange-100 text-orange-700'
-                : 'text-gray-600 hover:bg-orange-50 hover:text-orange-600'
+                ? 'bg-primary/10 text-primary'
+                : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
             }`}
           >
-            <Icon className="h-4.5 w-4.5 shrink-0" />
+            <Icon className="h-5 w-5 shrink-0" />
             {label}
             {label === 'Cases' && notificationCount > 0 && (
-              <Badge className="ml-auto bg-orange-500 text-white text-xs">{notificationCount}</Badge>
+              <Badge className="ml-auto bg-primary text-primary-foreground text-xs">{notificationCount}</Badge>
             )}
           </Link>
         ))}
       </nav>
 
-      <div className="border-t border-orange-100 px-6 py-4">
-        <p className="text-xs text-gray-400">© 2024 RESCURE · India</p>
+      <div className="border-t border-gray-100 px-6 py-4">
+        <p className="text-xs text-muted-foreground">© 2024 RESCURE</p>
       </div>
     </div>
   )
@@ -92,10 +92,10 @@ export default function NGOSidebar({ notificationCount = 0 }: NGOSidebarProps) {
     <>
       {/* Mobile toggle button */}
       <button
-        className="fixed left-4 top-4 z-50 rounded-lg bg-white p-2 shadow-md lg:hidden"
+        className="fixed left-4 top-4 z-50 rounded-lg bg-white p-2 shadow-md lg:hidden border border-gray-200"
         onClick={() => setMobileOpen(true)}
       >
-        <Menu className="h-5 w-5 text-orange-600" />
+        <Menu className="h-5 w-5 text-primary" />
       </button>
 
       {/* Mobile overlay */}
@@ -116,7 +116,7 @@ export default function NGOSidebar({ notificationCount = 0 }: NGOSidebarProps) {
       </aside>
 
       {/* Desktop sidebar */}
-      <aside className="hidden lg:flex h-screen w-64 shrink-0 flex-col border-r border-orange-100 bg-white">
+      <aside className="hidden lg:flex h-screen w-64 shrink-0 flex-col border-r border-gray-100 bg-white">
         <SidebarContent />
       </aside>
     </>

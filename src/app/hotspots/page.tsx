@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
+import { MapPin } from 'lucide-react'
 import HotspotMapLoader from '@/components/maps/hotspot-map-loader'
 
 interface Hotspot {
@@ -71,25 +72,33 @@ export default async function HotspotsPage({ searchParams }: PageProps) {
   const top10 = hotspots.slice(0, 10)
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 lg:p-8">
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">🗺️ Predictive Hotspot Map</h1>
-        <div className="flex gap-2">
-          {[7, 30, 90].map((d) => (
-            <Link
-              key={d}
-              href={`/hotspots?days=${d}`}
-              className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
-                days === d
-                  ? 'bg-orange-500 text-white'
-                  : 'bg-white text-gray-600 hover:bg-orange-50 border'
-              }`}
-            >
-              {d} days
-            </Link>
-          ))}
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Mesh gradient background */}
+      <div className="absolute inset-0 mesh-gradient-soft"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-green-50/30 via-white/90 to-green-50/30"></div>
+      
+      <div className="relative p-6 lg:p-8">
+        <div className="mb-6 flex items-center justify-between animate-fade-in">
+          <div className="flex items-center gap-3">
+            <MapPin className="w-7 h-7 text-primary" />
+            <h1 className="text-2xl font-bold text-gray-900">Predictive Hotspot Map</h1>
+          </div>
+          <div className="flex gap-2">
+            {[7, 30, 90].map((d) => (
+              <Link
+                key={d}
+                href={`/hotspots?days=${d}`}
+                className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-all ${
+                  days === d
+                    ? 'bg-primary text-white shadow-sm'
+                    : 'bg-white text-gray-600 hover:bg-primary/5 border border-green-100 hover:border-green-200'
+                }`}
+              >
+                {d} days
+              </Link>
+            ))}
+          </div>
         </div>
-      </div>
 
       {/* Map */}
       <div className="mb-8 h-[480px] overflow-hidden rounded-xl border shadow-sm">
@@ -117,7 +126,7 @@ export default async function HotspotsPage({ searchParams }: PageProps) {
                 <tr key={h.geohash} className="border-b last:border-0">
                   <td className="px-4 py-2 text-gray-400">{i + 1}</td>
                   <td className="px-4 py-2 font-mono text-xs">{h.geohash}</td>
-                  <td className="px-4 py-2 font-bold text-orange-600">{h.count}</td>
+                  <td className="px-4 py-2 font-bold text-primary">{h.count}</td>
                   <td className="px-4 py-2">{urgencyLabel(h.avgUrgency)}</td>
                   <td className="px-4 py-2 text-gray-400 text-xs">
                     {h.lat.toFixed(4)}, {h.lng.toFixed(4)}
@@ -134,6 +143,7 @@ export default async function HotspotsPage({ searchParams }: PageProps) {
             </tbody>
           </table>
         </div>
+      </div>
       </div>
     </div>
   )

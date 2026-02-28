@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { Trophy, Award } from 'lucide-react'
 
 type Badge = {
   id: string
@@ -36,11 +37,13 @@ export default function BadgesPanel({ isAuthenticated }: { isAuthenticated: bool
   if (!isAuthenticated) {
     return (
       <div className="text-center py-16">
-        <p className="text-4xl mb-4">🏆</p>
+        <div className="inline-flex items-center justify-center w-20 h-20 bg-primary/10 rounded-3xl mb-4">
+          <Trophy className="w-10 h-10 text-primary" />
+        </div>
         <p className="text-lg font-medium text-gray-700">Sign in to track your badges</p>
         <a
           href="/login"
-          className="mt-4 inline-block bg-orange-500 text-white px-6 py-2 rounded-full text-sm font-medium hover:bg-orange-600 transition-colors"
+          className="mt-4 inline-block bg-primary text-white px-6 py-2 rounded-full text-sm font-medium hover:bg-primary/90 active:scale-[0.98] transition-all"
         >
           Sign In
         </a>
@@ -65,7 +68,7 @@ export default function BadgesPanel({ isAuthenticated }: { isAuthenticated: bool
   return (
     <div>
       <p className="text-sm text-gray-500 mb-6">
-        You have submitted <span className="font-bold text-orange-600">{data.totalReports}</span> report
+        You have submitted <span className="font-bold text-primary">{data.totalReports}</span> report
         {data.totalReports !== 1 ? 's' : ''} total.
       </p>
 
@@ -75,16 +78,16 @@ export default function BadgesPanel({ isAuthenticated }: { isAuthenticated: bool
             key={badge.id}
             className={`rounded-2xl border p-5 transition-all ${
               badge.earned
-                ? 'bg-orange-50 border-orange-200 shadow-sm'
+                ? 'bg-primary/5 border-green-200 shadow-sm'
                 : 'bg-gray-50 border-gray-200 opacity-60'
             }`}
           >
             <div className="flex items-center gap-3 mb-3">
               <span className="text-3xl">{badge.icon}</span>
               <div>
-                <p className={`font-bold text-sm ${badge.earned ? 'text-orange-700' : 'text-gray-500'}`}>
+                <p className={`font-bold text-sm ${badge.earned ? 'text-primary' : 'text-gray-500'}`}>
                   {badge.name}
-                  {badge.earned && <span className="ml-1">✓</span>}
+                  {badge.earned && <Award className="inline w-3 h-3 ml-1" />}
                 </p>
                 <p className="text-xs text-gray-500">{badge.description}</p>
               </div>
@@ -98,7 +101,7 @@ export default function BadgesPanel({ isAuthenticated }: { isAuthenticated: bool
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-1.5">
                   <div
-                    className="bg-orange-400 h-1.5 rounded-full transition-all"
+                    className="bg-primary h-1.5 rounded-full transition-all"
                     style={{ width: `${(badge.progress / badge.threshold) * 100}%` }}
                   />
                 </div>
