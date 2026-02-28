@@ -14,6 +14,9 @@ export default function LocationPicker({ onLocation }: LocationPickerProps) {
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [showManual, setShowManual] = useState(false)
+  const [manualLat, setManualLat] = useState('')
+  const [manualLng, setManualLng] = useState('')
 
   function handleGetLocation() {
     if (!navigator.geolocation) {
@@ -48,6 +51,21 @@ export default function LocationPicker({ onLocation }: LocationPickerProps) {
     )
   }
 
+  function handleManualCoords() {
+    const lat = parseFloat(manualLat)
+    const lng = parseFloat(manualLng)
+    if (isNaN(lat) || isNaN(lng)) return
+    if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+      setError('Invalid coordinates. Latitude: -90 to 90, Longitude: -180 to 180.')
+      return
+    }
+    const geohash = encodeGeohash(lat, lng, 9)
+    setCoords({ lat, lng })
+    setCaptured(true)
+    setError(null)
+    onLocation(lat, lng, geohash)
+  }
+
   return (
     <div className="space-y-2">
       <Button
@@ -71,7 +89,55 @@ export default function LocationPicker({ onLocation }: LocationPickerProps) {
       )}
 
       {error && (
-        <p className="text-sm text-red-600">{error}</p>
+        <div className="space-y-1">
+          <p className="text-sm text-red-600">{error}</p>
+          {!showManual && (
+            <button
+              type="button"
+              onClick={() => setShowManual(true)}
+              className="text-xs text-orange-600 underline hover:text-orange-800"
+            >
+              Enter coordinates manually
+            </button>
+          )}
+        </div>
+      )}
+
+      {showManual && (
+        <div className="flex items-end gap-2 pt-1">
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-gray-500">Latitude</label>
+            <input
+              type="number"
+              step="any"
+              placeholder="e.g. 28.6139"
+              value={manualLat}
+              onChange={(e) => setManualLat(e.target.value)}
+              onBlur={handleManualCoords}
+              className="w-32 border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:border-orange-400"
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-gray-500">Longitude</label>
+            <input
+              type="number"
+              step="any"
+              placeholder="e.g. 77.2090"
+              value={manualLng}
+              onChange={(e) => setManualLng(e.target.value)}
+              onBlur={handleManualCoords}
+              className="w-32 border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:border-orange-400"
+            />
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleManualCoords}
+            className="border-orange-300 text-orange-600 hover:bg-orange-50 shrink-0"
+          >
+            Set
+          </Button>
+        </div>
       )}
     </div>
   )

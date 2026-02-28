@@ -8,6 +8,10 @@ cloudinary.config({
 })
 
 export async function POST(req: NextRequest) {
+  if (!process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+    return NextResponse.json({ error: 'Upload service not configured' }, { status: 503 })
+  }
+
   try {
     const formData = await req.formData()
     const file = formData.get('file') as File | null
@@ -26,7 +30,7 @@ export async function POST(req: NextRequest) {
     const result = await new Promise<{ secure_url: string; public_id: string }>(
       (resolve, reject) => {
         cloudinary.uploader
-          .upload_stream({ folder: 'rescure/incidents' }, (err, res) => {
+          .upload_stream({ folder: 'rescure/incidents', resource_type: 'auto' }, (err, res) => {
             if (err || !res) return reject(err ?? new Error('Upload failed'))
             resolve({ secure_url: res.secure_url, public_id: res.public_id })
           })

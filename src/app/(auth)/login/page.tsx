@@ -3,12 +3,13 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = { title: 'Login' }
 
-export default function LoginPage({
+export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: { callbackUrl?: string }
+  searchParams: Promise<{ callbackUrl?: string }>
 }) {
-  const callbackUrl = searchParams.callbackUrl ?? '/auth/redirect'
+  const { callbackUrl: rawCallbackUrl } = await searchParams
+  const callbackUrl = rawCallbackUrl ?? '/auth/redirect'
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 flex items-center justify-center p-6">
