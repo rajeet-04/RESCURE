@@ -1,36 +1,107 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# RESCURE
+
+## Overview
+
+RESCURE is a comprehensive platform built to streamline and coordinate animal rescue operations, citizen reporting, NGO management, veterinary services, and supplier marketplaces.
+
+This project is built with Next.js 14, incorporating a modern tech stack to ensure reliability, scalability, and an excellent user experience.
+
+## Tech Stack
+
+- **Framework:** Next.js 14 (App Router)
+- **Database:** Prisma with a relational database
+- **Authentication:** Auth.js (next-auth) & Supabase
+- **Styling:** Tailwind CSS, Radix UI variants, class-variance-authority
+- **Mapping:** React Leaflet
+- **Payments:** Stripe
+- **AI Integration:** Google Generative AI
+- **Background Jobs:** Inngest
+- **PWA capabilities:** next-pwa, web-push, workbox-window
+- **State Management:** Zustand, React Query
+
+## File Structure & Routing Slugs
+
+The application utilizes Next.js App Router. Here is the holistic view of the `src/app` structure and corresponding slugs:
+
+```text
+src/
+├── app/                  # Next.js App Router root
+│   ├── (admin)/          # Admin-specific routes (Layout group)
+│   ├── (auth)/           # Authentication flows (Layout group)
+│   ├── (citizen)/        # Citizen user flows (e.g., reporting)
+│   ├── (ngo)/            # NGO dashboard/management flows
+│   ├── (supplier)/       # Supplier marketplace routes
+│   ├── (vet)/            # Veterinary dashboard and consultations
+│   ├── adopt/            # /adopt - Animal adoption flow
+│   ├── animals/          # /animals - Animal listings & health passports
+│   ├── api/              # /api/* - Backend endpoints (Auth, Inngest, Webhooks, etc.)
+│   ├── impact/           # /impact - Impact analytics & tracking
+│   ├── marketplace/      # /marketplace - Products and supplies
+│   ├── notifications/    # /notifications - User notification center
+│   ├── unauthorized/     # /unauthorized - Access denied fallback
+│   ├── layout.tsx        # Root layout wrapper
+│   └── page.tsx          # Landing page (/)
+├── components/           # Reusable UI components (Radix UI, charts, layouts)
+├── lib/                  # Utility functions, Prisma clients, and configuration
+├── types/                # Shared TypeScript definitions
+└── middleware.ts         # Edge middleware for route protection and routing
+```
+
+## Changelog & Development Phases
+
+The project has been developed in structured phases, documented in our version control history:
+
+- **Phase 0: Foundation Setup**
+  - Initialized Next.js 14 app with Tailwind CSS and fonts
+  - Configured PWA (Progressive Web App) architecture
+  - Set up Prisma, Authentication, AI scoring stub, Push Notifications, Stripe, and Geo-hashing capabilities.
+
+- **Phase 1: Citizen & NGO Portals**
+  - Implemented citizen reporting workflows
+  - Added NGO dashboards
+  - Integrated AI scoring and push notification elements
+
+- **Phase 2: Animal Health & Vets**
+  - Created the Animal Health Passport system
+  - Integrated the Vet Network
+  - Added Vet dashboards with on-call toggles, onboarding, and consultations
+
+- **Phase 3: Marketplace & Sponsors**
+  - Added sponsor and supplier modules
+  - Implemented the marketplace interface
+  - Refactored post-login routing and user role handling (with expense form validation)
+
+- **Phase 4: Admin & Analytics (Current)**
+  - Built the Admin dashboard
+  - Integrated Impact Analytics
+  - Added notifications and tier-based enforcement mechanisms
 
 ## Getting Started
 
-First, run the development server:
+1. **Install dependencies:**
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+   ```bash
+   pnpm install
+   ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. **Setup environment variables:**
+   Copy `.env.example` to `.env.local` and populate necessary API keys and database strings.
+3. **Database setup:**
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+   ```bash
+   npx prisma generate
+   npx prisma db push
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. **Run the development server:**
 
-## Learn More
+   ```bash
+   pnpm dev
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+5. **Open locally:**
+   Visit [http://localhost:3000](http://localhost:3000)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## License
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Private / Proprietary
