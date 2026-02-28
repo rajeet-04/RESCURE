@@ -8,6 +8,12 @@
   }
 }
 
+@media print {
+  .no-print { display: none !important; }
+  .print-only { display: block !important; }
+  body { background: white !important; }
+  nav, header, footer { display: none !important; }
+}
 
 
 @layer base {

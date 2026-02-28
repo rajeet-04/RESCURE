@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import AddHealthRecordForm from './_components/add-health-record-form'
 import AddExpenseForm from './_components/add-expense-form'
 import HandoffDialog from './_components/handoff-dialog'
+import MilestoneForm from './_components/milestone-form'
 
 const STATUS_COLORS: Record<string, string> = {
   IN_TREATMENT: 'bg-orange-100 text-orange-700',
@@ -111,6 +112,7 @@ export default async function AnimalDetailPage({
         <Button asChild variant="outline" size="sm">
           <Link href={`/dashboard/consultations/new?animalId=${animal.id}`}>Request Vet Consultation</Link>
         </Button>
+        <MilestoneForm animalId={animal.id} />
       </div>
 
       {/* Tabs */}
