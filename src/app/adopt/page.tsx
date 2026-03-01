@@ -18,14 +18,22 @@ export default async function AdoptPage() {
     ? { id: sessionUser.id ?? null, name: sessionUser.name ?? null, image: sessionUser.image ?? null, role: sessionUser.role ?? null }
     : null
 
-  const animals = await prisma.animal.findMany({
-    where: { status: { in: ['READY_FOR_ADOPTION', 'STABLE', 'IN_TREATMENT'] } },
-    include: {
-      _count: { select: { sponsorships: true } },
-      expenses: { select: { amount: true } },
-    },
-    orderBy: { createdAt: 'desc' },
-  })
+  const [animals, myAnimalIds] = await Promise.all([
+    prisma.animal.findMany({
+      where: { status: { in: ['READY_FOR_ADOPTION', 'STABLE', 'IN_TREATMENT'] } },
+      include: {
+        _count: { select: { sponsorships: true } },
+        expenses: { select: { amount: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    }),
+    user?.id
+      ? prisma.sponsorship.findMany({
+          where: { sponsorId: user.id, active: true },
+          select: { animalId: true },
+        }).then((rows) => rows.map((r) => r.animalId))
+      : Promise.resolve([] as string[]),
+  ])
 
   const serialised = animals.map((a) => ({
     ...a,
@@ -50,7 +58,7 @@ export default async function AdoptPage() {
               { href: '/community', label: 'COMMUNITY' },
               { href: '/adopt', label: 'ADOPT' },
               { href: '/marketplace', label: 'MARKETPLACE' },
-              { href: '/api-docs', label: 'ABOUT' },
+              { href: '/api-docs', label: 'API & PRICING' },
             ].map((l) => (
               <Link
                 key={l.href}
@@ -94,7 +102,7 @@ export default async function AdoptPage() {
       {/* ── Content ── */}
       <section className="py-12 px-6 bg-gray-50">
         <div className="max-w-6xl mx-auto">
-          <AdoptClient animals={serialised} />
+          <AdoptClient animals={serialised} myAnimalIds={myAnimalIds} loggedIn={!!user} />
         </div>
       </section>
     </main>

@@ -22,18 +22,32 @@ const STATUS_CONFIG: Record<string, { label: string; bg: string; text: string }>
   READY_FOR_ADOPTION: { label: 'Ready to Adopt', bg: 'bg-green-100', text: 'text-green-700' },
 }
 
-const TABS = [
-  { key: 'all', label: 'All Animals' },
-  { key: 'care', label: 'Needs Care' },
-  { key: 'adopt', label: 'Ready to Adopt' },
+const BASE_TABS = [
+  { key: 'all', label: 'All Animals', icon: null },
+  { key: 'care', label: 'Needs Care', icon: null },
+  { key: 'adopt', label: 'Ready to Adopt', icon: null },
 ]
 
-export default function AdoptClient({ animals }: { animals: AnimalItem[] }) {
+export default function AdoptClient({
+  animals,
+  myAnimalIds = [],
+  loggedIn = false,
+}: {
+  animals: AnimalItem[]
+  myAnimalIds?: string[]
+  loggedIn?: boolean
+}) {
   const [tab, setTab] = useState('all')
+
+  const TABS = [
+    ...BASE_TABS,
+    ...(loggedIn ? [{ key: 'mine', label: 'My Adoptions', icon: Heart }] : []),
+  ]
 
   const filtered = animals.filter((a) => {
     if (tab === 'care') return a.status === 'IN_TREATMENT' || a.status === 'STABLE'
     if (tab === 'adopt') return a.status === 'READY_FOR_ADOPTION'
+    if (tab === 'mine') return myAnimalIds.includes(a.id)
     return true
   })
 
@@ -41,34 +55,62 @@ export default function AdoptClient({ animals }: { animals: AnimalItem[] }) {
     <div className="space-y-10">
       {/* Filter Tabs */}
       <div className="flex gap-2 justify-center flex-wrap">
-        {TABS.map((t) => (
-          <button
-            key={t.key}
-            onClick={() => setTab(t.key)}
-            className={`px-5 py-2.5 rounded-full text-sm font-bold transition-all ${
-              tab === t.key
-                ? 'bg-primary text-white shadow-sm shadow-primary/25'
-                : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
-            }`}
-          >
-            {t.label}
-          </button>
-        ))}
+        {TABS.map((t) => {
+          const Icon = t.icon
+          const isMine = t.key === 'mine'
+          return (
+            <button
+              key={t.key}
+              onClick={() => setTab(t.key)}
+              className={`flex items-center gap-1.5 px-5 py-2.5 rounded-full text-sm font-bold transition-all ${
+                tab === t.key
+                  ? isMine
+                    ? 'bg-rose-500 text-white shadow-sm shadow-rose-200'
+                    : 'bg-primary text-white shadow-sm shadow-primary/25'
+                  : isMine
+                    ? 'bg-white text-rose-500 hover:bg-rose-50 border border-rose-200'
+                    : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+              }`}
+            >
+              {Icon && <Icon className="w-3.5 h-3.5" fill={tab === t.key ? 'currentColor' : 'none'} />}
+              {t.label}
+              {isMine && myAnimalIds.length > 0 && (
+                <span className={`ml-0.5 text-[10px] font-extrabold px-1.5 py-0.5 rounded-full ${
+                  tab === t.key ? 'bg-white/25 text-white' : 'bg-rose-100 text-rose-500'
+                }`}>
+                  {myAnimalIds.length}
+                </span>
+              )}
+            </button>
+          )
+        })}
       </div>
 
       {/* Empty State */}
       {filtered.length === 0 && (
         <div className="text-center py-20">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-primary/10 rounded-3xl mb-5">
-            <Search className="w-10 h-10 text-primary" />
+          <div className={`inline-flex items-center justify-center w-20 h-20 rounded-3xl mb-5 ${
+            tab === 'mine' ? 'bg-rose-50' : 'bg-primary/10'
+          }`}>
+            {tab === 'mine'
+              ? <Heart className="w-10 h-10 text-rose-300" />
+              : <Search className="w-10 h-10 text-primary" />
+            }
           </div>
-          <p className="text-xl font-bold text-gray-900 mb-2">No animals found</p>
-          <p className="text-gray-500 mb-6">Try a different filter or check back later for new rescues.</p>
+          <p className="text-xl font-bold text-gray-900 mb-2">
+            {tab === 'mine' ? 'No sponsorships yet' : 'No animals found'}
+          </p>
+          <p className="text-gray-500 mb-6">
+            {tab === 'mine'
+              ? 'Start sponsoring an animal to track them here.'
+              : 'Try a different filter or check back later for new rescues.'}
+          </p>
           <Link
-            href="/report"
+            href={tab === 'mine' ? '/adopt' : '/report'}
+            onClick={() => tab === 'mine' && setTab('all')}
             className="inline-flex items-center gap-2 bg-gray-900 text-white px-8 py-3.5 rounded-full text-sm font-bold hover:bg-gray-800 transition-all shadow-md hover:shadow-lg active:scale-[0.98]"
           >
-            Report an Animal
+            {tab === 'mine' ? 'Browse Animals' : 'Report an Animal'}
           </Link>
         </div>
       )}
