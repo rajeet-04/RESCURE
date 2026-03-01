@@ -7,6 +7,7 @@ import HotspotMapLoader from '@/components/maps/hotspot-map-loader'
 import RunAnalysisBtn from './_components/run-analysis-btn'
 import { decodeGeohash } from '@/lib/geo/geohash'
 import { ingestLiveRiskFactors } from '@/lib/ai/live-risk-ingestion'
+import { runPredictiveEngineForAllZones } from '@/lib/ai/predictive-engine'
 
 const STALE_MS = 2 * 60 * 60 * 1000 // 2 hours
 
@@ -17,7 +18,10 @@ async function maybeIngestLiveData() {
     select: { createdAt: true },
   })
   const isStale = !latest || Date.now() - latest.createdAt.getTime() > STALE_MS
-  if (isStale) await ingestLiveRiskFactors()
+  if (isStale) {
+    await ingestLiveRiskFactors()
+    await runPredictiveEngineForAllZones()
+  }
 }
 
 interface Hotspot {
@@ -34,6 +38,7 @@ interface RiskZone {
   lng: number
   riskScore: number
   hasActiveSurge: boolean
+  reason: string
 }
 
 interface PageProps {
@@ -56,21 +61,37 @@ async function getRiskZones(): Promise<RiskZone[]> {
   const results: RiskZone[] = []
   for (const zone of zones) {
     const gh5 = zone.geohash.slice(0, 5)
+    // Get non-expired risk factors
     const factors = await prisma.riskFactor.findMany({
       where: { geohash: gh5, expiresAt: { gt: new Date() } },
-      select: { severity: true },
+      select: { severity: true, category: true },
+      orderBy: { severity: 'desc' },
     })
     const riskScore = factors.reduce((sum, f) => sum + f.severity, 0.1)
-    const activeSurge = await prisma.surgeEvent.count({
+    const activeSurge = await prisma.surgeEvent.findFirst({
       where: { geohash: gh5, isActive: true },
+      orderBy: { createdAt: 'desc' },
     })
+
+    // Choose reason: surge reason if active, or highest risk factor
+    let reason = factors[0]?.category.toLowerCase() ?? 'general'
+    if (activeSurge?.reason) {
+      reason = activeSurge.reason.toLowerCase()
+    } else if (activeSurge?.title) {
+      reason = activeSurge.title.toLowerCase()
+    }
+
+    // Capitalize first letter of reason
+    reason = reason.charAt(0).toUpperCase() + reason.slice(1)
+
     const [minLat, minLng, maxLat, maxLng] = decodeGeohash(gh5)
     results.push({
       geohash: gh5,
       lat: (minLat + maxLat) / 2,
       lng: (minLng + maxLng) / 2,
       riskScore: Math.min(riskScore, 1),
-      hasActiveSurge: activeSurge > 0,
+      hasActiveSurge: !!activeSurge,
+      reason,
     })
   }
   return results
@@ -150,7 +171,7 @@ export default async function HotspotsPage({ searchParams }: PageProps) {
       {/* Mesh gradient background */}
       <div className="absolute inset-0 mesh-gradient-soft"></div>
       <div className="absolute inset-0 bg-gradient-to-br from-green-50/30 via-white/90 to-green-50/30"></div>
-      
+
       <div className="relative p-6 lg:p-8">
         <div className="mb-6 flex items-center justify-between animate-fade-in">
           <div className="flex items-center gap-3">
@@ -163,11 +184,10 @@ export default async function HotspotsPage({ searchParams }: PageProps) {
               <Link
                 key={d}
                 href={`/hotspots?days=${d}`}
-                className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-all ${
-                  days === d
-                    ? 'bg-primary text-white shadow-sm'
-                    : 'bg-white text-gray-600 hover:bg-primary/5 border border-green-100 hover:border-green-200'
-                }`}
+                className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-all ${days === d
+                  ? 'bg-primary text-white shadow-sm'
+                  : 'bg-white text-gray-600 hover:bg-primary/5 border border-green-100 hover:border-green-200'
+                  }`}
               >
                 {d} days
               </Link>
@@ -175,50 +195,50 @@ export default async function HotspotsPage({ searchParams }: PageProps) {
           </div>
         </div>
 
-      {/* Map */}
-      <div className="mb-8 h-[480px] overflow-hidden rounded-xl border shadow-sm">
-        <HotspotMapLoader hotspots={hotspots} days={days} riskZones={riskZones} userRole={user.role} ngos={ngos} />
-      </div>
+        {/* Map */}
+        <div className="mb-8 h-[480px] overflow-hidden rounded-xl border shadow-sm">
+          <HotspotMapLoader hotspots={hotspots} days={days} riskZones={riskZones} userRole={user.role} ngos={ngos} />
+        </div>
 
-      {/* Top 10 table */}
-      <div className="rounded-xl border bg-white shadow-sm">
-        <div className="border-b px-4 py-3">
-          <h2 className="font-semibold text-gray-800">Top 10 Hotspot Zones</h2>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b text-left text-gray-500">
-                <th className="px-4 py-2 font-medium">#</th>
-                <th className="px-4 py-2 font-medium">Geohash Zone</th>
-                <th className="px-4 py-2 font-medium">Incidents</th>
-                <th className="px-4 py-2 font-medium">Avg Urgency</th>
-                <th className="px-4 py-2 font-medium">Coordinates</th>
-              </tr>
-            </thead>
-            <tbody>
-              {top10.map((h, i) => (
-                <tr key={h.geohash} className="border-b last:border-0">
-                  <td className="px-4 py-2 text-gray-400">{i + 1}</td>
-                  <td className="px-4 py-2 font-mono text-xs">{h.geohash}</td>
-                  <td className="px-4 py-2 font-bold text-primary">{h.count}</td>
-                  <td className="px-4 py-2">{urgencyLabel(h.avgUrgency)}</td>
-                  <td className="px-4 py-2 text-gray-400 text-xs">
-                    {h.lat.toFixed(4)}, {h.lng.toFixed(4)}
-                  </td>
+        {/* Top 10 table */}
+        <div className="rounded-xl border bg-white shadow-sm">
+          <div className="border-b px-4 py-3">
+            <h2 className="font-semibold text-gray-800">Top 10 Hotspot Zones</h2>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b text-left text-gray-500">
+                  <th className="px-4 py-2 font-medium">#</th>
+                  <th className="px-4 py-2 font-medium">Geohash Zone</th>
+                  <th className="px-4 py-2 font-medium">Incidents</th>
+                  <th className="px-4 py-2 font-medium">Avg Urgency</th>
+                  <th className="px-4 py-2 font-medium">Coordinates</th>
                 </tr>
-              ))}
-              {top10.length === 0 && (
-                <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-gray-400">
-                    No incident data in the last {days} days.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {top10.map((h, i) => (
+                  <tr key={h.geohash} className="border-b last:border-0">
+                    <td className="px-4 py-2 text-gray-400">{i + 1}</td>
+                    <td className="px-4 py-2 font-mono text-xs">{h.geohash}</td>
+                    <td className="px-4 py-2 font-bold text-primary">{h.count}</td>
+                    <td className="px-4 py-2">{urgencyLabel(h.avgUrgency)}</td>
+                    <td className="px-4 py-2 text-gray-400 text-xs">
+                      {h.lat.toFixed(4)}, {h.lng.toFixed(4)}
+                    </td>
+                  </tr>
+                ))}
+                {top10.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="px-4 py-8 text-center text-gray-400">
+                      No incident data in the last {days} days.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
       </div>
     </div>
   )

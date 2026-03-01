@@ -60,7 +60,7 @@ interface OWMResponse {
 // locations with no river data or missing measurements. Replace before parsing.
 async function safeJson(res: Response): Promise<unknown> {
   const text = await res.text()
-  return JSON.parse(text.replace(/:\s*NaN/g, ': null'))
+  return JSON.parse(text.replace(/:\s*NaN/gi, ': null'))
 }
 
 // ─── Main export ─────────────────────────────────────────────────────────────
@@ -94,14 +94,14 @@ export async function ingestLiveRiskFactors(): Promise<{ factorsCreated: number 
   const [weatherRaw, floodRaw] = await Promise.all([
     fetch(
       `https://api.open-meteo.com/v1/forecast` +
-        `?latitude=${lats}&longitude=${lngs}` +
-        `&current=weathercode,precipitation,windspeed_10m&forecast_days=1`,
+      `?latitude=${lats}&longitude=${lngs}` +
+      `&current=weathercode,precipitation,windspeed_10m&forecast_days=1`,
       { cache: 'no-store' },
     ).then(safeJson),
     fetch(
       `https://flood-api.open-meteo.com/v1/flood` +
-        `?latitude=${lats}&longitude=${lngs}` +
-        `&daily=river_discharge,river_discharge_p25,river_discharge_p75&forecast_days=1`,
+      `?latitude=${lats}&longitude=${lngs}` +
+      `&daily=river_discharge,river_discharge_p25,river_discharge_p75&forecast_days=1`,
       { cache: 'no-store' },
     ).then(safeJson),
   ])
@@ -162,7 +162,7 @@ export async function ingestLiveRiskFactors(): Promise<{ factorsCreated: number 
   try {
     const eonetRes = (await fetch(
       `https://eonet.gsfc.nasa.gov/api/v3/events/geojson` +
-        `?status=open&days=7&bbox=${INDIA_BBOX}`,
+      `?status=open&days=7&bbox=${INDIA_BBOX}`,
       { cache: 'no-store' },
     ).then((r) => r.json())) as { features?: EONETFeature[] }
 
@@ -213,8 +213,8 @@ export async function ingestLiveRiskFactors(): Promise<{ factorsCreated: number 
       try {
         const res = await fetch(
           `https://api.openweathermap.org/data/3.0/onecall` +
-            `?lat=${zone.lat}&lon=${zone.lng}` +
-            `&exclude=hourly,daily,minutely&units=metric&appid=${OWM_KEY}`,
+          `?lat=${zone.lat}&lon=${zone.lng}` +
+          `&exclude=hourly,daily,minutely&units=metric&appid=${OWM_KEY}`,
           { cache: 'no-store' },
         ).then((r) => r.json()) as OWMResponse
 
