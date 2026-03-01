@@ -16,8 +16,8 @@ export default function RunAnalysisBtn({ userRole }: { userRole: string }) {
     try {
       const res = await fetch('/api/admin/risk/calculate', { method: 'POST' })
       if (!res.ok) throw new Error(await res.text())
-      const data = await res.json() as { zonesAnalyzed: number; surgesTriggered: number }
-      setMessage(`${data.zonesAnalyzed} zones analyzed, ${data.surgesTriggered} surges triggered`)
+      const data = await res.json() as { zonesAnalyzed: number; surgesTriggered: number; riskFactorsCreated: number }
+      setMessage(`${data.riskFactorsCreated} signals ingested · ${data.zonesAnalyzed} zones scored · ${data.surgesTriggered} surges triggered`)
       setStatus('success')
       setTimeout(() => setStatus('idle'), 4000)
     } catch {
