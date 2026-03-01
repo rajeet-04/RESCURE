@@ -58,7 +58,6 @@ export function NGOCTASection() {
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-white/20 rounded-2xl mb-6">
                   <Building2 className="h-8 w-8 text-white" />
                 </div>
-                <p className="text-sm font-bold text-white/80 uppercase tracking-widest mb-4">FOR NGOs</p>
                 <h2 className="text-4xl sm:text-5xl font-bold mb-6">Partner With Us</h2>
                 <p className="text-white/90 mb-4 max-w-2xl mx-auto text-lg leading-relaxed">
                   Get a free rescue management dashboard, real-time incident alerts, verified vet network, and discounted supplier access.
