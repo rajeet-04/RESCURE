@@ -1,13 +1,13 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
-import { AlertCircle, Code2, Key, Globe, Zap, Mail, Clock, BookOpen } from 'lucide-react'
+import { AlertCircle, Code2, Key, Globe, Zap, Mail, Clock, BookOpen, Check, X, Sparkles } from 'lucide-react'
 import { auth } from '@/lib/auth'
 import UserMenu from '@/components/layout/user-menu'
 
 export const metadata: Metadata = {
-  title: 'API Documentation — RESCURE',
-  description: 'Public REST API documentation for the RESCURE platform',
+  title: 'API & Pricing — RESCURE',
+  description: 'Pricing plans and public REST API documentation for the RESCURE platform',
 }
 
 const endpoints = [
@@ -110,7 +110,7 @@ export default async function ApiDocsPage() {
               { href: '/community', label: 'COMMUNITY' },
               { href: '/adopt', label: 'ADOPT' },
               { href: '/marketplace', label: 'MARKETPLACE' },
-              { href: '/api-docs', label: 'API DOCS' },
+              { href: '/api-docs', label: 'API & PRICING' },
             ].map((l) => (
               <Link
                 key={l.href}
@@ -254,6 +254,159 @@ export default async function ApiDocsPage() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ── Pricing ── */}
+      <section className="py-20 px-6 bg-gray-50 border-t border-gray-100">
+        <div className="max-w-5xl mx-auto">
+          {/* Heading */}
+          <div className="text-center mb-14">
+            <div className="inline-flex items-center gap-2 bg-primary/10 text-primary text-sm font-bold px-5 py-2.5 rounded-full border border-primary/20 mb-5">
+              <Sparkles className="h-4 w-4" />
+              PRICING
+            </div>
+            <h2 className="text-4xl font-bold text-gray-900 mb-3">Plans for every organisation</h2>
+            <p className="text-gray-500 max-w-xl mx-auto">
+              From a single-city shelter to a nationwide network — pick the plan that fits your scale.
+            </p>
+          </div>
+
+          {/* Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
+
+            {/* ── Starter ── */}
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col overflow-hidden">
+              <div className="px-7 pt-8 pb-6 border-b border-gray-100">
+                <p className="text-xs font-extrabold text-gray-400 uppercase tracking-widest mb-3">Starter</p>
+                <p className="text-sm text-gray-500 mb-5">Small-scale NGOs running a single shelter or city operation.</p>
+                <div className="flex items-end gap-1">
+                  <span className="text-5xl font-extrabold text-gray-900">₹0</span>
+                  <span className="text-gray-400 mb-1.5 text-sm">/month</span>
+                </div>
+                <p className="text-xs text-green-600 font-semibold mt-1">Free forever · no credit card needed</p>
+              </div>
+              <ul className="px-7 py-6 space-y-3 flex-1">
+                {[
+                  [true,  'Up to 25 active cases'],
+                  [true,  'Animal QR profiles'],
+                  [true,  'Incident reporting'],
+                  [true,  'Community adoption listings'],
+                  [true,  'Basic analytics dashboard'],
+                  [false, 'Marketplace access'],
+                  [false, 'Vet consultations'],
+                  [false, 'API access'],
+                  [false, 'Priority support'],
+                ].map(([ok, label]) => (
+                  <li key={label as string} className="flex items-start gap-3 text-sm">
+                    {ok
+                      ? <Check className="h-4 w-4 text-green-500 shrink-0 mt-0.5" />
+                      : <X className="h-4 w-4 text-gray-300 shrink-0 mt-0.5" />}
+                    <span className={ok ? 'text-gray-700' : 'text-gray-400'}>{label as string}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="px-7 pb-7">
+                <Link
+                  href="/register"
+                  className="block w-full text-center py-3 rounded-xl border-2 border-gray-200 text-sm font-bold text-gray-700 hover:border-primary hover:text-primary transition-colors"
+                >
+                  Get started free
+                </Link>
+              </div>
+            </div>
+
+            {/* ── Growth — POPULAR ── */}
+            <div className="bg-primary rounded-2xl shadow-xl shadow-primary/20 flex flex-col overflow-hidden relative">
+              <div className="absolute top-4 right-4">
+                <span className="bg-white text-primary text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wide">
+                  Most Popular
+                </span>
+              </div>
+              <div className="px-7 pt-8 pb-6 border-b border-white/10">
+                <p className="text-xs font-extrabold text-white/60 uppercase tracking-widest mb-3">Growth</p>
+                <p className="text-sm text-white/70 mb-5">Large-scale NGOs managing multiple cities or a sizeable operation.</p>
+                <div className="flex items-end gap-1">
+                  <span className="text-5xl font-extrabold text-white">₹2,999</span>
+                  <span className="text-white/60 mb-1.5 text-sm">/month</span>
+                </div>
+                <p className="text-xs text-green-200 font-semibold mt-1">Billed annually · save 20%</p>
+              </div>
+              <ul className="px-7 py-6 space-y-3 flex-1">
+                {[
+                  [true, 'Unlimited active cases'],
+                  [true, 'Animal QR profiles'],
+                  [true, 'Incident reporting'],
+                  [true, 'Community adoption listings'],
+                  [true, 'Advanced analytics + exports'],
+                  [true, 'Marketplace — NGO wholesale prices'],
+                  [true, 'Vet consultations (10/month)'],
+                  [false,'API access'],
+                  [true, 'Email support (48h SLA)'],
+                ].map(([ok, label]) => (
+                  <li key={label as string} className="flex items-start gap-3 text-sm">
+                    {ok
+                      ? <Check className="h-4 w-4 text-white shrink-0 mt-0.5" />
+                      : <X className="h-4 w-4 text-white/30 shrink-0 mt-0.5" />}
+                    <span className={ok ? 'text-white' : 'text-white/40'}>{label as string}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="px-7 pb-7">
+                <Link
+                  href="/register"
+                  className="block w-full text-center py-3 rounded-xl bg-white text-primary text-sm font-extrabold hover:bg-white/90 transition-colors shadow-md"
+                >
+                  Start 14-day free trial
+                </Link>
+              </div>
+            </div>
+
+            {/* ── Enterprise ── */}
+            <div className="bg-gray-900 rounded-2xl border border-gray-800 shadow-sm flex flex-col overflow-hidden">
+              <div className="px-7 pt-8 pb-6 border-b border-gray-800">
+                <p className="text-xs font-extrabold text-gray-500 uppercase tracking-widest mb-3">Enterprise</p>
+                <p className="text-sm text-gray-400 mb-5">Governments, federations and large rescue networks needing API &amp; custom SLAs.</p>
+                <div className="flex items-end gap-1">
+                  <span className="text-5xl font-extrabold text-white">Custom</span>
+                </div>
+                <p className="text-xs text-primary font-semibold mt-1">Contact us for a quote</p>
+              </div>
+              <ul className="px-7 py-6 space-y-3 flex-1">
+                {[
+                  [true, 'Everything in Growth'],
+                  [true, 'Full REST API access + webhooks'],
+                  [true, 'Unlimited vet consultations'],
+                  [true, 'Custom data exports & reports'],
+                  [true, 'White-label option'],
+                  [true, 'Dedicated account manager'],
+                  [true, 'Custom SLA & uptime guarantee'],
+                  [true, 'SSO / SAML integration'],
+                  [true, 'Priority support (4h SLA)'],
+                ].map(([ok, label]) => (
+                  <li key={label as string} className="flex items-start gap-3 text-sm">
+                    <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                    <span className="text-gray-300">{label as string}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="px-7 pb-7">
+                <a
+                  href="mailto:enterprise@rescure.app"
+                  className="block w-full text-center py-3 rounded-xl border-2 border-gray-700 text-sm font-bold text-white hover:border-primary hover:text-primary transition-colors"
+                >
+                  Talk to sales
+                </a>
+              </div>
+            </div>
+
+          </div>
+
+          {/* Feature comparison footnote */}
+          <p className="text-center text-xs text-gray-400 mt-8">
+            All plans include SSL-secured data, GDPR-compliant storage, and 99.9% uptime SLA.
+            Prices shown in INR and exclude 18% GST.
+          </p>
         </div>
       </section>
 
