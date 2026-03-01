@@ -16,6 +16,7 @@ import {
   Bell,
   Menu,
   X,
+  Flame,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 
@@ -27,6 +28,7 @@ const navItems = [
   { href: '/dashboard', label: 'Overview', icon: LayoutDashboard },
   { href: '/dashboard/cases', label: 'Cases', icon: Layers },
   { href: '/dashboard/map', label: 'Map', icon: Map },
+  { href: '/hotspots', label: 'Hotspot Map', icon: Flame },
   { href: '/dashboard/team', label: 'Team', icon: Users },
   { href: '/dashboard/analytics', label: 'Analytics', icon: BarChart3 },
   { href: '/dashboard/marketplace', label: 'Marketplace', icon: ShoppingBag },
@@ -34,14 +36,16 @@ const navItems = [
   { href: '/dashboard/settings', label: 'Settings', icon: Settings },
 ]
 
-export default function NGOSidebar({ notificationCount = 0 }: NGOSidebarProps) {
-  const pathname = usePathname()
-  const [mobileOpen, setMobileOpen] = useState(false)
-
-  const isActive = (href: string) =>
-    href === '/dashboard' ? pathname === '/dashboard' : pathname.startsWith(href)
-
-  const SidebarContent = () => (
+function SidebarContent({
+  isActive,
+  notificationCount,
+  setMobileOpen,
+}: {
+  isActive: (href: string) => boolean
+  notificationCount: number
+  setMobileOpen: (open: boolean) => void
+}) {
+  return (
     <div className="flex h-full flex-col">
       {/* Brand */}
       <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
@@ -75,11 +79,10 @@ export default function NGOSidebar({ notificationCount = 0 }: NGOSidebarProps) {
             key={href}
             href={href}
             onClick={() => setMobileOpen(false)}
-            className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold transition-all ${
-              isActive(href)
-                ? 'bg-primary/10 text-primary'
-                : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
-            }`}
+            className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold transition-all ${isActive(href)
+              ? 'bg-primary/10 text-primary'
+              : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
+              }`}
           >
             <Icon className="h-5 w-5 shrink-0" />
             {label}
@@ -90,11 +93,25 @@ export default function NGOSidebar({ notificationCount = 0 }: NGOSidebarProps) {
         ))}
       </nav>
 
-      <div className="border-t border-gray-100 px-6 py-4">
-        <p className="text-xs text-muted-foreground">© 2024 RESCURE</p>
+      <div className="border-t border-gray-100 flex items-center justify-between px-6 py-4 mt-auto">
+        <p className="text-xs text-muted-foreground tracking-wide">© {new Date().getFullYear()} RESCURE</p>
+        <Link
+          href="/api/auth/logout"
+          className="text-xs font-semibold text-gray-500 hover:text-red-600 transition-colors flex items-center gap-1.5"
+        >
+          Logout
+        </Link>
       </div>
     </div>
   )
+}
+
+export default function NGOSidebar({ notificationCount = 0 }: NGOSidebarProps) {
+  const pathname = usePathname()
+  const [mobileOpen, setMobileOpen] = useState(false)
+
+  const isActive = (href: string) =>
+    href === '/dashboard' ? pathname === '/dashboard' : pathname.startsWith(href)
 
   return (
     <>
@@ -116,16 +133,15 @@ export default function NGOSidebar({ notificationCount = 0 }: NGOSidebarProps) {
 
       {/* Mobile sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transform transition-transform lg:hidden ${
-          mobileOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transform transition-transform lg:hidden ${mobileOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
       >
-        <SidebarContent />
+        <SidebarContent isActive={isActive} notificationCount={notificationCount} setMobileOpen={setMobileOpen} />
       </aside>
 
       {/* Desktop sidebar */}
       <aside className="hidden lg:flex h-screen w-64 shrink-0 flex-col border-r border-gray-100 bg-white">
-        <SidebarContent />
+        <SidebarContent isActive={isActive} notificationCount={notificationCount} setMobileOpen={setMobileOpen} />
       </aside>
     </>
   )

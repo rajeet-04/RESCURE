@@ -1,10 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
+import { useEffect, useRef } from 'react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 interface Incident {
   id: string
@@ -13,6 +12,7 @@ interface Incident {
   longitude: number
   urgencyScore: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW'
   status: string
+  rescueCaseId?: string | null
 }
 
 interface RescueMapProps {
@@ -44,8 +44,10 @@ function createColoredIcon(color: string) {
 }
 
 export default function RescueMap({ incidents }: RescueMapProps) {
-  const [mapId, setMapId] = useState<string>('')
-  
+  const containerRef = useRef<HTMLDivElement>(null)
+  const mapRef = useRef<L.Map | null>(null)
+  const router = useRouter()
+
   useEffect(() => {
     // Fix default leaflet icon paths broken by webpack
     delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)._getIconUrl
@@ -54,59 +56,67 @@ export default function RescueMap({ incidents }: RescueMapProps) {
       iconUrl: '/leaflet/marker-icon.png',
       shadowUrl: '/leaflet/marker-shadow.png',
     })
-    
-    // Generate a new ID to force MapContainer to remount on HMR
-    setMapId(Date.now().toString())
   }, [])
 
-  const center: [number, number] = [20.5937, 78.9629]
-  const zoom = incidents.length > 0 ? 10 : 5
+  useEffect(() => {
+    if (!containerRef.current || mapRef.current) return
 
-  const bounds =
-    incidents.length > 0
-      ? incidents.map((i): [number, number] => [i.latitude, i.longitude])
-      : undefined
+    const center: [number, number] = [20.5937, 78.9629]
+    const zoom = incidents.length > 0 ? 10 : 5
 
-  if (!mapId) return null
+    const map = L.map(containerRef.current, { center, zoom })
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    }).addTo(map)
+
+    const layerGroup = L.featureGroup().addTo(map)
+
+    for (const incident of incidents) {
+      const marker = L.marker([incident.latitude, incident.longitude], {
+        icon: createColoredIcon(urgencyColorMap[incident.urgencyScore] ?? '#f97316')
+      }).addTo(layerGroup)
+
+      const popupContent = document.createElement('div')
+      popupContent.className = 'space-y-1 min-w-[160px]'
+      const caseLink = incident.rescueCaseId
+        ? `<button class="block text-xs text-orange-600 hover:underline mt-1 view-case-btn" data-href="/dashboard/cases/${incident.rescueCaseId}">View case →</button>`
+        : `<span class="block text-xs text-gray-400 mt-1">No case assigned yet</span>`
+      popupContent.innerHTML = `
+        <p class="font-semibold text-sm leading-snug">${incident.title}</p>
+        <p class="text-xs font-medium" style="color: ${urgencyColorMap[incident.urgencyScore]}">
+          ${incident.urgencyScore}
+        </p>
+        ${caseLink}
+      `
+
+      marker.bindPopup(popupContent)
+    }
+
+    if (incidents.length > 0) {
+      map.fitBounds(layerGroup.getBounds(), { padding: [40, 40] })
+    }
+
+    // Handle clicks inside popups
+    map.on('popupopen', (e) => {
+      const btn = e.popup.getElement()?.querySelector('.view-case-btn') as HTMLButtonElement
+      if (btn) {
+        btn.onclick = () => {
+          const href = btn.getAttribute('data-href')
+          if (href) router.push(href)
+        }
+      }
+    })
+
+    mapRef.current = map
+
+    return () => {
+      map.remove()
+      mapRef.current = null
+    }
+  }, [incidents, router])
 
   return (
-    <MapContainer
-      key={mapId}
-      center={center}
-      zoom={zoom}
-      bounds={bounds}
-      boundsOptions={{ padding: [40, 40] }}
-      style={{ height: '100%', width: '100%' }}
-    >
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
-      {incidents.map((incident) => (
-        <Marker
-          key={incident.id}
-          position={[incident.latitude, incident.longitude]}
-          icon={createColoredIcon(urgencyColorMap[incident.urgencyScore] ?? '#f97316')}
-        >
-          <Popup>
-            <div className="space-y-1 min-w-[160px]">
-              <p className="font-semibold text-sm leading-snug">{incident.title}</p>
-              <p
-                className="text-xs font-medium"
-                style={{ color: urgencyColorMap[incident.urgencyScore] }}
-              >
-                {incident.urgencyScore}
-              </p>
-              <Link
-                href={`/dashboard/cases/${incident.id}`}
-                className="block text-xs text-orange-600 hover:underline mt-1"
-              >
-                View case →
-              </Link>
-            </div>
-          </Popup>
-        </Marker>
-      ))}
-    </MapContainer>
+    <div ref={containerRef} style={{ height: '100%', width: '100%' }} />
   )
 }

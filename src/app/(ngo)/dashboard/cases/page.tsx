@@ -80,10 +80,10 @@ export default function NGOCasesPage() {
   async function acceptCase(incidentId: string) {
     setAccepting(incidentId)
     try {
-      const res = await fetch(`/api/incidents/${incidentId}`, {
-        method: 'PATCH',
+      const res = await fetch(`/api/cases`, {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'ASSIGNED' }),
+        body: JSON.stringify({ reportId: incidentId }),
       })
       if (res.ok) {
         setIncidents((prev) =>
@@ -91,7 +91,13 @@ export default function NGOCasesPage() {
             inc.id === incidentId ? { ...inc, status: 'ASSIGNED' } : inc
           )
         )
+      } else {
+        const data = await res.json()
+        alert(data.error || 'Failed to accept case')
       }
+    } catch (err) {
+      console.error(err)
+      alert('Failed to accept case')
     } finally {
       setAccepting(null)
     }

@@ -63,9 +63,8 @@ export default async function AdoptPage() {
               <Link
                 key={l.href}
                 href={l.href}
-                className={`text-sm font-semibold tracking-wide transition-colors ${
-                  l.href === '/adopt' ? 'text-primary' : 'text-gray-700 hover:text-primary'
-                }`}
+                className={`text-sm font-semibold tracking-wide transition-colors ${l.href === '/adopt' ? 'text-primary' : 'text-gray-700 hover:text-primary'
+                  }`}
               >
                 {l.label}
               </Link>

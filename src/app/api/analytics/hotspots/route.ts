@@ -12,7 +12,7 @@ const urgencyMap: Record<string, number> = {
 export async function GET(request: NextRequest) {
   const session = await auth()
   const user = session?.user as { id: string; role: string } | undefined
-  if (!user || (user.role !== 'PLATFORM_ADMIN' && user.role !== 'NGO_ADMIN')) {
+  if (!user || (user.role !== 'PLATFORM_ADMIN' && user.role !== 'NGO_ADMIN' && user.role !== 'NGO_WORKER')) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

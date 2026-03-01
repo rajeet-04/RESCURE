@@ -135,22 +135,42 @@ export async function POST(
     console.warn('[notify-external] shelter scrape failed:', err)
   }
 
-  // ── 2. Verified DB NGOs by geohash proximity ───────────────────────────────
+  // ── 2. Verified DB NGOs by proximity (Haversine distance <= 50km) ────────
   let dbNGOsContacted = 0
 
   try {
-    const geohash5 = encodeGeohash(incident.lat, incident.lng, 5)
-    const neighborHashes = getNeighborHashes(geohash5)
+    const ngos = await prisma.$queryRaw<
+      Array<{
+        id: string
+        name: string
+        userId: string
+        userEmail: string | null
+      }>
+    >`
+      SELECT 
+        n.id, 
+        n.name, 
+        n."userId",
+        u.email as "userEmail"
+      FROM "NGO" n
+      JOIN "User" u ON n."userId" = u.id
+      WHERE n.verified = true
+        AND n.lat IS NOT NULL 
+        AND n.lng IS NOT NULL
+        AND (
+          6371 * acos(
+            cos(radians(${incident.lat})) * cos(radians(n.lat)) *
+            cos(radians(n.lng) - radians(${incident.lng})) +
+            sin(radians(${incident.lat})) * sin(radians(n.lat))
+          )
+        ) <= 50
+    `
 
-    const ngos = await prisma.nGO.findMany({
-      where: {
-        verified: true,
-        coverageZones: { some: { geohash: { in: neighborHashes } } },
-      },
-      include: {
-        user: { select: { email: true } },
-        fieldWorkers: { select: { userId: true } },
-      },
+    // Fetch field workers for the matched NGOs (since $queryRaw doesn't easily deeply nest)
+    const ngoIds = ngos.map((n) => n.id)
+    const fieldWorkers = await prisma.fieldWorker.findMany({
+      where: { ngoId: { in: ngoIds } },
+      select: { ngoId: true, userId: true },
     })
 
     const pushPayload = {
@@ -167,15 +187,16 @@ export async function POST(
 
         try {
           // Push to all field workers
+          const workers = fieldWorkers.filter((fw) => fw.ngoId === ngo.id)
           await Promise.allSettled(
-            ngo.fieldWorkers.map((fw) => sendPushToUser(fw.userId, pushPayload))
+            workers.map((fw) => sendPushToUser(fw.userId, pushPayload))
           )
 
           // Email to NGO owner
-          if (ngo.user.email) {
+          if (ngo.userEmail) {
             await resend.emails.send({
               from: 'RESCURE <alerts@rescure.in>',
-              to: ngo.user.email,
+              to: ngo.userEmail,
               subject: `[RESCURE] Animal incident near your zone`,
               html: `
                 <h2>${incidentTitle}</h2>
@@ -198,12 +219,12 @@ export async function POST(
           name: ngo.name,
           address: null,
           phone: null,
-          email: ngo.user.email ?? null,
+          email: ngo.userEmail ?? null,
           website: null,
           lat: null,
           lng: null,
           source: 'db',
-          contactType: ngo.user.email ? 'email' : 'push',
+          contactType: ngo.userEmail ? 'email' : 'push',
           status,
           bitrix24LeadId: null,
           errorMsg,
@@ -215,9 +236,8 @@ export async function POST(
     console.warn('[notify-external] DB NGO query failed:', err)
   }
 
-  // ── 3. Persist outreach records ────────────────────────────────────────────
   if (outreachRecords.length > 0) {
-    await prisma.nGOOutreach.createMany({ data: outreachRecords }).catch((err) => {
+    await prisma.nGOOutreach.createMany({ data: outreachRecords }).catch((err: Error) => {
       console.error('[notify-external] createMany error:', err)
     })
   }

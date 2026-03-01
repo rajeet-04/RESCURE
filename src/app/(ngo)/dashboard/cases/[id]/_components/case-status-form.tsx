@@ -33,7 +33,7 @@ export default function CaseStatusForm({
   assignedWorkerId,
 }: CaseStatusFormProps) {
   const [status, setStatus] = useState(currentStatus)
-  const [workerId, setWorkerId] = useState(assignedWorkerId ?? '')
+  const [workerId, setWorkerId] = useState(assignedWorkerId ?? '__none__')
   const [note, setNote] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -48,7 +48,7 @@ export default function CaseStatusForm({
     const res = await fetch(`/api/cases/${caseId}/status`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status, note, assignedWorkerId: workerId || null }),
+      body: JSON.stringify({ status, note, assignedWorkerId: workerId === '__none__' ? null : workerId }),
     })
 
     setSubmitting(false)
@@ -88,7 +88,7 @@ export default function CaseStatusForm({
                 <SelectValue placeholder="Select worker" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Unassigned</SelectItem>
+                <SelectItem value="__none__">Unassigned</SelectItem>
                 {workers.map((w) => (
                   <SelectItem key={w.id} value={w.id}>
                     {w.name}

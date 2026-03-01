@@ -43,7 +43,7 @@ export default async function VetDashboardPage() {
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
-            Welcome, {vet.name ?? (session.user as { name?: string }).name}
+            Welcome, {(session.user as { name?: string }).name}
           </h1>
           <p className="text-sm text-gray-500 mt-1">
             {vet.specialization ?? 'Veterinarian'} · {vet.verified ? '✅ Verified' : 'Pending verification'}

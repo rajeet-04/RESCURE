@@ -6,7 +6,8 @@ import ImpactCharts from './_components/impact-charts'
 export const dynamic = 'force-dynamic'
 
 export default async function ImpactPage() {
-  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+  const thirtyDaysAgo = new Date()
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
 
   const [
     totalReports,
@@ -109,7 +110,7 @@ export default async function ImpactPage() {
     <div className="min-h-screen bg-white relative overflow-hidden">
       {/* Mesh gradient background */}
       <div className="absolute inset-0 mesh-gradient-soft opacity-40"></div>
-      
+
       {/* Hero */}
       <div className="relative bg-gradient-to-br from-primary via-green-600 to-green-700 py-16 text-white">
         <div className="mx-auto max-w-6xl px-4">
