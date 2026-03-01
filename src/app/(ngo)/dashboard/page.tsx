@@ -104,21 +104,21 @@ export default async function NGODashboardPage() {
         <h2 className="text-lg font-semibold text-gray-800 mb-3">Quick Actions</h2>
         <div className="grid grid-cols-3 gap-4">
           <Link
-            href="/ngo/dashboard/cases"
+            href="/dashboard/cases"
             className="flex flex-col items-center gap-2 rounded-xl border border-orange-200 bg-orange-50 p-4 text-center hover:bg-orange-100 transition-colors"
           >
             <Layers className="h-6 w-6 text-orange-600" />
             <span className="text-sm font-medium text-orange-700">View Cases</span>
           </Link>
           <Link
-            href="/ngo/dashboard/map"
+            href="/dashboard/map"
             className="flex flex-col items-center gap-2 rounded-xl border border-blue-200 bg-blue-50 p-4 text-center hover:bg-blue-100 transition-colors"
           >
             <MapPin className="h-6 w-6 text-blue-600" />
             <span className="text-sm font-medium text-blue-700">Map View</span>
           </Link>
           <Link
-            href="/ngo/dashboard/team"
+            href="/dashboard/team"
             className="flex flex-col items-center gap-2 rounded-xl border border-green-200 bg-green-50 p-4 text-center hover:bg-green-100 transition-colors"
           >
             <Users className="h-6 w-6 text-green-600" />
@@ -140,7 +140,7 @@ export default async function NGODashboardPage() {
           {recentCases.map((c) => (
             <Link
               key={c.id}
-              href={`/ngo/dashboard/cases/${c.id}`}
+              href={`/dashboard/cases/${c.id}`}
               className="flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition-colors"
             >
               <div>

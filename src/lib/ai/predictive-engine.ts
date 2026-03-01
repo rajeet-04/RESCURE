@@ -5,6 +5,32 @@ import { sendPushToRole } from '@/lib/push/server'
 const BASE_RISK = 0.1
 const SURGE_THRESHOLD = 0.6
 
+async function getPlaceName(lat: number, lng: number): Promise<string | null> {
+  try {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`,
+      {
+        headers: { 'Accept-Language': 'en', 'User-Agent': 'rescure-ai-engine' },
+      }
+    )
+    if (!res.ok) return null
+    const data = await res.json()
+    if (data?.address) {
+      const addr = data.address
+      const parts = []
+      if (addr.neighbourhood || addr.neighborhood) parts.push(addr.neighbourhood || addr.neighborhood)
+      if (addr.suburb) parts.push(addr.suburb)
+      if (addr.city || addr.town || addr.village) parts.push(addr.city || addr.town || addr.village)
+      
+      const place = Array.from(new Set(parts)).filter(Boolean).join(', ')
+      if (place) return place
+    }
+    return null
+  } catch (error) {
+    return null
+  }
+}
+
 /**
  * Calculates risk score for a geohash-5 zone.
  * Queries all non-expired RiskFactor rows for the geohash,
@@ -48,7 +74,11 @@ export async function triggerProactiveSurge(
   const lat = (minLat + maxLat) / 2
   const lng = (minLng + maxLng) / 2
 
-  const title = `⚠️ Predictive Surge Risk — Zone ${geohash}`
+  const placeName = await getPlaceName(lat, lng)
+
+  const title = placeName
+    ? `⚠️ Predictive Surge Risk — ${placeName} (${geohash})`
+    : `⚠️ Predictive Surge Risk — Zone ${geohash}`
   const reason = `AI-detected risk score ${score.toFixed(2)} exceeds threshold (0.6). Pre-position field workers.`
 
   await prisma.surgeEvent.create({

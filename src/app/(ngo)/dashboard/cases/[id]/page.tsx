@@ -14,8 +14,14 @@ const urgencyColors: Record<string, string> = {
 
 export default async function CaseDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const rescueCase = await prisma.rescueCase.findUnique({
-    where: { id },
+
+  let rescueCase = await prisma.rescueCase.findFirst({
+    where: {
+      OR: [
+        { id: id },
+        { reportId: id }
+      ]
+    },
     include: {
       report: true,
       ngo: {
@@ -30,9 +36,19 @@ export default async function CaseDetailPage({ params }: { params: Promise<{ id:
     },
   })
 
-  if (!rescueCase) notFound()
+  let report = rescueCase?.report
+  let isPending = false
 
-  const { report } = rescueCase
+  if (!rescueCase) {
+    const pendingReport = await prisma.incidentReport.findUnique({
+      where: { id: id }
+    })
+    if (!pendingReport) notFound()
+    report = pendingReport
+    isPending = true
+  }
+
+  if (!report) notFound()
 
   return (
     <div className="space-y-6 max-w-3xl">
@@ -42,17 +58,24 @@ export default async function CaseDetailPage({ params }: { params: Promise<{ id:
           <Badge className={urgencyColors[report.urgencyScore]}>{report.urgencyScore}</Badge>
         </div>
         <p className="text-sm text-gray-500 mt-1">
-          Case #{rescueCase.id.slice(0, 8)} · Created{' '}
-          {new Date(rescueCase.createdAt).toLocaleDateString('en-IN')}
+          {rescueCase ? `Case #${rescueCase.id.slice(0, 8)} · ` : `Incident #${report.id.slice(0, 8)} · `}
+          Created {new Date(rescueCase ? rescueCase.createdAt : report.createdAt).toLocaleDateString('en-IN')}
         </p>
-        <div className="mt-3">
-          <SlaTimer
-            caseId={rescueCase.id}
-            deadline={rescueCase.slaDeadline?.toISOString() ?? null}
-            urgency={report.urgencyScore}
-            state={rescueCase.state}
-          />
-        </div>
+        {!isPending && rescueCase && (
+          <div className="mt-3">
+            <SlaTimer
+              caseId={rescueCase.id}
+              deadline={rescueCase.slaDeadline?.toISOString() ?? null}
+              urgency={report.urgencyScore}
+              state={rescueCase.state}
+            />
+          </div>
+        )}
+        {isPending && (
+          <div className="mt-4 p-4 rounded-lg bg-orange-50 border border-orange-200 text-orange-800 text-sm">
+            This incident is currently pending. You can accept it from your Dashboard queue to create a case and assign field workers.
+          </div>
+        )}
       </div>
 
       {/* Location */}
@@ -97,43 +120,47 @@ export default async function CaseDetailPage({ params }: { params: Promise<{ id:
       )}
 
       {/* Status Update Form */}
-      <div className="rounded-xl border bg-white p-5">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500 mb-4">
-          Update Status
-        </h2>
-        <CaseStatusForm
-          caseId={rescueCase.id}
-          currentStatus={rescueCase.state}
-          workers={rescueCase.ngo.fieldWorkers.map((w) => ({
-            id: w.id,
-            name: w.user.name ?? 'Unnamed',
-          }))}
-          assignedWorkerId={rescueCase.workerId ?? null}
-        />
-      </div>
+      {!isPending && rescueCase && (
+        <div className="rounded-xl border bg-white p-5">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500 mb-4">
+            Update Status
+          </h2>
+          <CaseStatusForm
+            caseId={rescueCase.id}
+            currentStatus={rescueCase.state}
+            workers={rescueCase.ngo.fieldWorkers.map((w) => ({
+              id: w.id,
+              name: w.user.name ?? 'Unnamed',
+            }))}
+            assignedWorkerId={rescueCase.workerId ?? null}
+          />
+        </div>
+      )}
 
       {/* Timeline */}
-      <div className="rounded-xl border bg-white p-5">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500 mb-4">
-          Activity Timeline
-        </h2>
-        {rescueCase.timeline.length === 0 ? (
-          <p className="text-sm text-gray-400">No updates yet.</p>
-        ) : (
-          <ol className="relative ml-3 border-l border-orange-200 space-y-5">
-            {rescueCase.timeline.map((entry) => (
-              <li key={entry.id} className="ml-6">
-                <span className="absolute -left-2.5 h-5 w-5 rounded-full bg-orange-500 ring-4 ring-white" />
-                <p className="text-sm font-semibold text-gray-800">{entry.state.replace('_', ' ')}</p>
-                {entry.note && <p className="text-sm text-gray-600 mt-0.5">{entry.note}</p>}
-                <p className="text-xs text-gray-400 mt-1">
-                  {new Date(entry.createdAt).toLocaleString('en-IN')}
-                </p>
-              </li>
-            ))}
-          </ol>
-        )}
-      </div>
+      {!isPending && rescueCase && (
+        <div className="rounded-xl border bg-white p-5">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500 mb-4">
+            Activity Timeline
+          </h2>
+          {rescueCase.timeline.length === 0 ? (
+            <p className="text-sm text-gray-400">No updates yet.</p>
+          ) : (
+            <ol className="relative ml-3 border-l border-orange-200 space-y-5">
+              {rescueCase.timeline.map((entry) => (
+                <li key={entry.id} className="ml-6">
+                  <span className="absolute -left-2.5 h-5 w-5 rounded-full bg-orange-500 ring-4 ring-white" />
+                  <p className="text-sm font-semibold text-gray-800">{entry.state.replace('_', ' ')}</p>
+                  {entry.note && <p className="text-sm text-gray-600 mt-0.5">{entry.note}</p>}
+                  <p className="text-xs text-gray-400 mt-1">
+                    {new Date(entry.createdAt).toLocaleString('en-IN')}
+                  </p>
+                </li>
+              ))}
+            </ol>
+          )}
+        </div>
+      )}
     </div>
   )
 }
