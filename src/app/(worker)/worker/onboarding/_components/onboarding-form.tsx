@@ -13,11 +13,12 @@ interface NGO {
 
 interface OnboardingFormProps {
   ngos: NGO[]
+  defaultNgoId?: string
 }
 
-export default function OnboardingForm({ ngos }: OnboardingFormProps) {
+export default function OnboardingForm({ ngos, defaultNgoId }: OnboardingFormProps) {
   const router = useRouter()
-  const [selectedNgoId, setSelectedNgoId] = useState('')
+  const [selectedNgoId, setSelectedNgoId] = useState(defaultNgoId ?? '')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
