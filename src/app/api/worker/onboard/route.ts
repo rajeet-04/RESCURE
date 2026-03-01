@@ -5,8 +5,8 @@ import { prisma } from '@/lib/prisma'
 export async function POST(req: NextRequest) {
   try {
     const session = await auth()
-    const user = session?.user as { id: string; role: string } | undefined
-    if (!user || user.role !== 'NGO_WORKER') {
+    const userId = session?.user?.id
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -18,8 +18,9 @@ export async function POST(req: NextRequest) {
     }
 
     const existing = await prisma.fieldWorker.findUnique({
-      where: { userId: user.id },
+      where: { userId },
     })
+
     if (existing) {
       return NextResponse.json(
         { error: 'Field worker record already exists' },
@@ -29,10 +30,15 @@ export async function POST(req: NextRequest) {
 
     const worker = await prisma.fieldWorker.create({
       data: {
-        userId: user.id,
+        userId,
         ngoId,
         available: true,
       },
+    })
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { role: 'NGO_WORKER' },
     })
 
     return NextResponse.json(worker, { status: 201 })
@@ -41,3 +47,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
+
