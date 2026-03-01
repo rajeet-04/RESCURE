@@ -1,12 +1,14 @@
 # RESCURE — Planning State
 
-## Current Phase
+## Previous Phase
 
 Phase `03-predictive-engine` — **COMPLETE** (4/4 plans done)
 
-## Next Phase
+## Current Phase
 
-Phase `04` — **PLANNED**
+Phase `04-live-data-feeds` — **IN PROGRESS** (2/3 plans done)
+
+Current Plan: 3 (04-03 — human verification checkpoint)
 
 ## Stack (Confirmed)
 
@@ -53,10 +55,12 @@ Phase `04` — **PLANNED**
 | 03-02 | Risk factor APIs + engine trigger + risk-zones endpoint | `cfe339d` | ✅ |
 | 03-03 | Surge system migration to SurgeEvent model | `421fb79` | ✅ |
 | 03-04 | Predictive risk overlay on hotspot map | `6fd27b1` | ✅ |
+| 04-01 | Live risk ingestion (Open-Meteo + EONET + OWM) | `8f39550` | ✅ |
+| 04-02 | NGO locations map layer | `8f39550` | ✅ |
 
 ## Last Session
 
-Stopped at: Phase 03-predictive-engine — all 4 plans complete.
+Stopped at: Phase 04-live-data-feeds — 04-01 and 04-02 complete, awaiting 04-03 (human verification checkpoint).
 
 
 ## Phase 02 Decisions (LOCKED)

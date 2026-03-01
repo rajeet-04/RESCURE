@@ -85,6 +85,6 @@ Plans:
 **Plans:** 3 plans
 
 Plans:
-- [ ] 04-01-PLAN.md -- Schema migration + live-risk-ingestion.ts service + calculate route + button update
-- [ ] 04-02-PLAN.md -- NGO Locations layer (4th toggle on hotspot map)
+- [x] 04-01-PLAN.md -- Schema migration + live-risk-ingestion.ts service + calculate route + button update
+- [x] 04-02-PLAN.md -- NGO Locations layer (4th toggle on hotspot map)
 - [ ] 04-03-PLAN.md -- Human verification checkpoint [checkpoint]
