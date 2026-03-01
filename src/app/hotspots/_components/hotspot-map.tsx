@@ -20,11 +20,21 @@ interface RiskZone {
   hasActiveSurge: boolean
 }
 
+interface NGOLocation {
+  id: string
+  name: string
+  lat: number
+  lng: number
+  city: string | null
+  activeCaseCount: number
+}
+
 interface HotspotMapProps {
   hotspots: Hotspot[]
   days: number
   riskZones: RiskZone[]
   userRole: string
+  ngos: NGOLocation[]
 }
 
 function urgencyColor(avgUrgency: number): string {
@@ -45,7 +55,7 @@ function riskColor(score: number): string {
   return score >= 0.6 ? '#9333ea' : '#c084fc'
 }
 
-function buildLegendHtml(showHistorical: boolean, showPredictive: boolean): string {
+function buildLegendHtml(showHistorical: boolean, showPredictive: boolean, showNGOs: boolean): string {
   const items: string[] = ['<strong style="display:block;margin-bottom:4px">Legend</strong>']
   if (showHistorical) {
     items.push(
@@ -61,12 +71,18 @@ function buildLegendHtml(showHistorical: boolean, showPredictive: boolean): stri
       '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#c084fc;margin-right:6px"></span>Moderate risk',
     )
   }
+  if (showNGOs) {
+    items.push(
+      '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#16a34a;margin-right:6px"></span>NGO location',
+    )
+  }
   return items.join('<br>')
 }
 
-export default function HotspotMapInner({ hotspots, days, riskZones }: HotspotMapProps) {
+export default function HotspotMapInner({ hotspots, days, riskZones, ngos = [] }: HotspotMapProps) {
   const [showHistorical, setShowHistorical] = useState(true)
   const [showPredictive, setShowPredictive] = useState(true)
+  const [showNGOs, setShowNGOs] = useState(true)
 
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<L.Map | null>(null)
@@ -146,7 +162,27 @@ export default function HotspotMapInner({ hotspots, days, riskZones }: HotspotMa
           .addTo(group)
       }
     }
-  }, [hotspots, riskZones, showHistorical, showPredictive, days, maxCount])
+
+    if (showNGOs) {
+      for (const ngo of ngos) {
+        L.circleMarker([ngo.lat, ngo.lng], {
+          radius: 7,
+          color: '#16a34a',
+          fillColor: '#16a34a',
+          fillOpacity: 0.75,
+          weight: 2,
+        })
+          .bindPopup(
+            `<div style="min-width:140px">
+              <p style="font-weight:600;font-size:14px">${ngo.name}</p>
+              <p style="font-size:12px;color:#6b7280">${ngo.city ?? 'NGO'}</p>
+              <p style="font-size:12px;color:#6b7280">Active cases: ${ngo.activeCaseCount}</p>
+            </div>`,
+          )
+          .addTo(group)
+      }
+    }
+  }, [hotspots, riskZones, ngos, showHistorical, showPredictive, showNGOs, days, maxCount])
 
   useEffect(() => {
     if (mapRef.current) drawLayers()
@@ -164,14 +200,14 @@ export default function HotspotMapInner({ hotspots, days, riskZones }: HotspotMa
       const div = L.DomUtil.create('div', '')
       div.style.cssText =
         'background:white;padding:10px 12px;border-radius:8px;box-shadow:0 1px 5px rgba(0,0,0,.2);font-size:12px;line-height:1.8'
-      div.innerHTML = buildLegendHtml(showHistorical, showPredictive)
+      div.innerHTML = buildLegendHtml(showHistorical, showPredictive, showNGOs)
       return div
     }
     legend.addTo(map)
     legendRef.current = legend
 
     return () => { legend.remove() }
-  }, [showHistorical, showPredictive])
+  }, [showHistorical, showPredictive, showNGOs])
 
   return (
     <div className="flex flex-col h-full">
@@ -193,6 +229,15 @@ export default function HotspotMapInner({ hotspots, days, riskZones }: HotspotMa
             className="accent-purple-600"
           />
           Predictive risk zones
+        </label>
+        <label className="flex items-center gap-1.5 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={showNGOs}
+            onChange={(e) => setShowNGOs(e.target.checked)}
+            className="accent-green-600"
+          />
+          NGO locations
         </label>
       </div>
 

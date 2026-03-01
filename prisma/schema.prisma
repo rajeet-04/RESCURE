@@ -85,6 +85,10 @@ enum RiskCategory {
   NOISE
   CONSTRUCTION
   CROWD
+  FLOOD
+  EARTHQUAKE
+  WILDFIRE
+  STORM
 }
 
 // ─── Core Models ─────────────────────────────────────────────────────────────
@@ -563,6 +567,7 @@ model RiskFactor {
   severity  Float        // 0.0–1.0
   expiresAt DateTime
   createdAt DateTime     @default(now())
+  source    String?      // "open-meteo" | "eonet" | "owm" | null=manual
 
   @@index([geohash])
 }

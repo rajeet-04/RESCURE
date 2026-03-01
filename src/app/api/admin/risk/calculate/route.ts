@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { runPredictiveEngineForAllZones } from '@/lib/ai/predictive-engine'
+import { ingestLiveRiskFactors } from '@/lib/ai/live-risk-ingestion'
 
 export async function POST() {
   const session = await auth()
@@ -9,7 +10,8 @@ export async function POST() {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const result = await runPredictiveEngineForAllZones()
+  const { factorsCreated } = await ingestLiveRiskFactors()
+  const { zonesAnalyzed, surgesTriggered } = await runPredictiveEngineForAllZones()
 
-  return NextResponse.json(result)
+  return NextResponse.json({ zonesAnalyzed, surgesTriggered, riskFactorsCreated: factorsCreated })
 }

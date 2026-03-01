@@ -92,6 +92,25 @@ async function getHotspots(days: number): Promise<Hotspot[]> {
     .slice(0, 50)
 }
 
+interface NGOLocation {
+  id: string
+  name: string
+  lat: number
+  lng: number
+  city: string | null
+  activeCaseCount: number
+}
+
+async function getNGOLocations(): Promise<NGOLocation[]> {
+  const rows = await prisma.nGO.findMany({
+    where: { lat: { not: null }, lng: { not: null }, verified: true },
+    select: { id: true, name: true, lat: true, lng: true, city: true, activeCaseCount: true },
+    orderBy: { activeCaseCount: 'desc' },
+    take: 100,
+  })
+  return rows as NGOLocation[]
+}
+
 function urgencyLabel(avg: number): string {
   if (avg >= 3.5) return 'Critical'
   if (avg >= 2.5) return 'High'
@@ -107,7 +126,7 @@ export default async function HotspotsPage({ searchParams }: PageProps) {
   }
 
   const days = parseInt(searchParams.days ?? '30', 10)
-  const [hotspots, riskZones] = await Promise.all([getHotspots(days), getRiskZones()])
+  const [hotspots, riskZones, ngos] = await Promise.all([getHotspots(days), getRiskZones(), getNGOLocations()])
   const top10 = hotspots.slice(0, 10)
 
   return (
@@ -142,7 +161,7 @@ export default async function HotspotsPage({ searchParams }: PageProps) {
 
       {/* Map */}
       <div className="mb-8 h-[480px] overflow-hidden rounded-xl border shadow-sm">
-        <HotspotMapLoader hotspots={hotspots} days={days} riskZones={riskZones} userRole={user.role} />
+        <HotspotMapLoader hotspots={hotspots} days={days} riskZones={riskZones} userRole={user.role} ngos={ngos} />
       </div>
 
       {/* Top 10 table */}
