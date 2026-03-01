@@ -109,7 +109,7 @@ export default async function HomePage() {
               { href: '/community', label: 'COMMUNITY' },
               { href: '/adopt', label: 'ADOPT' },
               { href: '/marketplace', label: 'MARKETPLACE' },
-              { href: '/api-docs', label: 'ABOUT' },
+              { href: '/api-docs', label: 'API & PRICING' },
             ].map((l) => (
               <Link
                 key={l.href}
@@ -445,7 +445,7 @@ export default async function HomePage() {
                   { href: '/community', label: 'Community' },
                   { href: '/adopt', label: 'Adopt' },
                   { href: '/marketplace', label: 'Marketplace' },
-                  { href: '/api-docs', label: 'API Docs' },
+                  { href: '/api-docs', label: 'API and Pricing' },
                 ].map((l) => (
                   <Link key={l.href} href={l.href} className="block text-gray-500 hover:text-white transition-colors">
                     {l.label}
@@ -475,17 +475,17 @@ export default async function HomePage() {
             <div className="md:col-span-3">
               <h4 className="font-bold text-white mb-5 text-xs uppercase tracking-widest">Contact</h4>
               <div className="space-y-4 text-sm">
-                <a href="tel:+12135558742" className="flex items-center gap-3 text-gray-500 hover:text-white transition-colors group">
+                <a href="tel:+918240587044" className="flex items-center gap-3 text-gray-500 hover:text-white transition-colors group">
                   <div className="w-9 h-9 rounded-lg bg-gray-800/60 group-hover:bg-primary/20 flex items-center justify-center transition-all">
                     <Phone className="h-4 w-4 text-gray-500 group-hover:text-primary transition-colors" />
                   </div>
-                  (213) 555 - 8742
+                  +91 82405 87044
                 </a>
                 <a href="mailto:rescue@rescure.org" className="flex items-center gap-3 text-gray-500 hover:text-white transition-colors group">
                   <div className="w-9 h-9 rounded-lg bg-gray-800/60 group-hover:bg-primary/20 flex items-center justify-center transition-all">
                     <Mail className="h-4 w-4 text-gray-500 group-hover:text-primary transition-colors" />
                   </div>
-                  rescue@rescure.org
+                  contact@rescure.org
                 </a>
               </div>
             </div>

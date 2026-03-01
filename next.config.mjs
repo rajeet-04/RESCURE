@@ -34,7 +34,7 @@ const nextConfig = {
     ],
   },
   experimental: {
-    serverActions: { allowedOrigins: ['localhost:3000', 'rescue.vercel.app'] },
+    serverActions: { allowedOrigins: ['localhost:3000'] },
   },
 }
 

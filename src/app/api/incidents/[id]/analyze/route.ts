@@ -69,11 +69,11 @@ export async function POST(
       estimatedAge: analysis.estimatedAge ?? null,
     })
   } catch (err) {
-    console.error('[POST /api/incidents/[id]/analyze]', err)
+    console.error('[POST /api/incidents/[id]/analyze] error:', err)
     // Return a safe default so the wizard can still proceed
     return NextResponse.json({
       urgency: 'MEDIUM',
-      confidence: 50,
+      confidence: 0,
       animalType: 'Other',
       suggestedTitle: 'Animal needs help',
       suggestedDescription: 'An animal in distress was reported.',

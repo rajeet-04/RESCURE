@@ -70,7 +70,7 @@ export function SiteHeader({ user }: SiteHeaderProps) {
             { href: '/community', label: 'COMMUNITY' },
             { href: '/adopt', label: 'ADOPT' },
             { href: '/marketplace', label: 'MARKETPLACE' },
-            { href: '/api-docs', label: 'ABOUT' },
+            { href: '/api-docs', label: 'API & PRICING' },
           ].map((l) => (
             <Link
               key={l.href}
