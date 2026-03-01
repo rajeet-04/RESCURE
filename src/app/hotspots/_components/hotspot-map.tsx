@@ -18,6 +18,7 @@ interface RiskZone {
   lng: number
   riskScore: number
   hasActiveSurge: boolean
+  reason: string
 }
 
 interface NGOLocation {
@@ -156,7 +157,9 @@ export default function HotspotMapInner({ hotspots, days, riskZones, ngos = [] }
             `<div style="min-width:140px">
               <p style="font-weight:600;font-size:14px">Risk Zone</p>
               <p style="font-size:12px;color:#6b7280">Score: ${(z.riskScore * 100).toFixed(0)}%</p>
-              ${z.hasActiveSurge ? '<p style="font-size:12px;font-weight:500;color:#9333ea">Active surge event</p>' : ''}
+              <p style="font-size:12px;color:#6b7280;margin-top:2px">Reason: ${z.reason}</p>
+              ${z.hasActiveSurge ? `<p style="font-size:12px;font-weight:500;color:#9333ea;margin-top:4px;margin-bottom:6px">Active surge event</p>
+               <a href="/surge" style="display:inline-block;background:#9333ea;color:white;padding:4px 8px;border-radius:4px;text-decoration:none;font-size:12px;font-weight:500">I will volunteer</a>` : ''}
             </div>`,
           )
           .addTo(group)

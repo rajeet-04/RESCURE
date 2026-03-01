@@ -16,6 +16,7 @@ interface RiskZone {
   lng: number
   riskScore: number
   hasActiveSurge: boolean
+  reason: string
 }
 
 interface NGOLocation {
