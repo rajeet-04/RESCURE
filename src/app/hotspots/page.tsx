@@ -6,6 +6,19 @@ import { MapPin } from 'lucide-react'
 import HotspotMapLoader from '@/components/maps/hotspot-map-loader'
 import RunAnalysisBtn from './_components/run-analysis-btn'
 import { decodeGeohash } from '@/lib/geo/geohash'
+import { ingestLiveRiskFactors } from '@/lib/ai/live-risk-ingestion'
+
+const STALE_MS = 2 * 60 * 60 * 1000 // 2 hours
+
+async function maybeIngestLiveData() {
+  const latest = await prisma.riskFactor.findFirst({
+    where: { source: { not: null } },
+    orderBy: { createdAt: 'desc' },
+    select: { createdAt: true },
+  })
+  const isStale = !latest || Date.now() - latest.createdAt.getTime() > STALE_MS
+  if (isStale) await ingestLiveRiskFactors()
+}
 
 interface Hotspot {
   geohash: string
@@ -121,12 +134,15 @@ function urgencyLabel(avg: number): string {
 export default async function HotspotsPage({ searchParams }: PageProps) {
   const session = await auth()
   const user = session?.user as { id: string; role: string } | undefined
-  if (!user || (user.role !== 'PLATFORM_ADMIN' && user.role !== 'NGO_ADMIN' && user.role !== 'NGO_WORKER')) {
-    redirect('/unauthorized')
-  }
+  if (!user) redirect('/login')
 
   const days = parseInt(searchParams.days ?? '30', 10)
-  const [hotspots, riskZones, ngos] = await Promise.all([getHotspots(days), getRiskZones(), getNGOLocations()])
+  const [hotspots, riskZones, ngos] = await Promise.all([
+    getHotspots(days),
+    getRiskZones(),
+    getNGOLocations(),
+    maybeIngestLiveData(),
+  ])
   const top10 = hotspots.slice(0, 10)
 
   return (
