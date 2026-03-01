@@ -80,8 +80,8 @@ function SidebarContent({
             href={href}
             onClick={() => setMobileOpen(false)}
             className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold transition-all ${isActive(href)
-                ? 'bg-primary/10 text-primary'
-                : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
+              ? 'bg-primary/10 text-primary'
+              : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
               }`}
           >
             <Icon className="h-5 w-5 shrink-0" />
@@ -93,8 +93,14 @@ function SidebarContent({
         ))}
       </nav>
 
-      <div className="border-t border-gray-100 px-6 py-4">
-        <p className="text-xs text-muted-foreground">© 2024 RESCURE</p>
+      <div className="border-t border-gray-100 flex items-center justify-between px-6 py-4 mt-auto">
+        <p className="text-xs text-muted-foreground tracking-wide">© {new Date().getFullYear()} RESCURE</p>
+        <Link
+          href="/api/auth/logout"
+          className="text-xs font-semibold text-gray-500 hover:text-red-600 transition-colors flex items-center gap-1.5"
+        >
+          Logout
+        </Link>
       </div>
     </div>
   )

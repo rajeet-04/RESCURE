@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -43,6 +43,21 @@ export default function OnboardingWizard() {
   const [submitting, setSubmitting] = useState(false)
   const [done, setDone] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [ngos, setNgos] = useState<{ id: string; name: string; city: string | null }[]>([])
+
+  // Fetch NGOs for FIELD_WORKER
+  useEffect(() => {
+    let mounted = true
+    if (role === 'FIELD_WORKER') {
+      fetch('/api/ngo')
+        .then((res) => res.json())
+        .then((data) => {
+          if (mounted && Array.isArray(data)) setNgos(data)
+        })
+        .catch(console.error)
+    }
+    return () => { mounted = false }
+  }, [role])
 
   const totalSteps = role === 'CITIZEN' ? 2 : 3
 
@@ -69,7 +84,7 @@ export default function OnboardingWizard() {
       NGO_ADMIN: '/api/ngo/onboard',
       VETERINARIAN: '/api/vets/onboard',
       SUPPLIER: '/api/supplier/onboard',
-      FIELD_WORKER: '/api/field-worker/onboard',
+      FIELD_WORKER: '/api/worker/onboard',
     }
 
     const endpoint = endpointMap[role]
@@ -91,8 +106,8 @@ export default function OnboardingWizard() {
           typeof raw === 'string'
             ? raw
             : raw
-            ? JSON.stringify(raw)
-            : 'Something went wrong',
+              ? JSON.stringify(raw)
+              : 'Something went wrong',
         )
       }
     } catch {
@@ -141,9 +156,8 @@ export default function OnboardingWizard() {
           {Array.from({ length: totalSteps }, (_, i) => i + 1).map((s) => (
             <div key={s} className="flex items-center gap-2">
               <div
-                className={`h-8 w-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors ${
-                  s <= step ? 'bg-orange-500 text-white' : 'bg-gray-200 text-gray-500'
-                }`}
+                className={`h-8 w-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors ${s <= step ? 'bg-orange-500 text-white' : 'bg-gray-200 text-gray-500'
+                  }`}
               >
                 {s}
               </div>
@@ -282,12 +296,19 @@ export default function OnboardingWizard() {
             {role === 'FIELD_WORKER' && (
               <>
                 <div className="space-y-1">
-                  <Label>NGO to Join (ID or Name)</Label>
-                  <Input
-                    placeholder="Enter NGO name or ID"
-                    value={formData.ngoId ?? ''}
-                    onChange={(e) => updateField('ngoId', e.target.value)}
-                  />
+                  <Label>NGO to Join</Label>
+                  <Select onValueChange={(v) => updateField('ngoId', v)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder={ngos.length === 0 ? "Loading NGOs..." : "Select an NGO"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ngos.map((ngo) => (
+                        <SelectItem key={ngo.id} value={ngo.id}>
+                          {ngo.name} {ngo.city ? `(${ngo.city})` : ''}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-1">
                   <Label>City</Label>

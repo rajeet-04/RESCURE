@@ -3,7 +3,7 @@
 
 import { GoogleGenerativeAI } from '@google/generative-ai'
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? '')
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY ?? '')
 
 export interface AIReportAnalysis {
   urgency: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW'
@@ -38,17 +38,22 @@ You are a veterinary triage AI. Analyze this animal injury/distress photo and re
   "reasoning": "brief clinical reasoning (2-3 sentences)",
   "injuryDescription": "visible injuries or conditions described clinically",
   "recommendedAction": "specific immediate action recommended",
-  "animalType": "Dog" | "Cat" | "Bird" | "Cow" | "Horse" | "Monkey" | "Snake" | "Wildlife" | "Other",
+  "animalType": "Dog" | "Cat" | "Bird" | "Cow" | "Horse" | "Monkey" | "Snake" | "Wildlife" | "Human" | "Other",
   "suggestedTitle": "short incident title (max 60 chars)",
   "suggestedDescription": "detailed description for the report (2-4 sentences)",
   "estimatedAge": "Puppy/Kitten/Young/Adult/Senior (optional, best guess)"
 }
 
-Severity definitions:
+IMPORTANT RULES:
+1. If the photo is clearly of a HUMAN (a person, selfie, etc.) rather than an animal, you MUST return "urgency": "LOW" and "confidence": 100, and state clearly in "reasoning" that this platform is meant for animal rescues.
+2. If the photo contains NO visible animal or injury (e.g., just a landscape or blurry object), return "LOW" urgency.
+
+Severity definitions for ANIMALS:
 - CRITICAL: life-threatening (severe bleeding, unconscious, cannot breathe, trauma)
 - HIGH: urgent (deep wounds, broken limbs, severe burns, cannot stand)
 - MEDIUM: significant (moderate wounds, limping, visible distress)
 - LOW: minor (small cuts, mild limping, alert and responsive)
+- LOW (HUMAN): Human detected. Not an animal emergency.
 
 Return ONLY the JSON. No markdown, no explanation, no code block.
 `.trim()
@@ -58,7 +63,7 @@ export async function analyzeReport(
   mimeType: string = 'image/jpeg'
 ): Promise<AIReportAnalysis> {
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
 
     const result = await model.generateContent([
       PROMPT,
