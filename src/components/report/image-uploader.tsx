@@ -70,6 +70,7 @@ export default function ImageUploader({ onImagesUploaded }: ImageUploaderProps) 
             <img src={img.url} alt={`Upload ${i + 1}`} className="h-full w-full object-cover" />
             <button
               type="button"
+              aria-label={`Remove image ${i + 1}`}
               onClick={() => removeImage(i)}
               className="absolute right-0.5 top-0.5 rounded-full bg-black/60 p-0.5 text-white hover:bg-black"
             >
@@ -110,6 +111,7 @@ export default function ImageUploader({ onImagesUploaded }: ImageUploaderProps) 
         accept="image/*"
         capture="environment"
         className="hidden"
+        aria-label="Take a photo"
         onChange={(e) => e.target.files && handleFiles(e.target.files)}
       />
 
@@ -119,6 +121,7 @@ export default function ImageUploader({ onImagesUploaded }: ImageUploaderProps) 
         accept="image/*"
         multiple
         className="hidden"
+        aria-label="Upload images from gallery"
         onChange={(e) => e.target.files && handleFiles(e.target.files)}
       />
 
