@@ -70,3 +70,21 @@ Plans:
 - [ ] 03-02-PLAN.md — Risk factor APIs (admin/risk, admin/risk/calculate, analytics/risk-zones)
 - [ ] 03-03-PLAN.md — Migrate surge API + surge pages to SurgeEvent model
 - [ ] 03-04-PLAN.md — Hotspot page dual fetch + admin trigger button + map toggleable overlays + legend [checkpoint]
+---
+
+### Phase 4: Live Data Feeds for Hotspot Map
+
+**Goal:** Auto-populate RiskFactor rows from live external APIs every time "Run Analysis" is clicked. Weather (Open-Meteo), flood discharge (GloFAS v4 via Open-Meteo), natural disaster events (NASA EONET), and optionally weather alerts (OpenWeatherMap) feed into the existing predictive engine. The hotspot map gains a 4th toggleable layer showing verified NGO locations as green pins so admins can see coverage gaps instantly.
+
+**Requirements:**
+- `FEED-01` -- Schema: add FLOOD, EARTHQUAKE, WILDFIRE, STORM to RiskCategory enum + nullable source field on RiskFactor; prisma db push
+- `FEED-02` -- Live ingestion service: Open-Meteo weather + GloFAS flood batched per all coverage zones; EONET India bbox scan; optional OWM per-zone alerts; 6h TTL + stale-factor cleanup before each run
+- `FEED-03` -- Calculate endpoint: call ingestLiveRiskFactors() before runPredictiveEngineForAllZones(); return riskFactorsCreated in response; update Run Analysis button message
+- `FEED-04` -- NGO Locations 4th layer: server-side getNGOLocations() query (verified NGOs with lat/lng), passed to hotspot map as green circle markers with name/city/case-count popup; 4th checkbox in toolbar + legend entry
+
+**Plans:** 3 plans
+
+Plans:
+- [ ] 04-01-PLAN.md -- Schema migration + live-risk-ingestion.ts service + calculate route + button update
+- [ ] 04-02-PLAN.md -- NGO Locations layer (4th toggle on hotspot map)
+- [ ] 04-03-PLAN.md -- Human verification checkpoint [checkpoint]
