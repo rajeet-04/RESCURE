@@ -56,6 +56,13 @@ interface OWMResponse {
   alerts?: Array<{ event: string; description: string }>
 }
 
+// Open-Meteo and GloFAS sometimes return bare `NaN` (invalid JSON) for
+// locations with no river data or missing measurements. Replace before parsing.
+async function safeJson(res: Response): Promise<unknown> {
+  const text = await res.text()
+  return JSON.parse(text.replace(/:\s*NaN/g, ': null'))
+}
+
 // ─── Main export ─────────────────────────────────────────────────────────────
 
 export async function ingestLiveRiskFactors(): Promise<{ factorsCreated: number }> {
@@ -65,14 +72,16 @@ export async function ingestLiveRiskFactors(): Promise<{ factorsCreated: number 
     distinct: ['geohash'],
   })
 
-  const decoded = zones.map((z) => {
-    const [minLat, minLng, maxLat, maxLng] = decodeGeohash(z.geohash)
-    return {
-      geohash: z.geohash,
-      lat: (minLat + maxLat) / 2,
-      lng: (minLng + maxLng) / 2,
-    }
-  })
+  const decoded = zones
+    .map((z) => {
+      const [minLat, minLng, maxLat, maxLng] = decodeGeohash(z.geohash)
+      return {
+        geohash: z.geohash,
+        lat: (minLat + maxLat) / 2,
+        lng: (minLng + maxLng) / 2,
+      }
+    })
+    .filter((z) => isFinite(z.lat) && isFinite(z.lng))
 
   let factorsCreated = 0
 
@@ -88,13 +97,13 @@ export async function ingestLiveRiskFactors(): Promise<{ factorsCreated: number 
         `?latitude=${lats}&longitude=${lngs}` +
         `&current=weathercode,precipitation,windspeed_10m&forecast_days=1`,
       { cache: 'no-store' },
-    ).then((r) => r.json()),
+    ).then(safeJson),
     fetch(
       `https://flood-api.open-meteo.com/v1/flood` +
         `?latitude=${lats}&longitude=${lngs}` +
         `&daily=river_discharge,river_discharge_p25,river_discharge_p75&forecast_days=1`,
       { cache: 'no-store' },
-    ).then((r) => r.json()),
+    ).then(safeJson),
   ])
 
   // Normalise: single coord → object, multiple coords → array
