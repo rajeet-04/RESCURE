@@ -17,6 +17,7 @@ import {
   Menu,
   X,
   Flame,
+  LogOut,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 
@@ -91,12 +92,19 @@ function SidebarContent({
             )}
           </Link>
         ))}
+        <Link
+          href="/auth/logout"
+          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold transition-all text-muted-foreground hover:bg-red-50 hover:text-red-600"
+        >
+          <LogOut className="h-5 w-5 shrink-0" />
+          Logout
+        </Link>
       </nav>
 
       <div className="border-t border-gray-100 flex items-center justify-between px-6 py-4 mt-auto">
         <p className="text-xs text-muted-foreground tracking-wide">© {new Date().getFullYear()} RESCURE</p>
         <Link
-          href="/api/auth/logout"
+          href="/auth/logout"
           className="text-xs font-semibold text-gray-500 hover:text-red-600 transition-colors flex items-center gap-1.5"
         >
           Logout
