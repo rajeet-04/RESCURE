@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import { ImagePlus, X } from 'lucide-react'
+import { ImagePlus, Camera, X } from 'lucide-react'
 
 interface ImageUploaderProps {
   onImagesUploaded: (urls: string[]) => void
@@ -16,6 +16,7 @@ const MAX_IMAGES = 5
 
 export default function ImageUploader({ onImagesUploaded }: ImageUploaderProps) {
   const inputRef = useRef<HTMLInputElement>(null)
+  const cameraRef = useRef<HTMLInputElement>(null)
   const [images, setImages] = useState<UploadedImage[]>([])
   const [uploading, setUploading] = useState(false)
   const [progress, setProgress] = useState(0)
@@ -78,17 +79,39 @@ export default function ImageUploader({ onImagesUploaded }: ImageUploaderProps) 
         ))}
 
         {images.length < MAX_IMAGES && (
-          <button
-            type="button"
-            onClick={() => inputRef.current?.click()}
-            disabled={uploading}
-            className="flex h-20 w-20 flex-col items-center justify-center rounded-md border-2 border-dashed border-orange-300 text-orange-400 hover:border-orange-500 hover:text-orange-600 disabled:opacity-50"
-          >
-            <ImagePlus className="h-6 w-6" />
-            <span className="mt-1 text-xs">Add photo</span>
-          </button>
+          <>
+            <button
+              type="button"
+              onClick={() => cameraRef.current?.click()}
+              disabled={uploading}
+              className="flex h-20 w-20 flex-col items-center justify-center rounded-md border-2 border-dashed border-orange-300 text-orange-400 hover:border-orange-500 hover:text-orange-600 disabled:opacity-50"
+              title="Take a photo"
+            >
+              <Camera className="h-6 w-6" />
+              <span className="mt-1 text-xs">Camera</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => inputRef.current?.click()}
+              disabled={uploading}
+              className="flex h-20 w-20 flex-col items-center justify-center rounded-md border-2 border-dashed border-orange-300 text-orange-400 hover:border-orange-500 hover:text-orange-600 disabled:opacity-50"
+              title="Upload from gallery"
+            >
+              <ImagePlus className="h-6 w-6" />
+              <span className="mt-1 text-xs">Gallery</span>
+            </button>
+          </>
         )}
       </div>
+
+      <input
+        ref={cameraRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        className="hidden"
+        onChange={(e) => e.target.files && handleFiles(e.target.files)}
+      />
 
       <input
         ref={inputRef}
