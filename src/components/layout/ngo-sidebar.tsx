@@ -55,6 +55,7 @@ function SidebarContent({
           <span className="text-xl font-bold tracking-tight text-primary">RESCURE</span>
         </div>
         <button
+          aria-label="Close sidebar"
           className="lg:hidden text-gray-400 hover:text-gray-600"
           onClick={() => setMobileOpen(false)}
         >
@@ -125,6 +126,7 @@ export default function NGOSidebar({ notificationCount = 0 }: NGOSidebarProps) {
     <>
       {/* Mobile toggle button */}
       <button
+        aria-label="Open navigation menu"
         className="fixed left-4 top-4 z-50 rounded-lg bg-white p-2 shadow-md lg:hidden border border-gray-200"
         onClick={() => setMobileOpen(true)}
       >

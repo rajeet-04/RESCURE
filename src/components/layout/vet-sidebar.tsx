@@ -32,6 +32,7 @@ function SidebarContent({ pathname, setMobileOpen }: SidebarContentProps) {
       <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
         <span className="text-xl font-bold tracking-tight text-primary">RESCURE</span>
         <button
+          aria-label="Close sidebar"
           className="lg:hidden text-gray-400 hover:text-gray-600"
           onClick={() => setMobileOpen(false)}
         >
@@ -53,11 +54,10 @@ function SidebarContent({ pathname, setMobileOpen }: SidebarContentProps) {
             key={href}
             href={href}
             onClick={() => setMobileOpen(false)}
-            className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold transition-all ${
-              isActive(href)
+            className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold transition-all ${isActive(href)
                 ? 'bg-primary/10 text-primary'
                 : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
-            }`}
+              }`}
           >
             <Icon className="h-5 w-5 shrink-0" />
             {label}
@@ -80,6 +80,7 @@ export default function VetSidebar() {
     <>
       {/* Mobile toggle */}
       <button
+        aria-label="Open navigation menu"
         className="fixed left-4 top-4 z-50 rounded-lg bg-white p-2 shadow-md lg:hidden border border-gray-200"
         onClick={() => setMobileOpen(true)}
       >
@@ -96,9 +97,8 @@ export default function VetSidebar() {
 
       {/* Mobile sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transform transition-transform lg:hidden ${
-          mobileOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transform transition-transform lg:hidden ${mobileOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
       >
         <SidebarContent pathname={pathname} setMobileOpen={setMobileOpen} />
       </aside>

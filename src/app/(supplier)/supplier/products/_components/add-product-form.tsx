@@ -127,6 +127,7 @@ export default function AddProductForm() {
               <Image src={url} alt="product" fill className="object-cover" unoptimized />
               <button
                 type="button"
+                aria-label="Remove image"
                 onClick={() => setImages((prev) => prev.filter((u) => u !== url))}
                 className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
               >
@@ -147,7 +148,7 @@ export default function AddProductForm() {
               </>
             )}
           </button>
-          <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={handleImageUpload} />
+          <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={handleImageUpload} aria-label="Upload product images" />
         </div>
         <p className="text-xs text-gray-400">PNG, JPG or WEBP. Multiple images allowed.</p>
       </div>

@@ -215,7 +215,7 @@ export default function UserMenu({ user }: UserMenuProps) {
 
             {/* Sign out */}
             <div className="border-t border-gray-100 p-2">
-              <a
+              <Link
                 href="/auth/logout"
                 className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-red-500 hover:bg-red-50 transition-colors group w-full"
               >
@@ -223,7 +223,7 @@ export default function UserMenu({ user }: UserMenuProps) {
                   <LogOut className="w-3.5 h-3.5" />
                 </span>
                 Sign Out
-              </a>
+              </Link>
             </div>
 
           </div>
